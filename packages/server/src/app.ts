@@ -16,8 +16,8 @@ import {
   PLAID_ENV,
   PLAID_SECRET,
 } from './common/config'
-import { CommonRoutes } from './common/interfaces'
 import { infoRoutes } from './info/info.routes.config'
+import { plaidRoutes } from './plaid/plaid.routes.config'
 
 dotenv.config()
 
@@ -54,12 +54,8 @@ const configuration = new Configuration({
 const client = new PlaidApi(configuration)
 
 // Routes
-const routes: Array<express.Application> = []
-const debugLog: debug.IDebugger = debug('app')
-
-const info = infoRoutes(app)
-
-routes.push(info)
+infoRoutes(app)
+plaidRoutes(app, client)
 
 const runningMessage = `Server running at http://localhost:${APP_PORT}`
 app.get('/', (req: express.Request, res: express.Response) => {

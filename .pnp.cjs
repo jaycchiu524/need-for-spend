@@ -1369,6 +1369,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["next", "virtual:658502eb4296e93abedc18b6aa9b26978f434f08d98e21ebb0e725354b8bb54b62db9c4a1893e460c694ff7500ff5cbafa4457b0dfd26b5838868666c861e990#npm:13.0.4"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:658502eb4296e93abedc18b6aa9b26978f434f08d98e21ebb0e725354b8bb54b62db9c4a1893e460c694ff7500ff5cbafa4457b0dfd26b5838868666c861e990#npm:18.2.0"],\
+            ["react-plaid-link", "virtual:658502eb4296e93abedc18b6aa9b26978f434f08d98e21ebb0e725354b8bb54b62db9c4a1893e460c694ff7500ff5cbafa4457b0dfd26b5838868666c861e990#npm:3.3.2"],\
             ["typescript", "patch:typescript@npm%3A4.9.3#~builtin<compat/typescript>::version=4.9.3&hash=d73830"]\
           ],\
           "linkType": "SOFT"\
@@ -4484,6 +4485,60 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/react-is-npm-16.13.1-a9b9382b4f-f7a19ac349.zip/node_modules/react-is/",\
           "packageDependencies": [\
             ["react-is", "npm:16.13.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["react-plaid-link", [\
+        ["npm:3.3.2", {\
+          "packageLocation": "./.yarn/cache/react-plaid-link-npm-3.3.2-162e28b133-69aad2f10e.zip/node_modules/react-plaid-link/",\
+          "packageDependencies": [\
+            ["react-plaid-link", "npm:3.3.2"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:658502eb4296e93abedc18b6aa9b26978f434f08d98e21ebb0e725354b8bb54b62db9c4a1893e460c694ff7500ff5cbafa4457b0dfd26b5838868666c861e990#npm:3.3.2", {\
+          "packageLocation": "./.yarn/__virtual__/react-plaid-link-virtual-4923eb392f/0/cache/react-plaid-link-npm-3.3.2-162e28b133-69aad2f10e.zip/node_modules/react-plaid-link/",\
+          "packageDependencies": [\
+            ["react-plaid-link", "virtual:658502eb4296e93abedc18b6aa9b26978f434f08d98e21ebb0e725354b8bb54b62db9c4a1893e460c694ff7500ff5cbafa4457b0dfd26b5838868666c861e990#npm:3.3.2"],\
+            ["@types/react", "npm:18.0.25"],\
+            ["@types/react-dom", "npm:18.0.9"],\
+            ["prop-types", "npm:15.8.1"],\
+            ["react", "npm:18.2.0"],\
+            ["react-dom", "virtual:658502eb4296e93abedc18b6aa9b26978f434f08d98e21ebb0e725354b8bb54b62db9c4a1893e460c694ff7500ff5cbafa4457b0dfd26b5838868666c861e990#npm:18.2.0"],\
+            ["react-script-hook", "virtual:4923eb392f606afca0abd57d9807dfd8a792b9d3c997ee043d23afb5e813e42404679cb5bac7ab87e72c0daa9de5e628f93a3b382e1ab2074c507361ac2ca805#npm:1.7.2"]\
+          ],\
+          "packagePeers": [\
+            "@types/react-dom",\
+            "@types/react",\
+            "react-dom",\
+            "react"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["react-script-hook", [\
+        ["npm:1.7.2", {\
+          "packageLocation": "./.yarn/cache/react-script-hook-npm-1.7.2-891b438492-74fb5ec2e6.zip/node_modules/react-script-hook/",\
+          "packageDependencies": [\
+            ["react-script-hook", "npm:1.7.2"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:4923eb392f606afca0abd57d9807dfd8a792b9d3c997ee043d23afb5e813e42404679cb5bac7ab87e72c0daa9de5e628f93a3b382e1ab2074c507361ac2ca805#npm:1.7.2", {\
+          "packageLocation": "./.yarn/__virtual__/react-script-hook-virtual-1de72f83a4/0/cache/react-script-hook-npm-1.7.2-891b438492-74fb5ec2e6.zip/node_modules/react-script-hook/",\
+          "packageDependencies": [\
+            ["react-script-hook", "virtual:4923eb392f606afca0abd57d9807dfd8a792b9d3c997ee043d23afb5e813e42404679cb5bac7ab87e72c0daa9de5e628f93a3b382e1ab2074c507361ac2ca805#npm:1.7.2"],\
+            ["@types/react", "npm:18.0.25"],\
+            ["@types/react-dom", "npm:18.0.9"],\
+            ["react", "npm:18.2.0"],\
+            ["react-dom", "virtual:658502eb4296e93abedc18b6aa9b26978f434f08d98e21ebb0e725354b8bb54b62db9c4a1893e460c694ff7500ff5cbafa4457b0dfd26b5838868666c861e990#npm:18.2.0"]\
+          ],\
+          "packagePeers": [\
+            "@types/react-dom",\
+            "@types/react",\
+            "react-dom",\
+            "react"\
           ],\
           "linkType": "HARD"\
         }]\

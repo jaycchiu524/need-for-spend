@@ -1,5 +1,6 @@
 import express from 'express'
 import * as http from 'http'
+import * as util from 'util'
 
 import * as winston from 'winston'
 import * as expressWinston from 'express-winston'
@@ -8,7 +9,13 @@ import debug from 'debug'
 import dotenv from 'dotenv'
 import helmet from 'helmet'
 
-import { Configuration, PlaidApi, Products, PlaidEnvironments } from 'plaid'
+import {
+  Configuration,
+  PlaidApi,
+  Products,
+  PlaidEnvironments,
+  CountryCode,
+} from 'plaid'
 
 dotenv.config()
 
@@ -57,10 +64,24 @@ export const PLAID_ENV = process.env.PLAID_ENV || 'sandbox'
 // able to create and retrieve asset reports.
 export const PLAID_PRODUCTS = (
   process.env.PLAID_PRODUCTS || Products.Transactions
-).split(',')
+).split(',') as Products[]
 
 // PLAID_COUNTRY_CODES is a comma-separated list of countries for which users
 // will be able to select institutions from.
 export const PLAID_COUNTRY_CODES = (
   process.env.PLAID_COUNTRY_CODES || 'US'
-).split(',')
+).split(',') as CountryCode[]
+
+// Parameters used for the OAuth redirect Link flow.
+//
+// Set PLAID_REDIRECT_URI to 'http://localhost:3000'
+// The OAuth redirect flow requires an endpoint on the developer's website
+// that the bank website should redirect to. You will need to configure
+// this redirect URI for your client ID through the Plaid developer dashboard
+// at https://dashboard.plaid.com/team/api.
+export const PLAID_REDIRECT_URI = process.env.PLAID_REDIRECT_URI || ''
+
+// Parameter used for OAuth in Android. This should be the package name of your app,
+// e.g. com.plaid.linksample
+export const PLAID_ANDROID_PACKAGE_NAME =
+  process.env.PLAID_ANDROID_PACKAGE_NAME || ''

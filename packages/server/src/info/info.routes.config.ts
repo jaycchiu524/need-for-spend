@@ -1,4 +1,3 @@
-import { CommonRoutes } from '@/common/interfaces'
 import debug from 'debug'
 import express from 'express'
 import { infoController } from './info.controller'
