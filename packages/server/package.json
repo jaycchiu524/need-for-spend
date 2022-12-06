@@ -5,9 +5,16 @@
     "start": "node dist/src/app.js",
     "npm:debug": "DEBUG=* node dist/src/app.js",
     "debug": "yarn build && npm run npm:debug",
-    "build": "tsc && tsc-alias"
+    "build": "yarn prisma:generate && tsc && tsc-alias && yarn run postbuild",
+    "postbuild": "yarn run copy-files",
+    "copy-files": "copyfiles -u 1 \"./src/generated/**/*\" dist/src",
+    "docker:compose": "docker-compose --env-file=.env up -d",
+    "prisma:generate": "pnpify prisma generate",
+    "prepare": "yarn run build"
   },
   "dependencies": {
+    "@prisma/client": "^4.7.1",
+    "@yarnpkg/pnpify": "^4.0.0-rc.32",
     "cors": "^2.8.5",
     "debug": "^4.3.4",
     "dotenv": "^16.0.3",
@@ -24,6 +31,8 @@
     "@types/debug": "^4.1.7",
     "@types/express": "^4.17.14",
     "@types/node": "^18.11.9",
+    "copyfiles": "^2.4.1",
+    "prisma": "^4.7.1",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.1"
   }
