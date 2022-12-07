@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "moduleResolution": "Node",
+    "module": "CommonJS",
+    "target": "ES2018",
+    "sourceMap": true,
+    "lib": [
+      "esnext"
+    ],
+    "noEmit": false,
+    "esModuleInterop": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@finme/*": [
+        "packages/*/src/index.ts"
+      ]
+    }
+  },
+  "references": [
+    {
+      "path": "packages/client"
+    },
+    {
+      "path": "packages/server"
+    }
+  ],
+  "exclude": ["node_modules", "dist", "*.d.ts"]
+}
