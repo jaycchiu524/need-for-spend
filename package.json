@@ -2,6 +2,9 @@
   "private": true,
   "name": "fin-me",
   "packageManager": "yarn@3.3.0",
+  "scripts": {
+    "lint": "eslint ."
+  },
   "workspaces": [
     "packages/server",
     "packages/client"

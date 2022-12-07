@@ -10,6 +10,9 @@ module.exports = {
     project: ['tsconfig.eslint.json', './packages/*/tsconfig.json'],
   },
   settings: {
+    next: {
+      rootDir: './packages/client',
+    },
     react: {
       version: 'detect',
     },
