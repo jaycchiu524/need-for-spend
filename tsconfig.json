@@ -33,5 +33,6 @@
       "path": "packages/server"
     }
   ],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist", "*.d.ts"]
 }

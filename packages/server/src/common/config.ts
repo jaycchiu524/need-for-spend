@@ -1,21 +1,12 @@
 import express from 'express'
-import * as http from 'http'
-import * as util from 'util'
 
 import * as winston from 'winston'
 import * as expressWinston from 'express-winston'
 import cors from 'cors'
-import debug from 'debug'
 import dotenv from 'dotenv'
 import helmet from 'helmet'
 
-import {
-  Configuration,
-  PlaidApi,
-  Products,
-  PlaidEnvironments,
-  CountryCode,
-} from 'plaid'
+import { Products, CountryCode } from 'plaid'
 
 dotenv.config()
 

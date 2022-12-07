@@ -6,8 +6,8 @@ module.exports = {
   ignorePatterns: ['*.js', '**/generated/*', 'tests'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: './tsconfig.json',
-    sourceType: 'module',
+    tsconfigRootDir: __dirname,
+    project: ['tsconfig.eslint.json', './packages/*/tsconfig.json'],
   },
   settings: {
     react: {

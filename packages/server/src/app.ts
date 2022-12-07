@@ -1,14 +1,11 @@
-import express from 'express'
 import * as http from 'http'
 
-import * as winston from 'winston'
-import * as expressWinston from 'express-winston'
-import cors from 'cors'
-import debug from 'debug'
-import dotenv from 'dotenv'
-import helmet from 'helmet'
+import express from 'express'
 
-import { Configuration, PlaidApi, Products, PlaidEnvironments } from 'plaid'
+import dotenv from 'dotenv'
+
+import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid'
+
 import {
   initExpress,
   APP_PORT,
@@ -27,17 +24,17 @@ const server: http.Server = http.createServer(app)
 
 // We store the access_token in memory - in production, store it in a secure
 // persistent data store
-let ACCESS_TOKEN = null
-let PUBLIC_TOKEN = null
-let ITEM_ID = null
+const ACCESS_TOKEN = null
+const PUBLIC_TOKEN = null
+const ITEM_ID = null
 // The payment_id is only relevant for the UK/EU Payment Initiation product.
 // We store the payment_id in memory - in production, store it in a secure
 // persistent data store along with the Payment metadata, such as userId .
-let PAYMENT_ID = null
+const PAYMENT_ID = null
 // The transfer_id is only relevant for Transfer ACH product.
 // We store the transfer_id in memory - in production, store it in a secure
 // persistent data store
-let TRANSFER_ID = null
+const TRANSFER_ID = null
 
 // Find your API keys in the Dashboard (https://dashboard.plaid.com/account/keys)
 const configuration = new Configuration({

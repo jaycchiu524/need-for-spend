@@ -1,13 +1,6 @@
-import {
-  PLAID_ANDROID_PACKAGE_NAME,
-  PLAID_COUNTRY_CODES,
-  PLAID_PRODUCTS,
-  PLAID_REDIRECT_URI,
-} from '@/common/config'
 import { NextFunction, Request, Response } from 'express'
-import { LinkTokenCreateRequest, PlaidApi, Products } from 'plaid'
+import { PlaidApi } from 'plaid'
 import debug from 'debug'
-import { PlaidServices } from './plaid-services'
 
 const log = debug('app: exchange-access-token')
 

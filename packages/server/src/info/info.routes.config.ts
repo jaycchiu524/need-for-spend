@@ -1,5 +1,6 @@
 import debug from 'debug'
 import express from 'express'
+
 import { infoController } from './info.controller'
 
 const debugLog = debug('app: info-routes')
