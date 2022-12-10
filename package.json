@@ -3,7 +3,9 @@
   "name": "fin-me",
   "packageManager": "yarn@3.3.0",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "debug": "concurrently \"yarn workspace server debug\" \"yarn workspace client dev\"",
+    "doctor": "yarn dlx @yarnpkg/doctor ./package-dir"
   },
   "workspaces": [
     "packages/server",
@@ -13,6 +15,7 @@
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.45.1",
     "@typescript-eslint/parser": "^5.45.1",
+    "concurrently": "^7.6.0",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-react-app": "^7.0.1",

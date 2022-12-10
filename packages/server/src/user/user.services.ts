@@ -1,23 +1,20 @@
-import { prisma } from '@/common/prismaClient'
+import { CreateUserDto } from './dto.types'
+import { userDao } from './dao'
 
-import { CreateUserInput } from './interfaces'
-
-const createUser = async (req: CreateUserInput) => {
-  const { email, password } = req
-
-  await prisma.user.create({
-    data: {
-      email,
-      password,
-    },
-  })
+const createUser = async (userfields: CreateUserDto) => {
+  return userDao.createUser(userfields)
 }
 
-const getUsers = async () => {
-  return await prisma.user.findMany({})
+const getUserByEmail = async (email: string) => {
+  return userDao.getUserByEmail(email)
+}
+
+const getUsers = async (args: { take?: number; skip?: number }) => {
+  return userDao.getUsers(args)
 }
 
 export const userServices = {
   createUser,
+  getUserByEmail,
   getUsers,
 }
