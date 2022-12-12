@@ -45,7 +45,16 @@ export const initExpress = () => {
   return app
 }
 
-export const APP_PORT = process.env.APP_PORT || 8000
+const normalizePort = (val: string) => {
+  const port = parseInt(val, 10)
+  // named pipe
+  if (isNaN(port)) return val
+  // port number
+  if (port >= 0) return port
+  return false
+}
+
+export const APP_PORT = normalizePort(process.env.APP_PORT || '8000')
 export const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID
 export const PLAID_SECRET = process.env.PLAID_SECRET
 export const PLAID_ENV = process.env.PLAID_ENV || 'sandbox'

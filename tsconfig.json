@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "types": [
+      "jest"
+    ],
     "incremental": true,
     "outDir": "dist",
     "baseUrl": ".",
@@ -9,7 +12,7 @@
     "sourceMap": true,
     "lib": [
       "esnext"
-    ],
+    ],  
     "noEmit": false,
     "esModuleInterop": true,
     "alwaysStrict": true,
@@ -33,6 +36,6 @@
       "path": "packages/server"
     }
   ],
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "packages/server/tests/global/teardown.js", "packages/server/tests/global/teardown.js", "packages/server/tests/global/setup.js", "packages/server/tests/global/setup.js"],
   "exclude": ["node_modules", "dist", "*.d.ts"]
 }

@@ -7,7 +7,8 @@
   },
   "include": [
     // whatever paths you intend to lint
-    "src"
+    "src",
+    "jest.config.*"
   ],
   "exclude": [
     // exclude any paths that you don't want to lint

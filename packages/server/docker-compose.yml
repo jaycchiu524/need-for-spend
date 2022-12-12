@@ -3,14 +3,29 @@ version: '3.1'
 
 services:
   db:
+    container_name: finme-db
     image: mysql:8.0
     # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
     # (this is just an example, not intended to be a production configuration)
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
-      MYSQL_ROOT_USER: ${DATABASE_USER}
-      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_USER: $DATABASE_USER
+      MYSQL_ROOT_PASSWORD: $DATABASE_PASSWORD
       MYSQL_DATABASE: finme
     ports:
       - 3306:3306
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u$$DATABASE_USER',
+          '-p$$DATABASE_PASSWORD',
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
