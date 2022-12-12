@@ -13,7 +13,7 @@
     "prisma:migrate": "pnpify prisma migrate dev",
     "prisma:push": "pnpify prisma push",
     "prepare": "yarn run build",
-    "test": "jest"
+    "test": "jest -i --detectOpenHandles"
   },
   "dependencies": {
     "@prisma/client": "^4.7.1",
@@ -39,12 +39,15 @@
     "@types/is-ci": "^3.0.0",
     "@types/jest": "^29.2.4",
     "@types/node": "^18.11.9",
+    "@types/supertest": "^2.0.12",
     "copyfiles": "^2.4.1",
     "docker-compose": "^0.23.17",
     "is-ci": "^3.0.1",
     "jest": "^29.3.1",
     "jest-cli": "^29.3.1",
     "prisma": "^4.7.1",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.1"
   }
