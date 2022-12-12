@@ -1,0 +1,8 @@
+{
+  "jest.rootPath": "",
+  "jest.jestCommandLine": "yarn jest -i",
+  "jest.shell": {
+    "executable": "/bin/zsh",
+    "args": ["-c"]
+  }
+}

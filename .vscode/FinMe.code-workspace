@@ -1,0 +1,21 @@
+{
+  "folders": [
+    {
+      "name": "FinMe",
+      "path": ".."
+    },
+    {
+      "name": "server",
+      "path": "../packages/server"
+    },
+    {
+      "name": "client",
+      "path": "../packages/client"
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": ".yarn/sdks/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "jest.disabledWorkspaceFolders": ["FinMe", "client"]
+  }
+}
