@@ -13,7 +13,7 @@ const getUsers = async (args: { take?: number; skip?: number }) => {
   return userDao.getUsers(args)
 }
 
-export const userServices = {
+export const usersServices = {
   createUser,
   getUserByEmail,
   getUsers,
