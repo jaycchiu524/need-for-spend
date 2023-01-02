@@ -10,7 +10,10 @@ const validateNoSameEmail = async (
   const { email } = req.body
   const user = await usersServices.getUserByEmail(email)
   if (user) {
-    return res.status(400).send({ message: 'Email already exists' })
+    return res.status(400).send({
+      code: 400,
+      message: 'Email already exists',
+    })
   }
   next()
 }

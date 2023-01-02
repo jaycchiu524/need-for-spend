@@ -7,6 +7,16 @@ import { Role } from './role'
 
 export type User = Prisma.UserCreateInput
 
+const userSelect = {
+  id: true,
+  email: true,
+  firstName: true,
+  lastName: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true,
+}
+
 const getUsers = async (args: {
   take?: number
   skip?: number
@@ -18,6 +28,7 @@ const getUsers = async (args: {
   return await prisma.user.findMany({
     take,
     skip,
+    select: userSelect,
   })
 }
 
@@ -26,6 +37,7 @@ const getUserById = async (id: string) => {
     where: {
       id,
     },
+    select: userSelect,
   })
 }
 
@@ -34,6 +46,7 @@ const getUserByEmail = async (email: string) => {
     where: {
       email,
     },
+    select: userSelect,
   })
 }
 
