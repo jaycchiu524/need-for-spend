@@ -60,10 +60,8 @@ module.exports = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  globalSetup: './tests/global/setup.js',
 
   // A path to a module which exports an async function that is triggered once after all test suites
-  globalTeardown: './tests/global/teardown.js',
 
   // A set of global variables that need to be available in all test environments
   // globals: {},
@@ -94,7 +92,7 @@ module.exports = {
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-  modulePathIgnorePatterns: ['<rootDir>/dist'],
+  // modulePathIgnorePatterns: [],
 
   // Activates notifications for test results
   // notify: false,
