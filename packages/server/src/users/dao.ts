@@ -6,6 +6,7 @@ import { CreateUserDto } from './dto.types'
 import { Role } from './role'
 
 export type User = Prisma.UserCreateInput
+export type UserInfo = Pick<User, 'firstName' | 'lastName' | 'password'>
 
 const userSelect = {
   id: true,
@@ -71,9 +72,19 @@ const createUser = async (req: CreateUserDto) => {
   return user.data.id
 }
 
+const updateUser = async (id: string, data: Partial<User>) => {
+  return await prisma.user.update({
+    where: {
+      id,
+    },
+    data,
+  })
+}
+
 export const userDao = {
   getUsers,
   getUserById,
   getUserByEmail,
   createUser,
+  updateUser,
 }

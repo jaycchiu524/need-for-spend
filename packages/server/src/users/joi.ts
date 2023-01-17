@@ -1,5 +1,7 @@
 import Joi from 'joi'
 
+import { User } from './dao'
+
 import { CreateUserDto } from './dto.types'
 
 const nameJoi = (name: string) =>
@@ -37,3 +39,24 @@ export const userSchema = Joi.object<CreateUserDto>({
     .required()
     .messages({ 'any.required': 'Password must be 6 characters long' }),
 })
+
+export const userInfoUpdateSchema = Joi.object<User>({
+  id: Joi.string().required(), // From params.useId
+  firstName: nameJoi('First name').optional(),
+  lastName: nameJoi('Last name').optional(),
+  password: Joi.string()
+    .min(6)
+    .messages({ 'string.min': 'Password must be 6 characters long' })
+    .optional(),
+})
+  .required()
+  .min(2) // id + 1 other field
+  .keys({
+    email: Joi.forbidden(),
+    role: Joi.forbidden(),
+    createdAt: Joi.forbidden(),
+    updatedAt: Joi.forbidden(),
+  })
+  .messages({
+    'object.min': 'At least 1 field is required',
+  })
