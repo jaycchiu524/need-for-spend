@@ -15,11 +15,5 @@
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  },
-  "jest.rootPath": "",
-  "jest.jestCommandLine": "yarn jest",
-  "jest.shell": {
-    "executable": "/bin/zsh",
-    "args": ["-c"]
   }
 }

@@ -15,7 +15,6 @@
   ],
   "settings": {
     "typescript.tsdk": ".yarn/sdks/typescript/lib",
-    "typescript.enablePromptUseWorkspaceTsdk": true,
-    "jest.disabledWorkspaceFolders": ["FinMe", "client"]
+    "typescript.enablePromptUseWorkspaceTsdk": true
   }
 }

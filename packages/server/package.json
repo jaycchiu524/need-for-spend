@@ -4,7 +4,7 @@
   "scripts": {
     "start": "node dist/src/app.js",
     "npm:debug": "DEBUG=* node dist/src/app.js",
-    "dev": "nodemon --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'ts-node -r tsconfig-paths/register src/app.ts'",
+    "dev": "nodemon --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'DEBUG=* ts-node -r tsconfig-paths/register src/app.ts'",
     "debug": "yarn build && npm run npm:debug",
     "build": "yarn prisma:generate && yarn pnpify tsc && tsc-alias && yarn run postbuild",
     "postbuild": "yarn run copy-files",

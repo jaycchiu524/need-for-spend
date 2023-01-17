@@ -5,8 +5,8 @@
       "name": "vscode-jest-tests.v2",
       "request": "launch",
       "args": [
-        "test",
-        "--",
+        "jest",
+        "-i",
         "--runInBand",
         "--watchAll=false",
         "--testNamePattern",
@@ -14,11 +14,11 @@
         "--runTestsByPath",
         "${jest.testFile}"
       ],
-      "cwd": "/Users/jaychiu/Desktop/Projects/FinMe/packages/server",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
-      "runtimeExecutable": "npm"
+      "runtimeExecutable": "yarn"
     }
   ]
 }
