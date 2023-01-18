@@ -1,11 +1,11 @@
 import debug from 'debug'
 import express from 'express'
 
-import { usersMiddlewares } from './middlewares'
+import { usersMiddlewares } from './users.middlewares'
 
 import { usersController } from './users.controllers'
 
-const debugLog = debug('app: info-routes')
+const debugLog = debug('app: users-routes')
 
 export const usersRoutes = (app: express.Application) => {
   const name = 'User Routes'

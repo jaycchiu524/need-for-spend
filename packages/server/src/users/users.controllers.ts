@@ -6,7 +6,7 @@ import argon2 from 'argon2'
 
 import { User, UserInfo } from './dao'
 import { usersServices } from './users.services'
-import { userInfoUpdateSchema, userSchema } from './joi'
+import { userInfoUpdateSchema, userSchema } from './users.joi'
 
 const log: debug.IDebugger = debug('app: user-controller')
 
