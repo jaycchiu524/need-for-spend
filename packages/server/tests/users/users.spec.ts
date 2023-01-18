@@ -72,4 +72,56 @@ describe('Users', () => {
     expect(response.status).toBe(400)
     expect(response.body).toHaveProperty('message')
   })
+
+  describe('Authentication', () => {
+    /** Login */
+
+    it('should login with the user credentials', async () => {
+      const response = await request
+        .post('/auth/login')
+        .send({ email: requestBody.email, password: requestBody.password })
+
+      expect(response.status).toBe(201)
+      expect(response.body).toHaveProperty('accessToken')
+      expect(response.body).toHaveProperty('refreshToken')
+
+      accessToken = response.body.accessToken
+      refreshToken = response.body.refreshToken
+    })
+
+    it('should not login with an invalid password', async () => {
+      const response = await request
+        .post('/auth/login')
+        .send({ email: requestBody.email, password: 'wrongPassword' })
+
+      expect(response.status).toBe(401)
+      expect(response.body).toHaveProperty('message')
+    })
+
+    it('should not login with an invalid email', async () => {
+      const response = await request.post('/auth/login').send({
+        email: 'doNotExist@doNotExist.com',
+        password: requestBody.password,
+      })
+
+      expect(response.status).toBe(401)
+      expect(response.body).toHaveProperty('message')
+    })
+
+    /** Refresh Token */
+
+    it('should refresh the access token', async () => {
+      const response = await request
+        .post('/auth/refresh-token')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ refreshToken: refreshToken })
+
+      expect(response.status).toBe(201)
+      expect(response.body).toHaveProperty('accessToken')
+      expect(response.body).toHaveProperty('refreshToken')
+
+      accessToken = response.body.accessToken
+      refreshToken = response.body.refreshToken
+    })
+  })
 })

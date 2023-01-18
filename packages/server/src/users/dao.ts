@@ -51,6 +51,18 @@ const getUserByEmail = async (email: string) => {
   })
 }
 
+const getUserByEmailWithPassword = async (email: string) => {
+  return await prisma.user.findUnique({
+    where: {
+      email,
+    },
+    select: {
+      ...userSelect,
+      password: true,
+    },
+  })
+}
+
 const createUser = async (req: CreateUserDto) => {
   const { email, password, firstName, lastName } = req
 
@@ -77,7 +89,10 @@ const updateUser = async (id: string, data: Partial<User>) => {
     where: {
       id,
     },
-    data,
+    data: {
+      ...data,
+      updatedAt: new Date(),
+    },
   })
 }
 
@@ -87,4 +102,5 @@ export const userDao = {
   getUserByEmail,
   createUser,
   updateUser,
+  getUserByEmailWithPassword,
 }

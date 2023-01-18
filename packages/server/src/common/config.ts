@@ -54,7 +54,7 @@ const normalizePort = (val: string) => {
   return false
 }
 
-export const APP_PORT = normalizePort(process.env.APP_PORT || '8000')
+export const APP_PORT = normalizePort(process.env.SERVER_PORT || '8080')
 export const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID
 export const PLAID_SECRET = process.env.PLAID_SECRET
 export const PLAID_ENV = process.env.PLAID_ENV || 'sandbox'

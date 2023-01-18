@@ -16,6 +16,7 @@ import {
 import { infoRoutes } from './info/info.routes.config'
 import { plaidRoutes } from './plaid/plaid.routes.config'
 import { usersRoutes } from './users/users.routes.config'
+import { authRoutes } from './auth/auth.routes.config'
 
 dotenv.config()
 
@@ -55,6 +56,7 @@ const client = new PlaidApi(configuration)
 infoRoutes(app)
 plaidRoutes(app, client)
 usersRoutes(app)
+authRoutes(app)
 
 const runningMessage = `Server running at http://localhost:${APP_PORT}`
 app.get('/', (req: express.Request, res: express.Response) => {
