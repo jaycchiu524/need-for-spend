@@ -11,7 +11,7 @@ module.exports = async () => {
 
   if (!isDBReachable) {
     await dockerCompose.upAll({
-      envFile: path.join(__dirname, '.env'),
+      envFile: path.join(__dirname, '.env.test'),
       cwd: path.join(__dirname),
       // config: 'docker-compose.yml',
       log: true,
