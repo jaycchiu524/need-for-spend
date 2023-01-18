@@ -7,6 +7,19 @@
 yarn sdks vscode
 ```
 
+## Dev
+
+```bash
+# Env for app
+cp .env.example .env
+
+# Env for testing, different port / database
+cp .env.example .env.test
+
+# Setup dev database
+docker-compose up -d
+```
+
 ## Bugs
 
 ### Fix `@prisma/client` module not found
