@@ -14,9 +14,10 @@ import { userRegisterSchema } from './auth.joi'
 import {
   ErrorResponse,
   JWT,
-  JWTResponse,
+  RegisterResponse,
   RegisterRequest,
   VerifiedRequest,
+  LoginResponse,
 } from './dto.types'
 
 const log = debug('app:auth-controllers')
@@ -62,7 +63,7 @@ const _createJWT = (body: VerifiedRequest, jwtSecret: string) => {
 
 const register = async (
   req: Request<any, any, RegisterRequest | VerifiedRequest>,
-  res: Response<JWTResponse | ErrorResponse, any>,
+  res: Response<RegisterResponse | ErrorResponse, any>,
   next: NextFunction,
 ) => {
   const validate = userRegisterSchema.validate(req.body)
@@ -110,7 +111,7 @@ const register = async (
 
 const login = async (
   req: Request<any, any, VerifiedRequest>,
-  res: Response<JWTResponse | ErrorResponse, { jwt: JWT }>,
+  res: Response<LoginResponse | ErrorResponse, { jwt: JWT }>,
 ) => {
   try {
     if (!jwtSecret) {
@@ -135,11 +136,17 @@ const login = async (
       }
      */
 
+    const decoded = jwt.decode(accessToken, { json: true })
+
+    if (!decoded?.exp) {
+      throw new Error('JWT decode failed')
+    }
+
     return res.status(201).send({
-      userId: req.body.id,
+      id: req.body.id,
       accessToken: accessToken,
       refreshToken: refreshToken,
-      expiresIn: tokenExpirationTime,
+      exp: decoded.exp,
     })
   } catch (err) {
     log('login err: %o', err)

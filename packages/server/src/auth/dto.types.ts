@@ -19,12 +19,13 @@ export type JWT = VerifiedRequest & {
   refreshKey: Buffer
 }
 
-export type JWTResponse = {
-  userId: string
+export type RegisterResponse = {
+  id: string
   accessToken: string
   refreshToken: string
-  expiresIn: string
+  exp: number
 }
+export type LoginResponse = RegisterResponse
 
 export type ErrorResponse = {
   code: number

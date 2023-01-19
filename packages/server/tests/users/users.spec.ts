@@ -32,12 +32,12 @@ describe('Users', () => {
     const response = await request.post('/auth/register').send(requestBody)
 
     expect(response.status).toBe(201)
-    expect(response.body).toHaveProperty('userId')
     expect(response.body).toHaveProperty('accessToken')
     expect(response.body).toHaveProperty('refreshToken')
-    expect(response.body).toHaveProperty('expiresIn')
+    expect(response.body).toHaveProperty('exp')
+    expect(response.body.exp).toBeGreaterThan(Date.now() / 1000 + 60 * 59) // expiresIn '1h'
 
-    firstUserIdTest = response.body.userId
+    firstUserIdTest = response.body.id
     accessToken = response.body.accessToken
     refreshToken = response.body.refreshToken
   })
