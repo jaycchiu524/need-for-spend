@@ -14,7 +14,7 @@
     "prisma:migrate": "pnpify prisma migrate dev",
     "prisma:push": "pnpify prisma push",
     "prepare": "yarn run build",
-    "test": "jest -i --detectOpenHandles"
+    "test": "TEST=* jest -i --detectOpenHandles"
   },
   "dependencies": {
     "@prisma/client": "^4.7.1",

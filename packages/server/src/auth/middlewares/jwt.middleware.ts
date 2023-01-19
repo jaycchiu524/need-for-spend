@@ -77,20 +77,17 @@ const validRefreshNeeded = (
     const { jwt } = res.locals
     const salt = crypto.createSecretKey(Buffer.from(jwt.refreshKey))
 
-    log('jwt: %o', jwt)
-    log('salt: %o', salt)
-
     const hash = crypto
       .createHmac('sha512', salt)
       .update(jwt.id + jwtSecret)
       .digest('base64')
 
-    log('hash: %o', hash)
-
     // refreshToken must exist thorugh verifyRefreshBodyField
     const { refreshToken } = req.body
 
     if (hash !== refreshToken) {
+      log('Invalid refreshToken: %o', refreshToken)
+
       return res.status(400).send({ code: 400, message: 'Invalid request' })
     }
     return next()

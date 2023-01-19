@@ -29,16 +29,21 @@ describe('Users', () => {
   /** Create User */
 
   it('should create a new user', async () => {
-    const response = await request.post('/users').send(requestBody)
+    const response = await request.post('/auth/register').send(requestBody)
 
     expect(response.status).toBe(201)
-    expect(response.body).toHaveProperty('id')
+    expect(response.body).toHaveProperty('userId')
+    expect(response.body).toHaveProperty('accessToken')
+    expect(response.body).toHaveProperty('refreshToken')
+    expect(response.body).toHaveProperty('expiresIn')
 
-    firstUserIdTest = response.body.id
+    firstUserIdTest = response.body.userId
+    accessToken = response.body.accessToken
+    refreshToken = response.body.refreshToken
   })
 
   it('should not create a new user with an existing email', async () => {
-    const response = await request.post('/users').send(requestBody)
+    const response = await request.post('/auth/register').send(requestBody)
 
     expect(response.status).toBe(400)
     expect(response.body).toHaveProperty('message')

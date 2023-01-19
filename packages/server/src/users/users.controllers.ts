@@ -27,9 +27,9 @@ export const usersController = {
     }
 
     req.body.password = await argon2.hash(req.body.password)
-    const userId = await usersServices.createUser(req.body)
-    log(userId)
-    return res.status(201).send({ id: userId })
+    const user = await usersServices.createUser(req.body)
+    log(user.id)
+    return res.status(201).send({ id: user.id })
   },
 
   /**

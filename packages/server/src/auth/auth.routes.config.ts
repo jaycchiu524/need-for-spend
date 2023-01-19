@@ -12,26 +12,24 @@ const log = debug('app: auth-routes')
 
 const { validJWTNeeded, verifyRefreshBodyField, validRefreshNeeded } =
   jwtMiddlewares
+const { register, login } = authControllers
+const { validateNoSameEmail, verifyUserPassword } = authMiddlewares
 
 export const authRoutes = (app: Application) => {
   const name = 'Auth Routes'
 
   log(`Initializing ${name}`)
 
+  // Register
+  app.route(`/auth/register`).post(validateNoSameEmail, register, login)
+
   // Login
-  app
-    .route(`/auth/login`)
-    .post(authMiddlewares.verifyUserPassword, authControllers.login)
+  app.route(`/auth/login`).post(verifyUserPassword, login)
 
   // Refresh token
   app
     .route(`/auth/refresh-token`)
-    .post(
-      validJWTNeeded,
-      verifyRefreshBodyField,
-      validRefreshNeeded,
-      authControllers.login,
-    )
+    .post(validJWTNeeded, verifyRefreshBodyField, validRefreshNeeded, login)
 
   return app
 }

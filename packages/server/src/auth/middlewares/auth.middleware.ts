@@ -30,6 +30,23 @@ const verifyUserPassword = async (
   }
 }
 
+const validateNoSameEmail = async (
+  req: Request<any, any, { email: string }>,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { email } = req.body
+  const user = await usersServices.getUserByEmail(email)
+  if (user) {
+    return res.status(400).send({
+      code: 400,
+      message: 'Email already exists',
+    })
+  }
+  next()
+}
+
 export const authMiddlewares = {
   verifyUserPassword,
+  validateNoSameEmail,
 }

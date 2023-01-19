@@ -1,16 +1,100 @@
 import crypto from 'crypto'
 
 import debug from 'debug'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 import jwt from 'jsonwebtoken'
 
-import { JWT, VerifiedRequest } from './dto.types'
+import * as argon2 from 'argon2'
+
+import { usersServices } from '@/users/users.services'
+
+import { userRegisterSchema } from './auth.joi'
+
+import {
+  ErrorResponse,
+  JWT,
+  JWTResponse,
+  RegisterRequest,
+  VerifiedRequest,
+} from './dto.types'
 
 const log = debug('app:auth-controllers')
 
 const jwtSecret: string | undefined = process.env.JWT_SECRET
 const tokenExpirationTime = '1h'
+
+const _createJWT = (body: VerifiedRequest, jwtSecret: string) => {
+  const refreshId = body.id + jwtSecret
+  const salt = crypto.createSecretKey(crypto.randomBytes(16))
+  const hash = crypto
+    .createHmac('sha512', salt)
+    .update(refreshId)
+    .digest('base64')
+
+  body.refreshKey = salt.export()
+
+  // log('req.body', Object.keys(req.body))
+  /**
+     * 
+     * {
+        id: string;
+        email: string;
+        role: string;
+        refreshKey?: string | undefined;
+      }
+     */
+
+  const token = jwt.sign(body, jwtSecret, {
+    expiresIn: tokenExpirationTime,
+  })
+
+  return {
+    refreshKey: salt.export(),
+    refreshToken: hash,
+    accessToken: token,
+  }
+}
+
+/**
+ * Register a user and return a JWT
+ */
+
+const register = async (
+  req: Request<any, any, RegisterRequest | VerifiedRequest>,
+  res: Response<JWTResponse | ErrorResponse, any>,
+  next: NextFunction,
+) => {
+  const validate = userRegisterSchema.validate(req.body)
+  if (validate.error) {
+    return res.status(400).send({
+      code: 400,
+      message: validate.error.details[0].message,
+    })
+  }
+
+  try {
+    const registerBody = req.body as RegisterRequest
+
+    registerBody.password = await argon2.hash(registerBody.password)
+    const user = await usersServices.createUser(registerBody)
+    log(user)
+
+    req.body = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    } as VerifiedRequest
+
+    next()
+  } catch (err) {
+    log('register err: %o', err)
+    return res.status(500).send({
+      code: 500,
+      message: err as string,
+    })
+  }
+}
 
 /**
  * Login a user and return a JWT
@@ -26,20 +110,19 @@ const tokenExpirationTime = '1h'
 
 const login = async (
   req: Request<any, any, VerifiedRequest>,
-  res: Response<any, { jwt: JWT }>,
+  res: Response<JWTResponse | ErrorResponse, { jwt: JWT }>,
 ) => {
   try {
     if (!jwtSecret) {
       throw new Error('JWT secret is not defined')
     }
-    const refreshId = req.body.id + jwtSecret
-    const salt = crypto.createSecretKey(crypto.randomBytes(16))
-    const hash = crypto
-      .createHmac('sha512', salt)
-      .update(refreshId)
-      .digest('base64')
 
-    req.body.refreshKey = salt.export()
+    const { refreshKey, refreshToken, accessToken } = _createJWT(
+      req.body,
+      jwtSecret,
+    )
+
+    req.body.refreshKey = refreshKey
 
     log('req.body', Object.keys(req.body))
     /**
@@ -52,25 +135,23 @@ const login = async (
       }
      */
 
-    const token = jwt.sign(req.body, jwtSecret, {
-      expiresIn: tokenExpirationTime,
-    })
-
     return res.status(201).send({
-      accessToken: token,
-      refreshToken: hash,
+      userId: req.body.id,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
       expiresIn: tokenExpirationTime,
     })
   } catch (err) {
     log('login err: %o', err)
     return res.status(500).send({
       code: 500,
-      message: err,
+      message: err as string,
     })
   }
 }
 
 export const authControllers = {
+  register,
   login,
 }
 

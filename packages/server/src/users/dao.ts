@@ -8,7 +8,7 @@ import { Role } from './role'
 export type User = Prisma.UserCreateInput
 export type UserInfo = Pick<User, 'firstName' | 'lastName' | 'password'>
 
-const userSelect = {
+const userSelect: Prisma.UserSelect = {
   id: true,
   email: true,
   firstName: true,
@@ -81,7 +81,7 @@ const createUser = async (req: CreateUserDto) => {
 
   await prisma.user.create(user)
 
-  return user.data.id
+  return user.data
 }
 
 const updateUser = async (id: string, data: Partial<User>) => {

@@ -1,7 +1,16 @@
 {
-  "jest.jestCommandLine": "yarn jest -i",
+  "jest.jestCommandLine": "yarn test",
   "jest.shell": {
     "executable": "/bin/zsh",
     "args": ["-c"]
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
   }
 }
