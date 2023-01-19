@@ -4,7 +4,7 @@
   "packageManager": "yarn@3.3.0",
   "scripts": {
     "lint": "eslint .",
-    "debug": "concurrently \"yarn workspace server debug\" \"yarn workspace client dev\"",
+    "dev": "concurrently \"yarn workspace server dev\" \"yarn workspace client dev\"",
     "doctor": "yarn dlx @yarnpkg/doctor ./package-dir",
     "test": "jest -i"
   },
