@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout || ((page) => page)
 
   const theme = useThemeStore((state) => state.theme)
-  const token = useAuthStore((state) => state.auth.token)
+  const token = useAuthStore((state) => state.auth.accessToken)
   if (token && !api.defaults.headers.common['Authorization']) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`
   }

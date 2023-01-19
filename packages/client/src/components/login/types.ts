@@ -8,10 +8,8 @@ export type LoginRequest = {
 }
 
 export type LoginSuccessResponse = {
-  expiresAt: number
-  token: string
-}
-
-export type LoginFailResponse = {
-  error: string
+  id: string
+  accessToken: string
+  refreshToken: string
+  exp: number
 }

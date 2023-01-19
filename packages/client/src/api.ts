@@ -13,3 +13,8 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+export type ErrorResponse = {
+  code: number
+  message: string
+}

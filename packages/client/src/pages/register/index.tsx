@@ -23,18 +23,20 @@ import Copyright from '@/components/Copyright'
 
 import { NavLink } from '@/components/NavLink'
 
-import { RegisterInput, RegisterResponse } from '@/components/register/types'
+import { RegisterInput } from '@/components/register/types'
 import { RegisterSchema } from '@/components/register/yup.schema'
 import { registerRequest } from '@/components/register/hooks'
+import { useAuthStore } from '@/store/store'
+import { ErrorResponse } from '@/api'
 
 function Register() {
   const router = useRouter()
+  const setToken = useAuthStore((state) => state.setToken)
 
   const {
     register,
     formState: { errors },
     handleSubmit,
-    reset,
   } = useForm<RegisterInput>({
     defaultValues: {
       email: '',
@@ -49,13 +51,16 @@ function Register() {
 
   const { mutateAsync } = useMutation(registerRequest, {
     onSuccess: (data) => {
-      reset()
+      // reset()
 
-      alert('Registration Successful\n Please Login')
-      router.push('/login')
+      if (typeof window !== 'undefined') {
+        // Perform localStorage action
+        setToken(data.data)
+        router.push('/main')
+      }
     },
-    onError: (error: AxiosError<RegisterResponse>) => {
-      alert(error.response?.data.error)
+    onError: (error: AxiosError<ErrorResponse>) => {
+      alert(error.response?.data.message)
     },
   })
 

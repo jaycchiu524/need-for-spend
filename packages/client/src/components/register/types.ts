@@ -14,6 +14,8 @@ export type RegisterRequest = {
 }
 
 export type RegisterResponse = {
-  message?: string
-  error?: string
+  id: string
+  accessToken: string
+  refreshToken: string
+  exp: number // in seconds
 }

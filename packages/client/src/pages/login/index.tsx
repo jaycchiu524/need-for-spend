@@ -27,11 +27,12 @@ import { NavLink } from '@/components/NavLink'
 
 import { useAuthStore } from '@/store/store'
 
-import { LoginFailResponse, LoginInput } from '@/components/login/types'
+import { LoginInput } from '@/components/login/types'
 
 import { LoginSchema } from '@/components/login/yup.schema'
 
 import { loginRequest } from '@/components/login/hooks'
+import { ErrorResponse } from '@/api'
 
 function Login() {
   const [invalid, setInvalid] = React.useState(false)
@@ -62,7 +63,7 @@ function Login() {
         router.push('/main')
       }
     },
-    onError: (error: AxiosError<LoginFailResponse>) => {
+    onError: (error: AxiosError<ErrorResponse>) => {
       // console.log(error.response?.data.error)
       // alert(error.response?.data.error)
       setInvalid(true)
@@ -81,11 +82,12 @@ function Login() {
 
   const auth = useAuthStore((state) => state.auth)
 
+  // TODO: Refresh token when expired
   React.useEffect(() => {
-    if (auth.token && auth.expiresAt * 1000 > Date.now()) {
+    if (auth.accessToken && auth.exp * 1000 > Date.now()) {
       router.push('/main')
     }
-  }, [auth.expiresAt, auth.token, router])
+  }, [auth.exp, auth.accessToken, router])
 
   return (
     <Container component="main" maxWidth="xs">

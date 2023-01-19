@@ -3,8 +3,10 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
 type Token = {
-  token: string
-  expiresAt: number
+  id: string
+  accessToken: string
+  refreshToken: string
+  exp: number
 }
 
 interface AuthState {
@@ -14,8 +16,10 @@ interface AuthState {
 }
 
 const initialAuthState: Token = {
-  token: '',
-  expiresAt: 0,
+  id: '',
+  accessToken: '',
+  refreshToken: '',
+  exp: -1,
 }
 
 export const useAuthStore = create<AuthState>()(
