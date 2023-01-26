@@ -150,7 +150,7 @@ export const SecondaryListItems = ({ onLogout }: { onLogout: () => void }) => (
     <ListSubheader component="div" inset>
       Actions
     </ListSubheader>
-    <ListItemButton onClick={onLogout}>
+    <ListItemButton data-testid="logout-button" onClick={onLogout}>
       <ListItemIcon>
         <LogoutIcon />
       </ListItemIcon>

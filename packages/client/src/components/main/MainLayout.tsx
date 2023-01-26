@@ -90,13 +90,12 @@ function MainLayout({
   const setTheme = useThemeStore((state) => state.setTheme)
 
   React.useEffect(() => {
-    if (!auth.token || auth.expiresAt * 1000 < Date.now()) {
-      localStorage.clear()
+    if (!auth?.accessToken || auth.exp * 1000 < Date.now()) {
       logout()
       router.push('/login')
       return
     }
-  }, [auth.expiresAt, auth.token, logout, router])
+  }, [auth, logout, router])
 
   return (
     <Box sx={{ display: 'flex' }}>

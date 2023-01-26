@@ -38,6 +38,9 @@ const config: PlaywrightTestConfig = {
     ['html'],
     ['json', { outputFile: './playwright-report/test-results.json' }],
   ],
+
+  globalSetup: require.resolve('./e2e/configs/global-setup'),
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
@@ -47,6 +50,8 @@ const config: PlaywrightTestConfig = {
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+
+    storageState: './tmp/storageState.json',
   },
 
   /* Configure projects for major browsers */
