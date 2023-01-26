@@ -1,4 +1,4 @@
-import type { Prisma } from '@/common/prismaClient'
+import type { Prisma } from '@/configs/prismaClient'
 
 export type CreateUserDto = Pick<
   Prisma.UserCreateInput,

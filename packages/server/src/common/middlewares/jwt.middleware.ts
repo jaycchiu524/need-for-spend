@@ -2,9 +2,9 @@ import * as crypto from 'crypto'
 
 import debug from 'debug'
 
-import jwt from 'jsonwebtoken'
+import jwt, { VerifyErrors } from 'jsonwebtoken'
 
-import { JWT, VerifiedRequest } from '../dto.types'
+import { JWT, VerifiedRequest } from '@/auth/dto.types'
 
 import type { NextFunction, Request, Response } from 'express'
 
@@ -59,11 +59,16 @@ const validJWTNeeded = (
     res.locals.jwt = jwt.verify(token, jwtSecret) as JWT
     return next()
   } catch (err) {
+    const error = err as VerifyErrors
+
     log('JWT error: %o', err)
-    return res.status(403).send({
-      code: 403,
-      message: 'Invalid token',
-    })
+    // error = VerifyErrors.TokenExpiredError
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).send({
+        code: 401,
+        message: 'Invalid token',
+      })
+    }
   }
 }
 

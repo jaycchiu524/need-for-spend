@@ -7,7 +7,7 @@ import {
   PLAID_COUNTRY_CODES,
   PLAID_PRODUCTS,
   PLAID_REDIRECT_URI,
-} from '@/common/config'
+} from '@/configs/app-config'
 
 const log = debug('app: create-link-token')
 

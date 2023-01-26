@@ -1,8 +1,8 @@
 import debug from 'debug'
 
-import { authControllers } from './auth.controllers'
+import { jwtMiddlewares } from '@/common/middlewares/jwt.middleware'
 
-import { jwtMiddlewares } from './middlewares/jwt.middleware'
+import { authControllers } from './auth.controllers'
 
 import { authMiddlewares } from './middlewares/auth.middleware'
 

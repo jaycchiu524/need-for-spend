@@ -12,7 +12,7 @@ import {
   PLAID_CLIENT_ID,
   PLAID_ENV,
   PLAID_SECRET,
-} from './common/config'
+} from './configs/app-config'
 import { infoRoutes } from './info/info.routes.config'
 import { plaidRoutes } from './plaid/plaid.routes.config'
 import { usersRoutes } from './users/users.routes.config'

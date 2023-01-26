@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 
-import { PLAID_PRODUCTS } from '@/common/config'
-import { InfoResponse } from '@/common/interfaces'
+import { PLAID_PRODUCTS } from '@/configs/app-config'
+import { InfoResponse } from '@/info/interfaces'
 
 export const infoController = {
   getServerInfo: async (req: Request, res: Response) => {
