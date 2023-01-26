@@ -1,9 +1,10 @@
 import { nanoid } from 'nanoid'
 
-import { prisma, type Prisma } from '@/common/prismaClient'
+import { prisma, type Prisma } from '@/configs/prismaClient'
+
+import { Role } from '@/common/types/permission.enum'
 
 import { CreateUserDto } from './dto.types'
-import { Role } from './role'
 
 export type User = Prisma.UserCreateInput
 export type UserInfo = Pick<User, 'firstName' | 'lastName' | 'password'>

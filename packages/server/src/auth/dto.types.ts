@@ -1,4 +1,4 @@
-import type { Prisma } from '@/common/prismaClient'
+import type { Prisma } from '@/configs/prismaClient'
 
 export type RegisterRequest = Pick<
   Prisma.UserCreateInput,
@@ -10,7 +10,7 @@ export type LoginRequest = Pick<Prisma.UserCreateInput, 'email' | 'password'>
 export type VerifiedRequest = {
   id: string
   email: string
-  role: string
+  role: number
   refreshKey?: Buffer
   refreshToken?: string
 }
