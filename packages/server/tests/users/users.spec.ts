@@ -35,7 +35,7 @@ describe('Users', () => {
     expect(response.body).toHaveProperty('accessToken')
     expect(response.body).toHaveProperty('refreshToken')
     expect(response.body).toHaveProperty('exp')
-    expect(response.body.exp).toBeGreaterThan(Date.now() / 1000 + 60 * 59) // expiresIn '1h'
+    expect(response.body.exp).toBeGreaterThan(Date.now() / 1000 + 5 * 59) // expiresIn '5m'
 
     firstUserIdTest = response.body.id
     accessToken = response.body.accessToken

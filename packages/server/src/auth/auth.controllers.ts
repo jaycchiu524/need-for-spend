@@ -23,7 +23,7 @@ import {
 const log = debug('app:auth-controllers')
 
 const jwtSecret: string | undefined = process.env.JWT_SECRET
-const tokenExpirationTime = '1h'
+const tokenExpirationTime = '5m'
 
 const _createJWT = (body: VerifiedRequest, jwtSecret: string) => {
   const refreshId = body.id + jwtSecret
@@ -149,7 +149,7 @@ const login = async (
       exp: decoded.exp,
     })
   } catch (err) {
-    log('login err: %o', err)
+    log('Internal login err: %o', err)
     return res.status(500).send({
       code: 500,
       message: err as string,
