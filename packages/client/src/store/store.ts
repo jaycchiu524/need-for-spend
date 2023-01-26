@@ -10,8 +10,8 @@ type Token = {
 }
 
 interface AuthState {
-  auth: Token
-  setToken: (token: Token) => void
+  auth: Token | null
+  setToken: (token: Token | null) => void
   logout: () => void
 }
 
@@ -28,7 +28,10 @@ export const useAuthStore = create<AuthState>()(
       (set) => ({
         auth: initialAuthState,
         setToken: (token) => set(() => ({ auth: token })),
-        logout: () => set(() => ({ auth: initialAuthState })),
+        logout: () => {
+          set(() => ({ auth: null }))
+          localStorage.removeItem('persist:auth-storage')
+        },
       }),
       {
         name: 'auth-storage',

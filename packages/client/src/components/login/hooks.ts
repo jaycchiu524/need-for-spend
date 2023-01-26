@@ -1,6 +1,8 @@
 import { AxiosError } from 'axios'
 
-import { api, ErrorResponse } from '@/api'
+import { api } from '@/api/api'
+
+import { ErrorResponse } from '@/api/types'
 
 import { LoginRequest, LoginSuccessResponse } from './types'
 

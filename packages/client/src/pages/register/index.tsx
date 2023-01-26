@@ -27,7 +27,7 @@ import { RegisterInput } from '@/components/register/types'
 import { RegisterSchema } from '@/components/register/yup.schema'
 import { registerRequest } from '@/components/register/hooks'
 import { useAuthStore } from '@/store/store'
-import { ErrorResponse } from '@/api'
+import { ErrorResponse } from '@/api/types'
 
 function Register() {
   const router = useRouter()

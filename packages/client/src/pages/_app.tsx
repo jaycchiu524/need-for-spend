@@ -6,9 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { NextPage } from 'next'
 import { ReactElement, ReactNode } from 'react'
 
-import { useAuthStore, useThemeStore } from '@/store/store'
-
-import { api } from '@/api'
+import { useThemeStore } from '@/store/store'
 
 import type { AppProps } from 'next/app'
 
@@ -26,10 +24,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout || ((page) => page)
 
   const theme = useThemeStore((state) => state.theme)
-  const token = useAuthStore((state) => state.auth.accessToken)
-  if (token && !api.defaults.headers.common['Authorization']) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-  }
 
   return (
     <QueryClientProvider client={queryClient}>

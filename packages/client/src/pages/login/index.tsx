@@ -32,7 +32,7 @@ import { LoginInput } from '@/components/login/types'
 import { LoginSchema } from '@/components/login/yup.schema'
 
 import { loginRequest } from '@/components/login/hooks'
-import { ErrorResponse } from '@/api'
+import { ErrorResponse } from '@/api/types'
 
 function Login() {
   const [invalid, setInvalid] = React.useState(false)
@@ -64,7 +64,6 @@ function Login() {
       }
     },
     onError: (error: AxiosError<ErrorResponse>) => {
-      // console.log(error.response?.data.error)
       // alert(error.response?.data.error)
       setInvalid(true)
     },
@@ -82,12 +81,11 @@ function Login() {
 
   const auth = useAuthStore((state) => state.auth)
 
-  // TODO: Refresh token when expired
   React.useEffect(() => {
-    if (auth.accessToken && auth.exp * 1000 > Date.now()) {
+    if (auth?.accessToken && auth.exp * 1000 > Date.now()) {
       router.push('/main')
     }
-  }, [auth.exp, auth.accessToken, router])
+  }, [auth, router])
 
   return (
     <Container component="main" maxWidth="xs">
@@ -104,7 +102,7 @@ function Login() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <Box component="form" onSubmit={submit} noValidate sx={{ mt: 1 }}>
+        <Box component="form" sx={{ mt: 1 }}>
           <TextField
             {...register('email', { required: true })}
             margin="normal"
@@ -135,6 +133,7 @@ function Login() {
             label="Remember me"
           />
           <Button
+            onClick={submit}
             type="submit"
             fullWidth
             variant="contained"
