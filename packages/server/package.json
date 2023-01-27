@@ -12,7 +12,7 @@
     "docker:compose": "docker-compose --env-file=.env up -d",
     "prisma:generate": "pnpify prisma generate",
     "prisma:migrate": "pnpify prisma migrate dev",
-    "prisma:push": "pnpify prisma push",
+    "prisma:push": "pnpify prisma db push",
     "prepare": "yarn run build",
     "test": "TEST=* jest -i --detectOpenHandles"
   },

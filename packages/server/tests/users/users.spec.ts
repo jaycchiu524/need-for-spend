@@ -49,11 +49,63 @@ describe('Users', () => {
     expect(response.body).toHaveProperty('message')
   })
 
-  /** Update User */
+  /** Get user/:id */
+  it('should not get the user info with an invalid id', async () => {
+    const response = await request
+      .get('/users/invalid-id')
+      .set('Authorization', `Bearer ${accessToken}`)
 
+    expect(response.status).toBe(404)
+    expect(response.body).toHaveProperty('message')
+  })
+
+  it('should not get the user info with no access token', async () => {
+    const response = await request.get(`/users/${firstUserIdTest}`)
+
+    expect(response.status).toBe(401)
+    expect(response.body).toHaveProperty('message')
+  })
+
+  it('should return 401 with expired token', async () => {
+    jest
+      .useFakeTimers({
+        doNotFake: [
+          'nextTick',
+          'setImmediate',
+          'clearImmediate',
+          'setInterval',
+          'clearInterval',
+          'setTimeout',
+          'clearTimeout',
+        ],
+      })
+      .setSystemTime(new Date('2024-01-01T00:00:00.000Z'))
+
+    const response = await request
+      .get(`/users/${firstUserIdTest}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+
+    expect(response.status).toBe(401)
+
+    jest.useRealTimers()
+  })
+
+  it('should get the user info', async () => {
+    const response = await request
+      .get(`/users/${firstUserIdTest}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+
+    expect(response.status).toBe(200)
+    expect(response.body).toHaveProperty('id') // check if the user id is returned from params.userId
+    expect(response.body).toHaveProperty('firstName')
+    expect(response.body).toHaveProperty('lastName')
+  })
+
+  /** Update User */
   it('should update the user info', async () => {
     const response = await request
       .put(`/users/${firstUserIdTest}`)
+      .set('Authorization', `Bearer ${accessToken}`)
       .send({ firstName: 'Sekiro' })
 
     expect(response.status).toBe(200)
@@ -65,6 +117,7 @@ describe('Users', () => {
   it('should not update the user info with an existing email', async () => {
     const response = await request
       .put(`/users/${firstUserIdTest}`)
+      .set('Authorization', `Bearer ${accessToken}`)
       .send({ email: requestBody.email })
 
     expect(response.status).toBe(400)
@@ -72,7 +125,10 @@ describe('Users', () => {
   })
 
   it('should not update with empty body', async () => {
-    const response = await request.put(`/users/${firstUserIdTest}`).send({})
+    const response = await request
+      .put(`/users/${firstUserIdTest}`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({})
 
     expect(response.status).toBe(400)
     expect(response.body).toHaveProperty('message')
@@ -114,7 +170,6 @@ describe('Users', () => {
     })
 
     /** Refresh Token */
-
     it('should refresh the access token', async () => {
       const response = await request
         .post('/auth/refresh-token')

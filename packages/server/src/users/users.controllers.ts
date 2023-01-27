@@ -34,14 +34,11 @@ export const usersController = {
 
   /**
    * Get all users
-   * @param req
+   * @param req Query parameters: take, skip
    * @param res
-   * @returns response with the users
+   * @returns response with the users array
    */
-  async getUsers(
-    req: Request<any, any, any, { take?: number; skip: number }>,
-    res: Response,
-  ) {
+  async getUsers(req: Request, res: Response) {
     const users = await usersServices.getUsers({
       take: Number(req.query.take) || 20,
       skip: Number(req.query.skip) || 0,

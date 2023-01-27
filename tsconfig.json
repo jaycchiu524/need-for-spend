@@ -36,6 +36,6 @@
       "path": "packages/server"
     }
   ],
-  "include": ["**/*.ts", "**/*.tsx", "packages/server/tests/global/teardown.js", "packages/server/tests/global/teardown.js", "packages/server/tests/global/setup.js", "packages/server/tests/global/setup.js"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist", "*.d.ts"]
 }

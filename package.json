@@ -6,7 +6,9 @@
     "lint": "eslint .",
     "dev": "concurrently \"yarn workspace server dev\" \"yarn workspace client dev\"",
     "doctor": "yarn dlx @yarnpkg/doctor ./package-dir",
-    "test": "TEST=* jest -i --detectOpenHandles"
+    "test": "TEST=* jest -i --detectOpenHandles",
+    "wc": "yarn workspace client",
+    "ws": "yarn workspace server"
   },
   "workspaces": [
     "packages/server",

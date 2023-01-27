@@ -1,36 +1,61 @@
 import debug from 'debug'
 import express from 'express'
 
-import { usersMiddlewares } from './users.middlewares'
+import { jwtMiddlewares } from '@/common/middlewares/jwt.middleware'
+import { permissionMiddlewares } from '@/common/middlewares/permission.middleware'
+import { Role } from '@/common/types/permission.enum'
 
 import { usersController } from './users.controllers'
 
+import { usersMiddlewares } from './users.middlewares'
+
 const debugLog = debug('app: users-routes')
+
+const { validJWTNeeded } = jwtMiddlewares
+const { getUsers, createUser, getUserById, updateUserInfo } = usersController
+const { validateNoSameEmail, validateUserExists, extractUserId } =
+  usersMiddlewares
+const { roleRequired, onlySameUserOrAdmin } = permissionMiddlewares
 
 export const usersRoutes = (app: express.Application) => {
   const name = 'User Routes'
 
   debugLog(`Initializing ${name}`)
 
-  // Get all users
-  app.route(`/users`).get(usersController.getUsers)
+  /** GET /users */
+  app.route(`/users`).get(
+    // JWT authentication
+    validJWTNeeded,
+    // Permission check
+    roleRequired(Role.ADMIN),
+    // Get all users
+    getUsers,
+  )
 
-  // Create a new user
-  app
-    .route(`/users`)
-    .post(usersMiddlewares.validateNoSameEmail, usersController.createUser)
+  /** POST /users*/
+  app.route(`/users`).post(
+    // Validate no same email
+    validateNoSameEmail,
+    // Validate request body & Create a new user
+    createUser,
+  )
 
-  // Extract user id from params to body
-  app.param(`userId`, usersMiddlewares.extractUserId)
+  // Utils - Extract user id from params to body
+  app.param(`userId`, extractUserId)
 
-  // Get a user by id
+  /** /users/:userId */
   app
     .route(`/users/:userId`)
-    .all(usersMiddlewares.validateUserExists)
-    .get(usersController.getUserById)
-
-  // Update a user
-  app.route(`/users/:userId`).put(usersController.updateUserInfo)
+    .all(
+      // Validate that the user exists
+      validateUserExists,
+      // JWT authentication
+      validJWTNeeded,
+      // Permission check
+      onlySameUserOrAdmin,
+    )
+    .get(getUserById)
+    .put(updateUserInfo)
 
   return app
 }
