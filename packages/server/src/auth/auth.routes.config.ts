@@ -10,8 +10,7 @@ import type { Application } from 'express'
 
 const log = debug('app: auth-routes')
 
-const { validJWTNeeded, verifyRefreshBodyField, validRefreshNeeded } =
-  jwtMiddlewares
+const { verifyRefreshBodyField, validRefreshNeeded } = jwtMiddlewares
 const { register, login } = authControllers
 const { validateNoSameEmail, verifyUserPassword } = authMiddlewares
 
@@ -29,7 +28,7 @@ export const authRoutes = (app: Application) => {
   // Refresh token
   app
     .route(`/auth/refresh-token`)
-    .post(validJWTNeeded, verifyRefreshBodyField, validRefreshNeeded, login)
+    .post(verifyRefreshBodyField, validRefreshNeeded, login)
 
   return app
 }

@@ -11,7 +11,7 @@ module.exports = async () => {
 
   if (!isDBReachable) {
     await dockerCompose.upAll({
-      envFile: path.join(__dirname, '.env.test'),
+      envFile: path.join(__dirname, '.env'),
       cwd: path.join(__dirname),
       // config: 'docker-compose.yml',
       log: true,
@@ -30,7 +30,7 @@ module.exports = async () => {
     )
 
     // ️️️✅ Best Practice: Use npm script for data seeding and migrations
-    execSync('yarn workspace server prisma:migrate')
+    execSync('yarn workspace server prisma db push')
   }
   console.timeEnd('global-setup')
 }

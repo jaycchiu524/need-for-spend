@@ -17,6 +17,22 @@ let refreshToken = '' // used to store the refresh token of the first user creat
 // const newFirstName2 = 'Geralt'
 // const newLastName2 = 'Kimura'
 
+const fakeTimer = (date?: Date) => {
+  jest
+    .useFakeTimers({
+      doNotFake: [
+        'nextTick',
+        'setImmediate',
+        'clearImmediate',
+        'setInterval',
+        'clearInterval',
+        'setTimeout',
+        'clearTimeout',
+      ],
+    })
+    .setSystemTime(date || new Date('2024-01-01T00:00:00.000Z'))
+}
+
 describe('Users', () => {
   let request: supertest.SuperTest<supertest.Test>
   beforeAll(function () {
@@ -67,19 +83,7 @@ describe('Users', () => {
   })
 
   it('should return 401 with expired token', async () => {
-    jest
-      .useFakeTimers({
-        doNotFake: [
-          'nextTick',
-          'setImmediate',
-          'clearImmediate',
-          'setInterval',
-          'clearInterval',
-          'setTimeout',
-          'clearTimeout',
-        ],
-      })
-      .setSystemTime(new Date('2024-01-01T00:00:00.000Z'))
+    fakeTimer()
 
     const response = await request
       .get(`/users/${firstUserIdTest}`)
@@ -182,6 +186,26 @@ describe('Users', () => {
 
       accessToken = response.body.accessToken
       refreshToken = response.body.refreshToken
+    })
+
+    it('should refresh the access token with expired token', async () => {
+      fakeTimer()
+
+      const response = await request
+        .post('/auth/refresh-token')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ refreshToken: refreshToken })
+
+      console.log(response.body)
+
+      expect(response.status).toBe(201)
+      expect(response.body).toHaveProperty('accessToken')
+      expect(response.body).toHaveProperty('refreshToken')
+
+      accessToken = response.body.accessToken
+      refreshToken = response.body.refreshToken
+
+      jest.useRealTimers()
     })
   })
 })

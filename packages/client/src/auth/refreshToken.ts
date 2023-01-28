@@ -20,6 +20,11 @@ export const refreshToken = async () => {
       {
         refreshToken: auth.refreshToken,
       },
+      {
+        headers: {
+          Authorization: `Bearer ${auth.accessToken}`,
+        },
+      },
     )
 
     useAuthStore.getState().setToken(data)

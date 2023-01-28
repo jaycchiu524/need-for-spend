@@ -17,12 +17,64 @@ const verifyRefreshBodyField = (
   res: Response,
   next: NextFunction,
 ) => {
-  if (req.body && req.body.refreshToken) {
+  try {
+    if (!req.headers['authorization']) {
+      log('Authorization header is not defined')
+      return res.status(401).send({
+        code: 401,
+        message: 'Authorization header is not defined',
+      })
+    }
+
+    const [bearer, token] = req.headers['authorization'].split(' ')
+
+    if (bearer !== 'Bearer') {
+      return res.status(401).send({
+        code: 401,
+        message: 'Invalid authorization header',
+      })
+    }
+    if (!jwtSecret) {
+      log('JWT secret is not defined')
+      return res.status(500).send({
+        code: 500,
+        message: 'JWT secret is not defined',
+      })
+    }
+
+    if (!req.body || !req.body.refreshToken) {
+      log('RefreshToken field is required')
+      return res
+        .status(400)
+        .send({ code: 400, message: 'RefreshToken field is required' })
+    }
+
+    jwt.verify(token, jwtSecret, (err, decoded) => {
+      if (err && err.name !== 'TokenExpiredError') {
+        log(err)
+        return res.status(401).send({
+          code: 401,
+          message: 'Token verification failed',
+        })
+      }
+
+      // Save the JWT in the response object when the token is not expired
+      res.locals.jwt = decoded as JWT
+    })
+
+    if (!res.locals.jwt) {
+      // If the token is expired, verify the refresh token
+      res.locals.jwt = jwt.decode(token)
+    }
+
     return next()
-  } else {
-    return res
-      .status(400)
-      .send({ code: 400, message: 'RefreshToken field is required' })
+  } catch (err) {
+    log(err)
+
+    return res.status(500).send({
+      code: 500,
+      message: 'Internal: Token verification failed',
+    })
   }
 }
 
@@ -63,12 +115,10 @@ const validJWTNeeded = (
 
     log('JWT error: %o', err)
     // error = VerifyErrors.TokenExpiredError
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).send({
-        code: 401,
-        message: 'Invalid token',
-      })
-    }
+    return res.status(401).send({
+      code: 401,
+      message: 'Invalid token',
+    })
   }
 }
 
