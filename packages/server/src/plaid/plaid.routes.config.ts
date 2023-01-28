@@ -1,22 +1,26 @@
 import debug from 'debug'
 import express from 'express'
-import { PlaidApi } from 'plaid'
 
-import { PlaidServices } from './services/plaid-services'
+import { jwtMiddlewares } from '@/common/middlewares/jwt.middleware'
+
+import { linkTokenControllers } from './controllers/link-token.controllers'
+import { itemsControllers } from './controllers/items.controllers'
 
 const debugLog = debug('app: info-routes')
 
-export const plaidRoutes = (app: express.Application, client: PlaidApi) => {
+const { validJWTNeeded } = jwtMiddlewares
+
+export const plaidRoutes = (app: express.Application) => {
   const name = 'plaidRoutes'
 
   debugLog(`Initializing ${name}`)
 
   app
-    .route(`/plaid/create-link-token`)
-    .post(PlaidServices.createLinkToken(client))
+    .route(`/link-token`)
+    .all(validJWTNeeded)
+    .post(linkTokenControllers.createLinkToken)
 
-  app
-    .route(`/plaid/exchange-access-token`)
-    .post(PlaidServices.exchangeAccessToken(client))
+  app.route(`/items`).all(validJWTNeeded).post(itemsControllers.createItem)
+
   return app
 }

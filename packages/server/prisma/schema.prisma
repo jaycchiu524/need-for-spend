@@ -21,3 +21,50 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Item {
+  id        String   @id @default(uuid())
+  plaidAccessToken String @map("plaid_access_token")
+  plaidItemId String @map("plaid_item_id")
+  plaidInstitutionId String @map("plaid_institution_id")
+  plaidInstitutionName String @map("plaid_institution_name")
+  userId    String @map("user_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id        String   @id @default(uuid())
+  itemId    String   @map("item_id") // Not Plaid Item ID
+  plaidAccountId String @map("plaid_account_id") // Plaid Account ID
+  name String @map("name")
+  type String @map("type")
+  subtype String @map("subtype")
+  mask String @map("mask")
+  officialName String @map("official_name")
+  balanceAvailable Float @map("balance_available")
+  balanceCurrent Float @map("balance_current")
+  balanceLimit Float @map("balance_limit")
+  balanceIsoCurrencyCode String @map("balance_iso_currency_code")
+  balanceUnofficialCurrencyCode String @map("balance_unofficial_currency_code")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id            String @id @default(uuid())
+  plaidTransactionId String @map("plaid_transaction_id") // Plaid Transaction ID
+  accountId     String @map("account_id") // Not Plaid Account ID
+  date          DateTime @map("date")
+  address       String @map("address")
+  name          String @map("name")
+  amount        Float @map("amount")
+  isoCurrencyCode String @map("iso_currency_code")
+  unofficialCurrencyCode String @map("unofficial_currency_code")
+  plaidCategoryId    String @map("plaid_category_id")
+  nextCursor    String @map("next_cursor")
+  pending       Boolean @map("pending")
+  accountOwner  String @map("account_owner")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
