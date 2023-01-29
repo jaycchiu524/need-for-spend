@@ -13,9 +13,6 @@ const requestBody = {
 
 let accessToken = '' // used to store the token of the first user created for testing purposes
 let refreshToken = '' // used to store the refresh token of the first user created for testing purposes
-// const newFirstName = 'Sekiro'
-// const newFirstName2 = 'Geralt'
-// const newLastName2 = 'Kimura'
 
 const fakeTimer = (date?: Date) => {
   jest
@@ -30,7 +27,7 @@ const fakeTimer = (date?: Date) => {
         'clearTimeout',
       ],
     })
-    .setSystemTime(date || new Date('2024-01-01T00:00:00.000Z'))
+    .setSystemTime(date || new Date('2043-01-01T00:00:00.000Z'))
 }
 
 describe('Users', () => {
