@@ -25,9 +25,10 @@ model User {
 model Item {
   id        String   @id @default(uuid())
   plaidAccessToken String @map("plaid_access_token")
-  plaidItemId String @map("plaid_item_id")
+  plaidItemId String @map("plaid_item_id") @unique
   plaidInstitutionId String @map("plaid_institution_id")
   plaidInstitutionName String @map("plaid_institution_name")
+  transactionsCursor    String? @map("transactions_cursor")
   userId    String @map("user_id")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -39,32 +40,32 @@ model Account {
   plaidAccountId String @map("plaid_account_id") // Plaid Account ID
   name String @map("name")
   type String @map("type")
-  subtype String @map("subtype")
-  mask String @map("mask")
-  officialName String @map("official_name")
-  balanceAvailable Float @map("balance_available")
-  balanceCurrent Float @map("balance_current")
-  balanceLimit Float @map("balance_limit")
-  balanceIsoCurrencyCode String @map("balance_iso_currency_code")
-  balanceUnofficialCurrencyCode String @map("balance_unofficial_currency_code")
+  subtype String? @map("subtype")
+  mask String? @map("mask") 
+  officialName String? @map("official_name")
+  balanceAvailable Float? @map("balance_available")
+  balanceCurrent Float? @map("balance_current")
+  balanceLimit Float? @map("balance_limit")
+  balanceIsoCurrencyCode String? @map("balance_iso_currency_code")
+  balanceUnofficialCurrencyCode String? @map("balance_unofficial_currency_code")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Transaction {
   id            String @id @default(uuid())
-  plaidTransactionId String @map("plaid_transaction_id") // Plaid Transaction ID
+  plaidTransactionId String @map("plaid_transaction_id") @unique // Plaid Transaction ID
   accountId     String @map("account_id") // Not Plaid Account ID
-  date          DateTime @map("date")
-  address       String @map("address")
-  name          String @map("name")
+  date          String @map("date")
+  address       String? @map("address")
+  name          String? @map("name")
   amount        Float @map("amount")
-  isoCurrencyCode String @map("iso_currency_code")
-  unofficialCurrencyCode String @map("unofficial_currency_code")
-  plaidCategoryId    String @map("plaid_category_id")
-  nextCursor    String @map("next_cursor")
+  isoCurrencyCode String? @map("iso_currency_code")
+  unofficialCurrencyCode String? @map("unofficial_currency_code")
+  plaidCategoryId    String? @map("plaid_category_id")
+  categoryId    String? @map("category_id")
   pending       Boolean @map("pending")
-  accountOwner  String @map("account_owner")
+  accountOwner  String? @map("account_owner")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

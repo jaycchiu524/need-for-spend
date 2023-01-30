@@ -8,7 +8,9 @@ import { plaid } from '../plaid'
 
 import { CreateItemRequest } from '../interfaces'
 
-import { PlaidServices } from '../plaid-services'
+import { transactionsServices } from '../transactions/services'
+
+import { itemsServices } from './services'
 
 const log = debug('app: create-item')
 
@@ -30,24 +32,27 @@ const createItem = async (
     // }
 
     // Create item record in database
-    const item = await PlaidServices.createItem({
+    const item = await itemsServices.createItem({
       plaidItemId: ITEM_ID,
       plaidAccessToken: ACCESS_TOKEN,
       plaidInstitutionId: req.body.institutionId,
       plaidInstitutionName: req.body.institutionName,
       userId: res.locals.jwt.id,
+      transactionsCursor: null,
     })
 
+    await transactionsServices.updateTransactions(ITEM_ID)
+
     res.status(200).send({
-      item,
+      itemId: item.id,
+      plaidInstitution: req.body.institutionName,
     })
   } catch (error) {
-    const msg = 'Could not exchange public token for access token'
-    log('%o: %o', msg, error)
+    log('Create item: %o', error)
 
     return res.status(500).send({
       code: 500,
-      message: msg,
+      message: 'Internal Server Error',
     })
   }
 }

@@ -16,7 +16,31 @@ const getItemById = async (id: string) => {
   })
 }
 
-export const itemDao = {
+const getItemByPlaidItemId = async (plaidItemId: string) => {
+  return await prisma.item.findUnique({
+    where: {
+      plaidItemId,
+    },
+  })
+}
+
+const updateItemTransactionsCursor = async (
+  plaidItemId: string,
+  transactionsCursor: string,
+) => {
+  return await prisma.item.update({
+    where: {
+      plaidItemId,
+    },
+    data: {
+      transactionsCursor,
+    },
+  })
+}
+
+export const itemsDao = {
   createItem,
   getItemById,
+  getItemByPlaidItemId,
+  updateItemTransactionsCursor,
 }

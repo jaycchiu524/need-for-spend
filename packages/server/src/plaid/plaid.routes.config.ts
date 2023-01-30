@@ -3,8 +3,8 @@ import express from 'express'
 
 import { jwtMiddlewares } from '@/common/middlewares/jwt.middleware'
 
-import { linkTokenControllers } from './controllers/link-token.controllers'
-import { itemsControllers } from './controllers/items.controllers'
+import { linkTokenControllers } from './link-token/link-token.controllers'
+import { itemsControllers } from './items/items.controllers'
 
 const debugLog = debug('app: info-routes')
 
