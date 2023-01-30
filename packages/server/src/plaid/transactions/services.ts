@@ -113,6 +113,18 @@ const updateTransactions = async (plaidItemId: string) => {
   }
 }
 
+const getTransactionsByUserId = async (userId: string) => {
+  log(`Getting transactions for user ${userId}...`)
+  try {
+    const transactions = await transactionsDao.getTransactionsByUserId(userId)
+    return transactions
+  } catch (err) {
+    log(`Error getting transactions: ${err}`)
+    throw err
+  }
+}
+
 export const transactionsServices = {
   updateTransactions,
+  getTransactionsByUserId,
 }

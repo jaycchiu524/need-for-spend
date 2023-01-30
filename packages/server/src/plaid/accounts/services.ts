@@ -25,6 +25,15 @@ const createAccounts = async (plaidItemId: string) => {
   }
 }
 
+const getAccountsByUserId = async (userId: string) => {
+  try {
+    await accountsDao.getAccountsByUserId(userId)
+  } catch (err) {
+    throw err
+  }
+}
+
 export const accountsServices = {
   createAccounts,
+  getAccountsByUserId,
 }

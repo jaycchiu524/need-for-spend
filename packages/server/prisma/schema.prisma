@@ -12,60 +12,78 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    
   password  String
   firstName String
   lastName  String
-  role      Int   @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Int       @default(1)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("users")
+  @@unique([email])
 }
 
 model Item {
-  id        String   @id @default(uuid())
-  plaidAccessToken String @map("plaid_access_token")
-  plaidItemId String @map("plaid_item_id") @unique
-  plaidInstitutionId String @map("plaid_institution_id")
-  plaidInstitutionName String @map("plaid_institution_name")
-  transactionsCursor    String? @map("transactions_cursor")
-  userId    String @map("user_id")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   String   @id @default(uuid())
+  plaidAccessToken     String   @map("plaid_access_token")
+  plaidItemId          String   @map("plaid_item_id")
+  plaidInstitutionId   String   @map("plaid_institution_id")
+  plaidInstitutionName String   @map("plaid_institution_name")
+  transactionsCursor   String?  @map("transactions_cursor")
+  userId               String   @map("user_id")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  Account Account[]
+
+  @@map("items")
+  @@unique([plaidItemId])
 }
 
 model Account {
-  id        String   @id @default(uuid())
-  itemId    String   @map("item_id") // Not Plaid Item ID
-  plaidAccountId String @map("plaid_account_id") // Plaid Account ID
-  name String @map("name")
-  type String @map("type")
-  subtype String? @map("subtype")
-  mask String? @map("mask") 
-  officialName String? @map("official_name")
-  balanceAvailable Float? @map("balance_available")
-  balanceCurrent Float? @map("balance_current")
-  balanceLimit Float? @map("balance_limit")
-  balanceIsoCurrencyCode String? @map("balance_iso_currency_code")
-  balanceUnofficialCurrencyCode String? @map("balance_unofficial_currency_code")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                            String   @id @default(uuid())
+  itemId                        String   @map("item_id") // Not Plaid Item ID
+  item                          Item     @relation(fields: [itemId], references: [id])
+  plaidAccountId                String   @map("plaid_account_id") // Plaid Account ID
+  name                          String   @map("name")
+  type                          String   @map("type")
+  subtype                       String?  @map("subtype")
+  mask                          String?  @map("mask")
+  officialName                  String?  @map("official_name")
+  balanceAvailable              Float?   @map("balance_available")
+  balanceCurrent                Float?   @map("balance_current")
+  balanceLimit                  Float?   @map("balance_limit")
+  balanceIsoCurrencyCode        String?  @map("balance_iso_currency_code")
+  balanceUnofficialCurrencyCode String?  @map("balance_unofficial_currency_code")
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  Transaction Transaction[]
+
+  @@map("accounts")
+  @@unique([plaidAccountId])
 }
 
 model Transaction {
-  id            String @id @default(uuid())
-  plaidTransactionId String @map("plaid_transaction_id") @unique // Plaid Transaction ID
-  accountId     String @map("account_id") // Not Plaid Account ID
-  date          String @map("date")
-  address       String? @map("address")
-  name          String? @map("name")
-  amount        Float @map("amount")
-  isoCurrencyCode String? @map("iso_currency_code")
-  unofficialCurrencyCode String? @map("unofficial_currency_code")
-  plaidCategoryId    String? @map("plaid_category_id")
-  categoryId    String? @map("category_id")
-  pending       Boolean @map("pending")
-  accountOwner  String? @map("account_owner")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                     String   @id @default(uuid())
+  plaidTransactionId     String   @map("plaid_transaction_id") // Plaid Transaction ID
+  accountId              String   @map("account_id") // Not Plaid Account ID
+  account                Account  @relation(fields: [accountId], references: [id])
+  date                   String   @map("date")
+  address                String?  @map("address")
+  name                   String?  @map("name")
+  amount                 Float    @map("amount")
+  isoCurrencyCode        String?  @map("iso_currency_code")
+  unofficialCurrencyCode String?  @map("unofficial_currency_code")
+  plaidCategoryId        String?  @map("plaid_category_id")
+  categoryId             String?  @map("category_id")
+  pending                Boolean  @map("pending")
+  accountOwner           String?  @map("account_owner")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("transactions")
+  @@unique([plaidTransactionId])
 }

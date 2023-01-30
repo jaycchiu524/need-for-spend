@@ -6,13 +6,50 @@ import { JWT } from '@/auth/dto.types'
 
 import { plaid } from '../plaid'
 
-import { CreateItemRequest } from '../interfaces'
-
 import { transactionsServices } from '../transactions/services'
+
+import { CreateItemRequest } from './types'
 
 import { itemsServices } from './services'
 
-const log = debug('app: create-item')
+const log = debug('app: item-controllers')
+
+const getItemById = async (
+  req: Request<{ itemId: string }>,
+  res: Response<any, { jwt: JWT }>,
+) => {
+  try {
+    const itemId = req.params.itemId
+
+    const item = await itemsServices.getItemById(itemId)
+    if (!item) {
+      return res.status(404).send({
+        code: 404,
+        message: 'Item not found',
+      })
+    }
+
+    const userId = res.locals.jwt.id
+    if (item.userId !== userId) {
+      return res.status(403).send({
+        code: 403,
+        message: 'Forbidden',
+      })
+    }
+
+    // eslint-disable-next-line unused-imports/no-unused-vars
+    const { plaidAccessToken, ...rest } = item
+    // @type: GetItemResponse
+    return res.status(200).send(rest)
+  } catch (err) {
+    log('Error: Internal get item by plaid item id: %o', err)
+
+    return res.status(500).send({
+      code: 500,
+      message: 'Internal Server Error',
+    })
+  }
+}
 
 const createItem = async (
   req: Request<any, any, CreateItemRequest>,
@@ -58,5 +95,6 @@ const createItem = async (
 }
 
 export const itemsControllers = {
+  getItemById,
   createItem,
 }

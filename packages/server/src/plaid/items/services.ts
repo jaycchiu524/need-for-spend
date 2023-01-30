@@ -8,6 +8,7 @@ const getItemById = async (id: string) => {
   return await itemsDao.getItemById(id)
 }
 
+// The only service returns the item with the access token
 const getItemByPlaidItemId = async (plaidItemId: string) => {
   return await itemsDao.getItemByPlaidItemId(plaidItemId)
 }
@@ -22,10 +23,14 @@ const updateItemTransactionsCursor = async (
   )
 }
 
+const getItemsByUserId = async (userId: string) => {
+  return await itemsDao.getItemsByUserId(userId)
+}
+
 export const itemsServices = {
-  // Item
   createItem,
   getItemById,
   getItemByPlaidItemId,
   updateItemTransactionsCursor,
+  getItemsByUserId,
 }

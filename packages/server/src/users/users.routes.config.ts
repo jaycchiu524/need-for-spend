@@ -12,7 +12,15 @@ import { usersMiddlewares } from './users.middlewares'
 const debugLog = debug('app: users-routes')
 
 const { validJWTNeeded } = jwtMiddlewares
-const { getUsers, createUser, getUserById, updateUserInfo } = usersController
+const {
+  getUsers,
+  createUser,
+  getUserById,
+  updateUserInfo,
+  getAccountsByUserId,
+  getItemsByUserId,
+  getTransactionsByUserId,
+} = usersController
 const { validateNoSameEmail, validateUserExists, extractUserId } =
   usersMiddlewares
 const { roleRequired, onlySameUserOrAdmin } = permissionMiddlewares
@@ -56,6 +64,43 @@ export const usersRoutes = (app: express.Application) => {
     )
     .get(getUserById)
     .put(updateUserInfo)
+
+  /** /users/:userId/:<assets> */
+  app
+    .route(`/users/:userId/accounts`)
+    .all(
+      // Validate that the user exists
+      validateUserExists,
+      // JWT authentication
+      validJWTNeeded,
+      // Permission check
+      onlySameUserOrAdmin,
+    )
+    .get(getAccountsByUserId)
+
+  app
+    .route(`/users/:userId/items`)
+    .all(
+      // Validate that the user exists
+      validateUserExists,
+      // JWT authentication
+      validJWTNeeded,
+      // Permission check
+      onlySameUserOrAdmin,
+    )
+    .get(getItemsByUserId)
+
+  app
+    .route(`/users/:userId/transactions`)
+    .all(
+      // Validate that the user exists
+      validateUserExists,
+      // JWT authentication
+      validJWTNeeded,
+      // Permission check
+      onlySameUserOrAdmin,
+    )
+    .get(getTransactionsByUserId)
 
   return app
 }

@@ -2,7 +2,7 @@ import { RemovedTransaction, Transaction } from 'plaid'
 
 import { prisma, type Prisma } from '@/configs/prismaClient'
 
-export type CreateTransactions = Prisma.TransactionCreateInput
+export type CreateTransactions = Prisma.TransactionCreateManyInput
 
 const createTransactions = async (transactions: Transaction[]) => {
   const query: CreateTransactions[] = transactions.map((transaction) => {
@@ -96,8 +96,21 @@ const deleteTransactions = async (transactions: RemovedTransaction[]) => {
   })
 }
 
+const getTransactionsByUserId = async (userId: string) => {
+  return await prisma.transaction.findMany({
+    where: {
+      account: {
+        item: {
+          userId,
+        },
+      },
+    },
+  })
+}
+
 export const transactionsDao = {
   createTransactions,
   updateTransactions,
   deleteTransactions,
+  getTransactionsByUserId,
 }

@@ -2,7 +2,7 @@ import { AccountBase } from 'plaid'
 
 import { prisma, type Prisma } from '@/configs/prismaClient'
 
-export type CreateAccount = Prisma.AccountCreateInput
+export type CreateAccount = Prisma.AccountCreateManyInput
 
 const createAccounts = async (itemId: string, accounts: AccountBase[]) => {
   const query: CreateAccount[] = accounts.map((account) => {
@@ -23,10 +23,21 @@ const createAccounts = async (itemId: string, accounts: AccountBase[]) => {
   })
 
   return await prisma.account.createMany({
-    data: query,
+    data: { ...query },
+  })
+}
+
+const getAccountsByUserId = async (userId: string) => {
+  return await prisma.account.findMany({
+    where: {
+      item: {
+        userId,
+      },
+    },
   })
 }
 
 export const accountsDao = {
   createAccounts,
+  getAccountsByUserId,
 }
