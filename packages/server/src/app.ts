@@ -21,13 +21,19 @@ plaidRoutes(app)
 usersRoutes(app)
 authRoutes(app)
 
-const runningMessage = `Server running at http://localhost:${APP_PORT}`
+const runningMessage = `Server running at http://localhost:${APP_PORT}, database: ${process.env.DATABASE_PORT}`
 app.get('/', (req: express.Request, res: express.Response) => {
   res.status(200).send(runningMessage)
 })
 
-export default server.listen(APP_PORT, () => {
-  // our only exception to avoiding console.log(), because we
-  // always want to know when the server is done starting up
-  console.log(runningMessage)
-})
+/** @ref https://stackoverflow.com/questions/54422849/jest-testing-multiple-test-file-port-3000-already-in-use  */
+// Listen on provided port if not in test mode to fix jest error
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(APP_PORT, () => {
+    // our only exception to avoiding console.log(), because we
+    // always want to know when the server is done starting up
+    console.log(runningMessage)
+  })
+}
+
+export default server

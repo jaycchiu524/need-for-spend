@@ -11,7 +11,7 @@
 #.pnp.*
 
 # DB
-db
+db-data
 
 # Generated files
 generated
