@@ -32,3 +32,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Flow on Fin-me
+
+1. Use register or login
+2. GET items by user id
+3. if the user has items -> GET accounts & transactions from database
+4. if the user has no items
+5. User click create account -> CREATE link token through server
+6. User complete linking bank accounts -> CREATE accounts by items
+7. GET accounts by user id
+8. GET transactions by account

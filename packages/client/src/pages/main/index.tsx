@@ -1,62 +1,73 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 
-import { Grid, Paper } from '@mui/material'
+import { usePlaidLink, PlaidLinkOptions } from 'react-plaid-link'
 
-import dynamic from 'next/dynamic'
-
-import Copyright from '@/components/Copyright'
+import { useMutation } from '@tanstack/react-query'
 
 import MainLayout from '@/components/main/MainLayout'
+import { createLinkToken, exchangeAccessToken } from '@/components/Plaid/api'
 
-import Deposits from '@/components/main/Deposits'
-import Orders from '@/components/main/Orders'
+function PlaidHome() {
+  // get a link_token from your API when component mounts
+  const { data: linkToken, mutateAsync: requestLinkToken } = useMutation({
+    mutationKey: ['create-link-token'],
+    mutationFn: createLinkToken,
+  })
 
-function Main() {
-  const DynamicChart = dynamic(() => import('@/components/main/Chart'))
+  const { data: item, mutateAsync: requestAccessToken } = useMutation({
+    mutationKey: ['exchange-access-token'],
+    mutationFn: exchangeAccessToken,
+  })
+
+  const token = linkToken?.data.link_token || null
+
+  useEffect(() => {
+    requestLinkToken()
+  }, [])
+
+  // The usePlaidLink hook manages Plaid Link creation
+  // It does not return a destroy function;
+  // instead, on unmount it automatically destroys the Link instance
+  const config: PlaidLinkOptions = {
+    onSuccess: async (public_token, metadata) => {
+      const { institution, accounts } = metadata
+
+      const response = await requestAccessToken({
+        publicToken: public_token,
+        institutionId: institution?.institution_id || '',
+        institutionName: institution?.name || '',
+        accounts,
+      })
+
+      console.log(response)
+    },
+    onExit: (err, metadata) => {},
+    onEvent: (eventName, metadata) => {},
+    token,
+    //required for OAuth; if not using OAuth, set to null or omit:
+    // receivedRedirectUri: window.location.href,
+  }
+
+  const { open, exit, ready } = usePlaidLink(config)
 
   return (
     <div>
-      <Grid container spacing={3}>
-        {/* Chart */}
-        <Grid item xs={12} md={8} lg={9}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 240,
-            }}>
-            <DynamicChart />
-          </Paper>
-        </Grid>
-        {/* Recent Deposits */}
-        <Grid item xs={12} md={4} lg={3}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              height: 240,
-            }}>
-            <Deposits />
-          </Paper>
-        </Grid>
-        {/* Recent Orders */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-            <Orders />
-          </Paper>
-        </Grid>
-      </Grid>
-      <Copyright sx={{ pt: 4 }} />
-      {/* 
-      <Button variant="contained" color="error">
-        Logout
-      </Button> */}
+      <h1>Plaid Demo</h1>
+      <button onClick={() => open()} disabled={!ready}>
+        Connect a bank account
+      </button>
+
+      <pre>
+        <code>{JSON.stringify(linkToken, null, 2)}</code>
+      </pre>
+
+      <pre>
+        <code>{JSON.stringify(item, null, 2)}</code>
+      </pre>
     </div>
   )
 }
 
-Main.getLayout = (page: ReactNode) => <MainLayout>{page}</MainLayout>
+PlaidHome.getLayout = (page: ReactNode) => <MainLayout>{page}</MainLayout>
 
-export default Main
+export default PlaidHome
