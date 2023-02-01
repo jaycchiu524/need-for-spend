@@ -25,7 +25,7 @@ import Copyright from '@/components/Copyright'
 
 import { NavLink } from '@/components/NavLink'
 
-import { useAuthStore } from '@/store/store'
+import { useAuthStore } from '@/store/auth'
 
 import { LoginInput } from '@/components/login/types'
 

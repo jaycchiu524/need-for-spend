@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { NextPage } from 'next'
 import { ReactElement, ReactNode } from 'react'
 
-import { useThemeStore } from '@/store/store'
+import { useThemeStore } from '@/store/theme'
 
 import type { AppProps } from 'next/app'
 

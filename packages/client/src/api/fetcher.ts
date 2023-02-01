@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { useAuthStore } from '@/store/store'
+import { useAuthStore } from '@/store/auth'
 
 import { refreshToken } from '../auth/refreshToken'
 

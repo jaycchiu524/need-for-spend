@@ -2,7 +2,7 @@ import { AxiosError } from 'axios'
 
 import { api } from '@/api/api'
 import { LoginSuccessResponse } from '@/components/login/types'
-import { useAuthStore } from '@/store/store'
+import { useAuthStore } from '@/store/auth'
 import { ErrorResponse } from '@/api/types'
 
 export const refreshToken = async () => {

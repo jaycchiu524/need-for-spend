@@ -26,7 +26,7 @@ import { NavLink } from '@/components/NavLink'
 import { RegisterInput } from '@/components/register/types'
 import { RegisterSchema } from '@/components/register/yup.schema'
 import { registerRequest } from '@/components/register/hooks'
-import { useAuthStore } from '@/store/store'
+import { useAuthStore } from '@/store/auth'
 import { ErrorResponse } from '@/api/types'
 
 function Register() {

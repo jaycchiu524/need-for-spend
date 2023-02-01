@@ -17,7 +17,9 @@ import { useRouter } from 'next/router'
 
 import { Switch } from '@mui/material'
 
-import { useAuthStore, useThemeStore } from '@/store/store'
+import { useAuthStore } from '@/store/auth'
+
+import { useThemeStore } from '@/store/theme'
 
 import { MainListItems, SecondaryListItems } from './ListItems'
 
