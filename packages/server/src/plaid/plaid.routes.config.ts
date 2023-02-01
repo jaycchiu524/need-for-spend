@@ -12,15 +12,18 @@ const { validJWTNeeded } = jwtMiddlewares
 
 export const plaidRoutes = (app: express.Application) => {
   const name = 'plaidRoutes'
-
   debugLog(`Initializing ${name}`)
-
   app
     .route(`/link-token`)
     .all(validJWTNeeded)
     .post(linkTokenControllers.createLinkToken)
 
   app.route(`/items`).all(validJWTNeeded).post(itemsControllers.createItem)
+
+  app
+    .route(`/items/:itemId`)
+    .all(validJWTNeeded)
+    .get(validJWTNeeded, itemsControllers.getItemById)
 
   return app
 }
