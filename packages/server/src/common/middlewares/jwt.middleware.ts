@@ -6,77 +6,13 @@ import jwt, { VerifyErrors } from 'jsonwebtoken'
 
 import { JWT, VerifiedRequest } from '@/auth/dto.types'
 
+import { usersServices } from '@/users/users.services'
+
 import type { NextFunction, Request, Response } from 'express'
 
 const log = debug('app: jwt-middleware')
 
 const jwtSecret: string | undefined = process.env.JWT_SECRET
-
-const verifyRefreshBodyField = (
-  req: Request<any, any, VerifiedRequest>,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    if (!req.headers['authorization']) {
-      log('Authorization header is not defined')
-      return res.status(401).send({
-        code: 401,
-        message: 'Authorization header is not defined',
-      })
-    }
-
-    const [bearer, token] = req.headers['authorization'].split(' ')
-
-    if (bearer !== 'Bearer') {
-      return res.status(401).send({
-        code: 401,
-        message: 'Invalid authorization header',
-      })
-    }
-    if (!jwtSecret) {
-      log('JWT secret is not defined')
-      return res.status(500).send({
-        code: 500,
-        message: 'JWT secret is not defined',
-      })
-    }
-
-    if (!req.body || !req.body.refreshToken) {
-      log('RefreshToken field is required')
-      return res
-        .status(400)
-        .send({ code: 400, message: 'RefreshToken field is required' })
-    }
-
-    jwt.verify(token, jwtSecret, (err, decoded) => {
-      if (err && err.name !== 'TokenExpiredError') {
-        log(err)
-        return res.status(401).send({
-          code: 401,
-          message: 'Token verification failed',
-        })
-      }
-
-      // Save the JWT in the response object when the token is not expired
-      res.locals.jwt = decoded as JWT
-    })
-
-    if (!res.locals.jwt) {
-      // If the token is expired, verify the refresh token
-      res.locals.jwt = jwt.decode(token)
-    }
-
-    return next()
-  } catch (err) {
-    log(err)
-
-    return res.status(500).send({
-      code: 500,
-      message: 'Internal: Token verification failed',
-    })
-  }
-}
 
 const validJWTNeeded = (
   req: Request,
@@ -122,7 +58,67 @@ const validJWTNeeded = (
   }
 }
 
-const validRefreshNeeded = (
+const verifyRefreshBodyField = (
+  req: Request<any, any, VerifiedRequest>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.headers['authorization']) {
+      log('Authorization header is not defined')
+      return res.status(401).send({
+        code: 401,
+        message: 'Authorization header is not defined',
+      })
+    }
+
+    const [bearer, token] = req.headers['authorization'].split(' ')
+
+    if (bearer !== 'Bearer') {
+      return res.status(401).send({
+        code: 401,
+        message: 'Invalid authorization header',
+      })
+    }
+    if (!jwtSecret) {
+      log('JWT secret is not defined')
+      return res.status(500).send({
+        code: 500,
+        message: 'JWT secret is not defined',
+      })
+    }
+
+    if (!req.body || !req.body.refreshToken) {
+      log('RefreshToken field is required')
+      return res
+        .status(400)
+        .send({ code: 400, message: 'RefreshToken field is required' })
+    }
+
+    jwt.verify(token, jwtSecret, (err, decode) => {
+      if (err && err.name !== 'TokenExpiredError') {
+        log(err)
+        return res.status(401).send({
+          code: 401,
+          message: 'Token verification failed',
+        })
+      }
+    })
+
+    // If the token is expired, verify the refresh token
+    res.locals.jwt = jwt.decode(token)
+    return next()
+  } catch (err) {
+    log(err)
+
+    return res.status(500).send({
+      code: 500,
+      message: 'Internal: Token verification failed',
+    })
+  }
+}
+
+const validRefreshNeeded = async (
   req: Request<any, any, VerifiedRequest>,
   res: Response<any, { jwt: JWT }>,
   next: NextFunction,
@@ -145,6 +141,20 @@ const validRefreshNeeded = (
 
       return res.status(400).send({ code: 400, message: 'Invalid request' })
     }
+
+    const user = await usersServices.getUserById(jwt.id)
+
+    if (!user) {
+      log('User not found: %o', jwt.id)
+      throw new Error('User not found')
+    }
+
+    req.body = {
+      id: user.id!,
+      email: user.email!,
+      role: user.role!,
+    }
+
     return next()
   } catch (err) {
     log('validRefreshNeeded err: %o', err)

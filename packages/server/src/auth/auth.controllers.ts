@@ -143,7 +143,7 @@ const login = async (
     }
 
     return res.status(201).send({
-      id: req.body.id,
+      id: req.body.id || res.locals.jwt.id,
       accessToken: accessToken,
       refreshToken: refreshToken,
       exp: decoded.exp,

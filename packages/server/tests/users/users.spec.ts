@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid'
 import supertest from 'supertest'
 import app from '../../src/app'
+import jwt from 'jsonwebtoken'
 
 let firstUserIdTest = '' // used to store the id of the first user created for testing purposes
 
@@ -178,11 +179,20 @@ describe('Users', () => {
         .send({ refreshToken: refreshToken })
 
       expect(response.status).toBe(201)
+      expect(response.body).toHaveProperty('id')
       expect(response.body).toHaveProperty('accessToken')
       expect(response.body).toHaveProperty('refreshToken')
+      expect(response.body).toHaveProperty('exp')
 
       accessToken = response.body.accessToken
       refreshToken = response.body.refreshToken
+
+      const decoded = jwt.decode(accessToken)
+
+      expect(decoded).toHaveProperty('id')
+      expect(decoded).toHaveProperty('email')
+      expect(decoded).toHaveProperty('role')
+      expect(decoded).toHaveProperty('refreshKey')
     })
 
     it('should refresh the access token with expired token', async () => {
@@ -196,8 +206,10 @@ describe('Users', () => {
       console.log(response.body)
 
       expect(response.status).toBe(201)
+      expect(response.body).toHaveProperty('id')
       expect(response.body).toHaveProperty('accessToken')
       expect(response.body).toHaveProperty('refreshToken')
+      expect(response.body).toHaveProperty('exp')
 
       accessToken = response.body.accessToken
       refreshToken = response.body.refreshToken
