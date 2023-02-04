@@ -71,60 +71,43 @@ const fetchTransactionUpdates = async (plaidItemId: string) => {
   return { added, modified, removed, cursor, accessToken }
 }
 
-const convertTransactions =
-  (memo: Map<string, string>) => async (transaction: Transaction) => {
-    const {
-      account_id,
-      transaction_id,
-      amount,
-      iso_currency_code,
-      unofficial_currency_code,
-      date,
-      name,
-      location,
-      category_id,
-      account_owner,
-      pending,
-    } = transaction
+const convertTransactions = async (transaction: Transaction) => {
+  const {
+    account_id,
+    transaction_id,
+    amount,
+    iso_currency_code,
+    unofficial_currency_code,
+    date,
+    name,
+    location,
+    category_id,
+    account_owner,
+    pending,
+  } = transaction
 
-    let accountId: string
+  // TODO: Optimize this to use a single query
+  const account = await accountsServices.getAccountByPlaidAccountId(account_id)
 
-    const memoid = memo.get(account_id)
+  if (!account) throw new Error('Account not found')
+  const accountId = account.id
 
-    log('memoid', memoid)
-    log('!!memoid', !!memoid)
-
-    if (!!memoid) {
-      accountId = memoid
-      log('using memo', accountId)
-    } else {
-      const account = await accountsServices.getAccountByPlaidAccountId(
-        account_id,
-      )
-
-      if (!account) throw new Error('Account not found')
-      accountId = account.id
-
-      memo.set(account_id, accountId)
-      log('seting memo', accountId)
-    }
-
-    const createQuery: CreateTransactions = {
-      accountId: accountId,
-      plaidTransactionId: transaction_id,
-      amount: amount,
-      isoCurrencyCode: iso_currency_code,
-      unofficialCurrencyCode: unofficial_currency_code,
-      date: date,
-      name: name,
-      address: location?.address,
-      categoryId: category_id,
-      accountOwner: account_owner,
-      pending: pending,
-    }
-
-    return createQuery
+  const createQuery: CreateTransactions = {
+    accountId: accountId,
+    plaidTransactionId: transaction_id,
+    amount: amount,
+    isoCurrencyCode: iso_currency_code,
+    unofficialCurrencyCode: unofficial_currency_code,
+    date: date,
+    name: name,
+    address: location?.address,
+    categoryId: category_id,
+    accountOwner: account_owner,
+    pending: pending,
   }
+
+  return createQuery
+}
 
 /**
  * Handles the fetching and storing of new, modified, or removed transactions
@@ -152,10 +135,8 @@ const updateTransactions = async (plaidItemId: string) => {
       transactionsDao
 
     // added transactions
-    const memo = new Map<string, string>()
-
-    const _add = added.map(convertTransactions(memo))
-    const _modified = modified.map(convertTransactions(memo))
+    const _add = added.map(convertTransactions)
+    const _modified = modified.map(convertTransactions)
 
     const create = await Promise.all(_add)
     const update = await Promise.all(_modified)
