@@ -21,6 +21,8 @@ import { useAuthStore } from '@/store/auth'
 
 import { useThemeStore } from '@/store/theme'
 
+import { refreshToken } from '@/auth/refreshToken'
+
 import { MainListItems, SecondaryListItems } from './ListItems'
 
 const drawerWidth: number = 240
@@ -87,16 +89,25 @@ function MainLayout({
   }
 
   const auth = useAuthStore((state) => state.auth)
-  const logout = useAuthStore((state) => state.logout)
+  const _logout = useAuthStore((state) => state.logout)
+  const logout = React.useCallback(() => {
+    _logout()
+    router.push('/login')
+  }, [_logout, router])
 
   const setTheme = useThemeStore((state) => state.setTheme)
 
   React.useEffect(() => {
-    if (!auth?.accessToken || auth.exp * 1000 < Date.now()) {
-      logout()
-      router.push('/login')
-      return
-    }
+    ;(async () => {
+      if (!auth?.accessToken || auth.exp * 1000 < Date.now()) {
+        try {
+          await refreshToken()
+        } catch (err) {
+          logout()
+          return
+        }
+      }
+    })()
   }, [auth, logout, router])
 
   return (
