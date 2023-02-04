@@ -26,8 +26,17 @@ const getAccountByPlaidAccountId = async (plaidAccountId: string) => {
   })
 }
 
+const getAccountsByItemId = async (itemId: string) => {
+  return await prisma.account.findMany({
+    where: {
+      itemId,
+    },
+  })
+}
+
 export const accountsDao = {
   createAccounts,
   getAccountsByUserId,
   getAccountByPlaidAccountId,
+  getAccountsByItemId,
 }
