@@ -1,82 +1,26 @@
-import { RemovedTransaction, Transaction } from 'plaid'
+import { RemovedTransaction } from 'plaid'
+
+import debug from 'debug'
 
 import { prisma, type Prisma } from '@/configs/prismaClient'
 
 export type CreateTransactions = Prisma.TransactionCreateManyInput
 
-const createTransactions = async (transactions: Transaction[]) => {
-  const query: CreateTransactions[] = transactions.map((transaction) => {
-    const {
-      account_id,
-      transaction_id,
-      amount,
-      iso_currency_code,
-      unofficial_currency_code,
-      date,
-      name,
-      location,
-      category_id,
-      account_owner,
-      pending,
-    } = transaction
+const log = debug('app:transactions:dao')
 
-    const createQuery: CreateTransactions = {
-      accountId: account_id,
-      plaidTransactionId: transaction_id,
-      amount: amount,
-      isoCurrencyCode: iso_currency_code,
-      unofficialCurrencyCode: unofficial_currency_code,
-      date: date,
-      name: name,
-      address: location?.address,
-      categoryId: category_id,
-      accountOwner: account_owner,
-      pending: pending,
-    }
-
-    return createQuery
-  })
-
-  return await prisma.transaction.createMany({
-    data: query,
-  })
+const createTransactions = async (transactions: CreateTransactions[]) => {
+  try {
+    return await prisma.transaction.createMany({
+      data: transactions,
+    })
+  } catch (error) {
+    throw error
+  }
 }
 
-const updateTransactions = async (transactions: Transaction[]) => {
-  const query: CreateTransactions[] = transactions.map((transaction) => {
-    const {
-      account_id,
-      transaction_id,
-      amount,
-      iso_currency_code,
-      unofficial_currency_code,
-      date,
-      name,
-      location,
-      category_id,
-      account_owner,
-      pending,
-    } = transaction
-
-    const update: CreateTransactions = {
-      accountId: account_id,
-      plaidTransactionId: transaction_id,
-      amount: amount,
-      isoCurrencyCode: iso_currency_code,
-      unofficialCurrencyCode: unofficial_currency_code,
-      date: date,
-      name: name,
-      address: location?.address,
-      categoryId: category_id,
-      accountOwner: account_owner,
-      pending: pending,
-    }
-
-    return update
-  })
-
+const updateTransactions = async (transactions: CreateTransactions[]) => {
   return await prisma.transaction.updateMany({
-    data: query,
+    data: transactions,
   })
 }
 

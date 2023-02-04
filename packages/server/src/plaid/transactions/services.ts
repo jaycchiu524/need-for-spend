@@ -7,7 +7,7 @@ import { itemsServices } from '../items/services'
 
 import { plaid } from '../plaid'
 
-import { transactionsDao } from './dao'
+import { CreateTransactions, transactionsDao } from './dao'
 
 const log = debug('app: transactions-services')
 
@@ -71,6 +71,61 @@ const fetchTransactionUpdates = async (plaidItemId: string) => {
   return { added, modified, removed, cursor, accessToken }
 }
 
+const convertTransactions =
+  (memo: Map<string, string>) => async (transaction: Transaction) => {
+    const {
+      account_id,
+      transaction_id,
+      amount,
+      iso_currency_code,
+      unofficial_currency_code,
+      date,
+      name,
+      location,
+      category_id,
+      account_owner,
+      pending,
+    } = transaction
+
+    let accountId: string
+
+    const memoid = memo.get(account_id)
+
+    log('memoid', memoid)
+    log('!!memoid', !!memoid)
+
+    if (!!memoid) {
+      accountId = memoid
+      log('using memo', accountId)
+    } else {
+      const account = await accountsServices.getAccountByPlaidAccountId(
+        account_id,
+      )
+
+      if (!account) throw new Error('Account not found')
+      accountId = account.id
+
+      memo.set(account_id, accountId)
+      log('seting memo', accountId)
+    }
+
+    const createQuery: CreateTransactions = {
+      accountId: accountId,
+      plaidTransactionId: transaction_id,
+      amount: amount,
+      isoCurrencyCode: iso_currency_code,
+      unofficialCurrencyCode: unofficial_currency_code,
+      date: date,
+      name: name,
+      address: location?.address,
+      categoryId: category_id,
+      accountOwner: account_owner,
+      pending: pending,
+    }
+
+    return createQuery
+  }
+
 /**
  * Handles the fetching and storing of new, modified, or removed transactions
  *
@@ -89,13 +144,24 @@ const updateTransactions = async (plaidItemId: string) => {
       // accessToken
     } = await fetchTransactionUpdates(plaidItemId)
 
-    // Update the DB.
+    // Update the accounts
+    await accountsServices.createAccounts(plaidItemId)
+
+    // Update the transactions.
     const { createTransactions, updateTransactions, deleteTransactions } =
       transactionsDao
 
-    await accountsServices.createAccounts(plaidItemId)
-    if (added.length > 0) await createTransactions(added)
-    if (modified.length > 0) await updateTransactions(modified)
+    // added transactions
+    const memo = new Map<string, string>()
+
+    const _add = added.map(convertTransactions(memo))
+    const _modified = modified.map(convertTransactions(memo))
+
+    const create = await Promise.all(_add)
+    const update = await Promise.all(_modified)
+
+    if (added.length > 0) await createTransactions(create)
+    if (modified.length > 0) await updateTransactions(update)
     if (removed.length > 0) await deleteTransactions(removed)
 
     if (cursor) {
