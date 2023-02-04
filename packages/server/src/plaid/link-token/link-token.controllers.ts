@@ -4,6 +4,8 @@ import debug from 'debug'
 
 import { JWT } from '@/auth/dto.types'
 
+import { itemsServices } from '@/plaid/items/services'
+
 import {
   PLAID_ANDROID_PACKAGE_NAME,
   PLAID_COUNTRY_CODES,
@@ -12,6 +14,8 @@ import {
   plaid,
 } from '../plaid'
 
+import { LinkTokenRequest } from './types'
+
 const log = debug('app: link-token-controller')
 
 export const getLinkToken = async (req: Request, res: Response) => {
@@ -19,9 +23,9 @@ export const getLinkToken = async (req: Request, res: Response) => {
     const configs: LinkTokenGetRequest = {
       link_token: req.body.linkToken,
     }
-    const createTokenResponse = await plaid.linkTokenGet(configs)
-    log(createTokenResponse)
-    res.json(createTokenResponse.data)
+    const getTokenResponse = await plaid.linkTokenGet(configs)
+    log(getTokenResponse)
+    res.json(getTokenResponse.data)
   } catch (err) {
     log(err)
     res.json(err)
@@ -29,19 +33,32 @@ export const getLinkToken = async (req: Request, res: Response) => {
 }
 
 const createLinkToken = async (
-  req: Request,
+  req: Request<any, LinkTokenRequest>,
   res: Response<any, { jwt: JWT }>,
 ) => {
+  let accessToken: string | undefined = undefined
+
+  log(req.body)
+
+  if (req.body.itemId) {
+    const getItemResponse = await itemsServices.getItemById(req.body.itemId)
+    log(getItemResponse)
+    if (getItemResponse) {
+      accessToken = getItemResponse.plaidAccessToken || undefined
+    }
+  }
+
   try {
     const configs: LinkTokenCreateRequest = {
       user: {
         // This should correspond to a unique id for the current user.
-        client_user_id: res.locals.jwt.id,
+        client_user_id: req.body.userId,
       },
       client_name: 'Fin-me',
       products: PLAID_PRODUCTS,
       country_codes: PLAID_COUNTRY_CODES,
       language: 'en',
+      access_token: accessToken,
     }
 
     if (PLAID_REDIRECT_URI !== '') {
