@@ -10,9 +10,9 @@ export const fetcher = async () => {
   if (!auth) return
 
   try {
-    await refreshToken()
+    const token = await refreshToken()
 
-    const accessToken = auth.accessToken
+    const accessToken = token || auth.accessToken
 
     const headers = axios.defaults.headers.common
 
@@ -24,6 +24,8 @@ export const fetcher = async () => {
       },
     })
   } catch (err) {
+    console.log('Error: ', err)
+    console.warn('Logging out...')
     logout()
   }
 }

@@ -12,7 +12,7 @@ export const refreshToken = async () => {
   // Check exp date
   const expDate = auth.exp * 1000
   const now = Date.now()
-  if (expDate > now) return
+  if (expDate > now) return null
 
   try {
     const { data } = await api.post<LoginSuccessResponse>(
@@ -28,6 +28,8 @@ export const refreshToken = async () => {
     )
 
     useAuthStore.getState().setToken(data)
+
+    return data
   } catch (err) {
     const error = err as AxiosError<ErrorResponse>
     throw error
