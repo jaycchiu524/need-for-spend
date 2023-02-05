@@ -5,6 +5,7 @@ import { jwtMiddlewares } from '@/common/middlewares/jwt.middleware'
 
 import { linkTokenControllers } from './link-token/link-token.controllers'
 import { itemsControllers } from './items/items.controllers'
+import { accountsControllers } from './accounts/accounts.controller'
 
 const debugLog = debug('app: info-routes')
 
@@ -28,11 +29,16 @@ export const plaidRoutes = (app: express.Application) => {
     .all(validJWTNeeded)
     .get(itemsControllers.getItemById)
 
-  // Accounts
   app
     .route(`/items/:itemId/accounts`)
     .all(validJWTNeeded)
     .get(itemsControllers.getAccountsByItemId)
+
+  // Accounts
+  app
+    .route(`/accounts/:accountId/transactions`)
+    .all(validJWTNeeded)
+    .get(accountsControllers.getTransactionsByAccountId)
 
   return app
 }

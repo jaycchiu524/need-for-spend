@@ -171,7 +171,21 @@ const getTransactionsByUserId = async (userId: string) => {
   }
 }
 
+const getTransactionsByAccountId = async (accountId: string) => {
+  log(`Getting transactions for account ${accountId}...`)
+  try {
+    const transactions = await transactionsDao.getTransactionsByAccountId(
+      accountId,
+    )
+    return transactions
+  } catch (err) {
+    log(`Error getting transactions: ${err}`)
+    throw err
+  }
+}
+
 export const transactionsServices = {
   updateTransactions,
   getTransactionsByUserId,
+  getTransactionsByAccountId,
 }

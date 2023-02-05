@@ -14,14 +14,20 @@ const createTransactions = async (transactions: CreateTransactions[]) => {
       data: transactions,
     })
   } catch (error) {
+    log('createTransactions: ', error)
     throw error
   }
 }
 
 const updateTransactions = async (transactions: CreateTransactions[]) => {
-  return await prisma.transaction.updateMany({
-    data: transactions,
-  })
+  try {
+    return await prisma.transaction.updateMany({
+      data: transactions,
+    })
+  } catch (error) {
+    log('updateTransactions: ', error)
+    throw error
+  }
 }
 
 const deleteTransactions = async (transactions: RemovedTransaction[]) => {
@@ -33,23 +39,57 @@ const deleteTransactions = async (transactions: RemovedTransaction[]) => {
     }
   })
 
-  return await prisma.transaction.deleteMany({
-    where: {
-      OR: query,
-    },
-  })
+  try {
+    return await prisma.transaction.deleteMany({
+      where: {
+        OR: query,
+      },
+    })
+  } catch (error) {
+    log('deleteTransactions: ', error)
+    throw error
+  }
 }
 
 const getTransactionsByUserId = async (userId: string) => {
-  return await prisma.transaction.findMany({
-    where: {
-      account: {
-        item: {
-          userId,
+  try {
+    return await prisma.transaction.findMany({
+      where: {
+        account: {
+          item: {
+            userId,
+          },
         },
       },
-    },
-  })
+    })
+  } catch (error) {
+    log('getTransactionsByUserId: ', error)
+    throw error
+  }
+}
+
+const getTransactionsByAccountId = async (accountId: string) => {
+  try {
+    return await prisma.transaction.findMany({
+      where: {
+        accountId,
+      },
+      include: {
+        account: {
+          select: {
+            item: {
+              select: {
+                userId: true,
+              },
+            },
+          },
+        },
+      },
+    })
+  } catch (error) {
+    log('getTransactionsByAccountId: ', error)
+    throw error
+  }
 }
 
 export const transactionsDao = {
@@ -57,4 +97,5 @@ export const transactionsDao = {
   updateTransactions,
   deleteTransactions,
   getTransactionsByUserId,
+  getTransactionsByAccountId,
 }

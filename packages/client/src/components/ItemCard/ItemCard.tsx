@@ -12,6 +12,8 @@ import CreditCardIcon from '@mui/icons-material/CreditCard'
 
 import { useQuery } from '@tanstack/react-query'
 
+import { useRouter } from 'next/router'
+
 import { ItemType } from '@/api/items'
 import { getAccountByItemId } from '@/api/accounts'
 
@@ -34,6 +36,8 @@ const ItemCard = ({ item }: Props) => {
   })
 
   const accounts = data?.data || []
+
+  const router = useRouter()
 
   return (
     <List
@@ -68,9 +72,16 @@ const ItemCard = ({ item }: Props) => {
               Other = "other"
              */
             const isDepository = account.type === 'depository'
+            const handleAccountClick = () => {
+              router.push(`/account/${account.id}`)
+            }
 
             return (
-              <List key={account.id} component="div" disablePadding>
+              <List
+                key={account.id}
+                component="div"
+                disablePadding
+                onClick={handleAccountClick}>
                 <ListItemButton sx={{ pl: 4 }}>
                   <ListItemIcon>
                     {isDepository ? <SavingsIcon /> : <CreditCardIcon />}

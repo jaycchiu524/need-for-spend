@@ -27,10 +27,12 @@ const PieChart = () => {
       .attr('height', h)
     // .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
 
-    // const g = svg.append('g').style('overflow', 'visible')
-
     // setting up chart
-    const arcs = d3.pie<void, Datum>().value((d) => d.value)(data)
+    const arcs = d3
+      .pie<void, Datum>()
+      .padAngle(1 / radius)
+      .sort(null)
+      .value((d) => d.value)(data)
     const arcGenerator = d3
       .arc<d3.PieArcDatum<Datum>>()
       .innerRadius(radius / 2)
@@ -40,8 +42,8 @@ const PieChart = () => {
     // setting up svg data
     svg
       .append('g')
-      .attr('stroke', 'white')
-      .attr('stroke-width', 2)
+      // .attr('stroke', 'red')
+      // .attr('stroke-width', 2)
       .selectAll('path')
       .data(arcs)
       .join('path')
