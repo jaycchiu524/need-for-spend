@@ -89,8 +89,21 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
         enableGlobalFilter: false,
       }),
       columnHelper.accessor('amount', {
-        header: 'Amount',
-        cell: (row) => <div>{row.getValue()}</div>,
+        header: `Amount`,
+        cell: (row) => {
+          //
+          const _amount = -row.getValue()
+          // prepend a + if the amount is positive
+          const displayAmount = _amount > 0 ? `+${_amount}` : _amount
+          return (
+            <div
+              style={{
+                color: _amount > 0 ? 'green' : 'red',
+              }}>
+              {displayAmount}
+            </div>
+          )
+        },
       }),
       columnHelper.accessor('date', {
         header: 'Date',

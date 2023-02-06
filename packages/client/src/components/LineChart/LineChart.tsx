@@ -8,6 +8,8 @@ interface Datum {
 }
 
 interface Props {
+  width: number
+  height: number
   data: Datum[]
 }
 
@@ -25,7 +27,7 @@ interface Props {
 //   { date: new Date('2020-11-06'), value: 6 },
 // ]
 
-const LineChart = ({ data: _data }: Props) => {
+const LineChart = ({ data: _data, ...props }: Props) => {
   const [data, setData] = useState<Datum[]>([])
 
   const svgRef = React.useRef(null)
@@ -38,8 +40,8 @@ const LineChart = ({ data: _data }: Props) => {
 
     const x = (d: Datum) => d.date // given d in data, returns the (temporal) x-value
     const y = (d: Datum) => d.value
-    const w = 640
-    const h = 400
+    const w = props.width
+    const h = props.height
     const margin = { top: 20, right: 30, bottom: 30, left: 40 }
     const width = w - margin.left - margin.right
     const height = h - margin.top - margin.bottom
@@ -47,7 +49,7 @@ const LineChart = ({ data: _data }: Props) => {
     const yType = d3.scaleLinear
     const xRange = [margin.left, width - margin.right]
     const yRange = [height - margin.bottom, margin.top]
-    const yLabel = '↑ Daily close ($)'
+    const yLabel = '↑ Daily spending (CAD)'
     const xLabel = '→ Date'
     const curve = d3.curveLinear
     const strokeLinecap = 'round' // stroke line cap of the line
@@ -74,8 +76,8 @@ const LineChart = ({ data: _data }: Props) => {
     const yScale = yType(yDomain, yRange)
     const xAxis = d3
       .axisBottom<Date>(xScale)
-      .ticks(d3.utcMonth.every(2))
-      .tickFormat(d3.timeFormat('%b'))
+      .ticks(d3.utcDay.every(1))
+      .tickFormat(d3.timeFormat('%d'))
       .tickSizeOuter(0)
     const yAxis = d3.axisLeft(yScale).ticks(height / 40, '~f')
 
