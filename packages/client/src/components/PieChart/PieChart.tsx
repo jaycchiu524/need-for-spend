@@ -7,18 +7,25 @@ interface Datum {
   value: number
 }
 
-const PieChart = () => {
+interface Props {
+  width: number
+  height: number
+  data: Datum[]
+}
+
+const PieChart = (props: Props) => {
   const svgRef = useRef(null)
-  const [data] = useState([
-    { name: 'A', value: 10 },
-    { name: 'B', value: 20 },
-    { name: 'C', value: 30 },
-  ])
+  const [data, setData] = useState<Datum[]>([])
 
   useEffect(() => {
+    setData(props.data)
+
+    if (!svgRef.current) return
+    if (!data) return
+
     // setting up svg container
-    const w = 500
-    const h = 500
+    const w = props.width
+    const h = props.height
     const radius = w / 2
     const svg = d3
       .select(svgRef.current)
@@ -66,19 +73,12 @@ const PieChart = () => {
     return () => {
       svg.selectAll('*').remove()
     }
-  }, [data])
+  }, [props.data, props.height, props.width, data])
 
   return (
-    <div
-      id="pie-chart"
-      style={{
-        display: 'inline-block',
-        margin: '0 auto',
-        width: '100%',
-        height: '100%',
-      }}>
+    <>
       <svg ref={svgRef} />
-    </div>
+    </>
   )
 }
 

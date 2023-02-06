@@ -3,6 +3,8 @@ import React, { useMemo } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 
+import { Box } from '@mui/material'
+
 import PieChart from '@/components/PieChart/PieChart'
 import { getTransactionsByAccountId } from '@/api/transactions'
 import TransactionsTable from '@/components/Table'
@@ -33,6 +35,26 @@ function calcaulate(transactions: Transaction[]) {
   return [spending, income, saving]
 }
 
+function categorize(transactions: Transaction[]) {
+  const categories = transactions.reduce((acc, transaction) => {
+    if (transaction.categoryId) {
+      if (acc[transaction.categoryId]) {
+        acc[transaction.categoryId] += transaction.amount
+      } else {
+        acc[transaction.categoryId] = transaction.amount
+      }
+    }
+
+    return acc
+  }, {} as Record<string, number>)
+
+  return Object.entries(categories).reduce((acc, [key, value]) => {
+    if (value <= 0) return acc
+    acc.push({ name: key, value })
+    return acc
+  }, [] as { name: string; value: number }[])
+}
+
 const AccountDetail = () => {
   const router = useRouter()
   const { accountId: _accId } = router.query
@@ -52,6 +74,8 @@ const AccountDetail = () => {
     [transactions],
   )
 
+  const categories = useMemo(() => categorize(transactions), [transactions])
+
   return (
     <>
       <h2>AccountDetail</h2>
@@ -67,7 +91,21 @@ const AccountDetail = () => {
           <TransactionsTable transactions={transactions} />
         )}
       </div>
-      <PieChart />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <h2>Categorized Spending</h2>
+
+        {!!categories ? (
+          <PieChart width={500} height={500} data={categories} />
+        ) : (
+          <p>Loading...</p>
+        )}
+      </Box>
     </>
   )
 }
