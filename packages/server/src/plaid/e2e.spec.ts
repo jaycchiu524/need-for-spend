@@ -3,7 +3,7 @@ import supertest from 'supertest'
 
 import app from '@/app'
 
-import { CreateItemInput } from './items/dao'
+import { CreateItemInput, itemsDao } from './items/dao'
 import { itemsServices } from './items/services'
 import { accountsDao } from './accounts/dao'
 
@@ -312,5 +312,26 @@ describe('Create items, accounts and transactions', () => {
 
       expect(transactions.count).toBe(8)
     })
+  })
+
+  it('should all related records when deleting a item record', async () => {
+    const item = await itemsDao.getItemById(itemId)
+    const accounts = await accountsDao.getAccountsByItemId(itemId)
+    const transactions = await transactionsDao.getTransactionsByItemId(itemId)
+
+    expect(item).not.toBeNull()
+    expect(accounts.length).not.toBe(0)
+    expect(transactions.length).not.toBe(0)
+
+    await itemsDao.deleteItemById(itemId)
+
+    const itemAfterDelete = await itemsDao.getItemById(itemId)
+    const accountsAfterDelete = await accountsDao.getAccountsByItemId(itemId)
+    const transactionsAfterDelete =
+      await transactionsDao.getTransactionsByItemId(itemId)
+
+    expect(itemAfterDelete).toBeNull()
+    expect(accountsAfterDelete.length).toBe(0)
+    expect(transactionsAfterDelete.length).toBe(0)
   })
 })

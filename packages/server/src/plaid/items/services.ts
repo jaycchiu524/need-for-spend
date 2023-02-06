@@ -27,10 +27,15 @@ const getItemsByUserId = async (userId: string) => {
   return await itemsDao.getItemsByUserId(userId)
 }
 
+const deleteItemById = async (id: string) => {
+  await itemsDao.deleteItemById(id)
+}
+
 export const itemsServices = {
   createItem,
   getItemById,
   getItemByPlaidItemId,
   updateItemTransactionsCursor,
   getItemsByUserId,
+  deleteItemById,
 }

@@ -92,10 +92,26 @@ const getTransactionsByAccountId = async (accountId: string) => {
   }
 }
 
+const getTransactionsByItemId = async (itemId: string) => {
+  try {
+    return await prisma.transaction.findMany({
+      where: {
+        account: {
+          itemId,
+        },
+      },
+    })
+  } catch (error) {
+    log('getTransactionsByItemId: ', error)
+    throw error
+  }
+}
+
 export const transactionsDao = {
   createTransactions,
   updateTransactions,
   deleteTransactions,
   getTransactionsByUserId,
   getTransactionsByAccountId,
+  getTransactionsByItemId,
 }

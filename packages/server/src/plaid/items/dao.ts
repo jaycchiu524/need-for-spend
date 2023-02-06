@@ -62,10 +62,19 @@ const updateItemTransactionsCursor = async (
   })
 }
 
+const deleteItemById = async (id: string) => {
+  return await prisma.item.delete({
+    where: {
+      id,
+    },
+  })
+}
+
 export const itemsDao = {
   getItemsByUserId,
   createItem,
   getItemById,
   getItemByPlaidItemId,
   updateItemTransactionsCursor,
+  deleteItemById,
 }
