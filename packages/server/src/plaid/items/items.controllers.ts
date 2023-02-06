@@ -102,26 +102,34 @@ const getAccountsByItemId = async (
 ) => {
   try {
     const itemId = req.params.itemId
-
-    const item = await itemsServices.getItemById(itemId)
-    if (!item) {
-      return res.status(404).send({
-        code: 404,
-        message: 'Item not found',
-      })
-    }
-
-    const userId = res.locals.jwt.id
-    if (item.userId !== userId) {
-      return res.status(403).send({
-        code: 403,
-        message: 'Forbidden',
-      })
-    }
-
     const accounts = await accountsServices.getAccountsByItemId(itemId)
 
     return res.status(200).send(accounts)
+  } catch (err) {
+    log('Error: Internal get item by plaid item id: %o', err)
+
+    return res.status(500).send({
+      code: 500,
+      message: 'Internal Server Error',
+    })
+  }
+}
+
+// Delete item and related records - accounts, transactions
+const deleteItemAndRelatedRecordsById = async (
+  req: Request<{ itemId: string }>,
+  res: Response<any, { jwt: JWT }>,
+) => {
+  try {
+    const itemId = req.params.itemId
+
+    await itemsServices.deleteItemById(itemId)
+
+    log('Item deleted: %s', itemId)
+    return res.status(204).send({
+      code: 204,
+      message: 'Item deleted',
+    })
   } catch (err) {
     log('Error: Internal get item by plaid item id: %o', err)
 
@@ -136,4 +144,5 @@ export const itemsControllers = {
   getItemById,
   createItem,
   getAccountsByItemId,
+  deleteItemAndRelatedRecordsById,
 }

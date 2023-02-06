@@ -3,6 +3,8 @@ import supertest from 'supertest'
 
 import app from '@/app'
 
+import { Account, Transaction } from '@/generated/client'
+
 import { CreateItemInput, itemsDao } from './items/dao'
 import { itemsServices } from './items/services'
 import { accountsDao } from './accounts/dao'
@@ -314,24 +316,88 @@ describe('Create items, accounts and transactions', () => {
     })
   })
 
-  it('should all related records when deleting a item record', async () => {
-    const item = await itemsDao.getItemById(itemId)
-    const accounts = await accountsDao.getAccountsByItemId(itemId)
-    const transactions = await transactionsDao.getTransactionsByItemId(itemId)
+  describe('Endpoints', () => {
+    it('should get item by item id', async () => {
+      const response = await request
+        .get(`/items/${itemId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
 
-    expect(item).not.toBeNull()
-    expect(accounts.length).not.toBe(0)
-    expect(transactions.length).not.toBe(0)
+      const item = response.body
 
-    await itemsDao.deleteItemById(itemId)
+      expect(item).toHaveProperty('id')
+      expect(item).toHaveProperty('plaidItemId')
+      expect(item).toHaveProperty('plaidInstitutionId')
+      expect(item).toHaveProperty('plaidInstitutionName')
+      expect(item).toHaveProperty('transactionsCursor')
+      expect(item).toHaveProperty('userId')
+      expect(item).toHaveProperty('createdAt')
+      expect(item).toHaveProperty('updatedAt')
 
-    const itemAfterDelete = await itemsDao.getItemById(itemId)
-    const accountsAfterDelete = await accountsDao.getAccountsByItemId(itemId)
-    const transactionsAfterDelete =
-      await transactionsDao.getTransactionsByItemId(itemId)
+      expect(item).not.toHaveProperty('plaidAccessToken')
+    })
 
-    expect(itemAfterDelete).toBeNull()
-    expect(accountsAfterDelete.length).toBe(0)
-    expect(transactionsAfterDelete.length).toBe(0)
+    it('should not get item by item id if not authorized', async () => {
+      const response = await request.get(`/items/${itemId}`)
+      expect(response.status).toBe(401)
+    })
+
+    it('should return 404 if item not found', async () => {
+      const response = await request
+        .get(`/items/${nanoid()}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+      expect(response.status).toBe(404)
+    })
+
+    it('should get accounts by item id', async () => {
+      const response = await request
+        .get(`/items/${itemId}/accounts`)
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      const accounts = response.body as Account[]
+
+      expect(accounts.length).toBe(2)
+      expect(accounts[0]).toHaveProperty('id')
+      expect(accounts[0]).toHaveProperty('plaidAccountId')
+    })
+
+    it('should get transactions by account id', async () => {
+      const accountRes = await request
+        .get(`/items/${itemId}/accounts`)
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      const acc = accountRes.body[0] as Account
+      const response = await request
+        .get(`/accounts/${acc.id}/transactions`)
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      const transactions = response.body as Transaction[]
+
+      expect(transactions.length).not.toBe(0)
+      expect(transactions[0]).toHaveProperty('id')
+      expect(transactions[0]).toHaveProperty('plaidTransactionId')
+    })
+
+    it('should all related records when deleting a item record', async () => {
+      const item = await itemsDao.getItemById(itemId)
+      const accounts = await accountsDao.getAccountsByItemId(itemId)
+      const transactions = await transactionsDao.getTransactionsByItemId(itemId)
+
+      expect(item).not.toBeNull()
+      expect(accounts.length).not.toBe(0)
+      expect(transactions.length).not.toBe(0)
+
+      await request
+        .delete(`/items/${itemId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      const itemAfterDelete = await itemsDao.getItemById(itemId)
+      const accountsAfterDelete = await accountsDao.getAccountsByItemId(itemId)
+      const transactionsAfterDelete =
+        await transactionsDao.getTransactionsByItemId(itemId)
+
+      expect(itemAfterDelete).toBeNull()
+      expect(accountsAfterDelete.length).toBe(0)
+      expect(transactionsAfterDelete.length).toBe(0)
+    })
   })
 })

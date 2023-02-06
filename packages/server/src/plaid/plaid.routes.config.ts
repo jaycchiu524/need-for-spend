@@ -6,10 +6,12 @@ import { jwtMiddlewares } from '@/common/middlewares/jwt.middleware'
 import { linkTokenControllers } from './link-token/link-token.controllers'
 import { itemsControllers } from './items/items.controllers'
 import { accountsControllers } from './accounts/accounts.controller'
+import { itemMiddlewares } from './items/middlewares'
 
 const debugLog = debug('app: info-routes')
 
 const { validJWTNeeded } = jwtMiddlewares
+const { validateItemExists, validateItemBelongsToUser } = itemMiddlewares
 
 export const plaidRoutes = (app: express.Application) => {
   const name = 'plaidRoutes'
@@ -26,12 +28,13 @@ export const plaidRoutes = (app: express.Application) => {
 
   app
     .route(`/items/:itemId`)
-    .all(validJWTNeeded)
+    .all(validJWTNeeded, validateItemExists, validateItemBelongsToUser)
     .get(itemsControllers.getItemById)
+    .delete(itemsControllers.deleteItemAndRelatedRecordsById)
 
   app
     .route(`/items/:itemId/accounts`)
-    .all(validJWTNeeded)
+    .all(validJWTNeeded, validateItemExists, validateItemBelongsToUser)
     .get(itemsControllers.getAccountsByItemId)
 
   // Accounts
