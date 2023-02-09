@@ -3502,6 +3502,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^18.11.19":
+  version: 18.11.19
+  resolution: "@types/node@npm:18.11.19"
+  checksum: d7cd19fcfc59cbdd3f9ba0b4072cb7adc21bd575bd8eb7d7e698975e63564aaa83f03434f32b12331f84f73d0b369d9cbe2371e359d9d7f5c3361f4987f4f7da
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^18.7.6":
   version: 18.11.11
   resolution: "@types/node@npm:18.11.11"
@@ -6774,7 +6781,7 @@ __metadata:
   dependencies:
     "@jest/globals": ^29.3.1
     "@types/jest": ^29.2.4
-    "@types/node": ^18.11.9
+    "@types/node": ^18.11.19
     "@typescript-eslint/eslint-plugin": ^5.45.1
     "@typescript-eslint/parser": ^5.45.1
     concurrently: ^7.6.0

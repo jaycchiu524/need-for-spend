@@ -76,7 +76,11 @@ const createItem = async (
       plaidAccessToken: ACCESS_TOKEN,
       plaidInstitutionId: req.body.institutionId,
       plaidInstitutionName: req.body.institutionName,
-      userId: res.locals.jwt.id,
+      user: {
+        connect: {
+          id: res.locals.jwt.id,
+        },
+      },
       transactionsCursor: null,
     })
 

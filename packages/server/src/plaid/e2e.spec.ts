@@ -29,7 +29,11 @@ const testItem: CreateItemInput = {
   plaidItemId: testPlaidItemId,
   plaidInstitutionId: nanoid(),
   plaidInstitutionName: 'Test Bank',
-  userId: '',
+  user: {
+    connect: {
+      id: '',
+    },
+  },
 }
 
 let accessToken = '' // used to store the token of the first user created for testing purposes
@@ -52,7 +56,7 @@ describe('Create items, accounts and transactions', () => {
     accessToken = response.body.accessToken
     refreshToken = response.body.refreshToken
 
-    testItem.userId = firstUserIdTest
+    if (testItem.user.connect) testItem.user.connect.id = firstUserIdTest
   })
 
   describe('Items', () => {
@@ -213,7 +217,7 @@ describe('Create items, accounts and transactions', () => {
           date: '2023-01-30',
           name: 'Uber 063015 SF**POOL**',
           address: null,
-          categoryId: '22016000',
+          plaidCategoryId: '22016000',
           accountOwner: null,
           pending: false,
         },
@@ -226,7 +230,7 @@ describe('Create items, accounts and transactions', () => {
           date: '2023-01-28',
           name: 'United Airlines',
           address: null,
-          categoryId: '22001000',
+          plaidCategoryId: '22001000',
           accountOwner: null,
           pending: false,
         },
@@ -239,7 +243,7 @@ describe('Create items, accounts and transactions', () => {
           date: '2023-01-27',
           name: "McDonald's",
           address: null,
-          categoryId: '13005032',
+          plaidCategoryId: '13005032',
           accountOwner: null,
           pending: false,
         },
@@ -252,7 +256,7 @@ describe('Create items, accounts and transactions', () => {
           date: '2023-01-27',
           name: 'Starbucks',
           address: null,
-          categoryId: '13005043',
+          plaidCategoryId: '13005043',
           accountOwner: null,
           pending: false,
         },
@@ -265,7 +269,7 @@ describe('Create items, accounts and transactions', () => {
           date: '2023-01-26',
           name: 'SparkFun',
           address: null,
-          categoryId: '13005000',
+          plaidCategoryId: '13005000',
           accountOwner: null,
           pending: false,
         },
@@ -278,7 +282,7 @@ describe('Create items, accounts and transactions', () => {
           date: '2023-01-13',
           name: 'Uber 072515 SF**POOL**',
           address: null,
-          categoryId: '22016000',
+          plaidCategoryId: '22016000',
           accountOwner: null,
           pending: false,
         },
@@ -291,7 +295,7 @@ describe('Create items, accounts and transactions', () => {
           date: '2023-01-30',
           name: 'CREDIT CARD 3333 PAYMENT *//',
           address: null,
-          categoryId: '16001000',
+          plaidCategoryId: '16001000',
           accountOwner: null,
           pending: false,
         },
@@ -304,7 +308,7 @@ describe('Create items, accounts and transactions', () => {
           date: '2023-01-25',
           name: 'INTRST PYMNT',
           address: null,
-          categoryId: '21005000',
+          plaidCategoryId: '21005000',
           accountOwner: null,
           pending: false,
         },

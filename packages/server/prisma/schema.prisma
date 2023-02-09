@@ -12,17 +12,19 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    
+  id        String   @id @default(uuid())
+  email     String
   password  String
   firstName String
   lastName  String
-  role      Int       @default(1)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  role      Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("users")
+  items Item[]
+
   @@unique([email])
+  @@map("users")
 }
 
 model Item {
@@ -33,13 +35,14 @@ model Item {
   plaidInstitutionName String   @map("plaid_institution_name")
   transactionsCursor   String?  @map("transactions_cursor")
   userId               String   @map("user_id")
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  Account Account[]
+  accounts Account[]
 
-  @@map("items")
   @@unique([plaidItemId])
+  @@map("items")
 }
 
 model Account {
@@ -60,30 +63,66 @@ model Account {
   createdAt                     DateTime @default(now())
   updatedAt                     DateTime @updatedAt
 
-  Transaction Transaction[]
+  transaction Transaction[]
 
-  @@map("accounts")
   @@unique([plaidAccountId])
+  @@map("accounts")
 }
 
 model Transaction {
-  id                     String   @id @default(uuid())
-  plaidTransactionId     String   @map("plaid_transaction_id") // Plaid Transaction ID
-  accountId              String   @map("account_id") // Not Plaid Account ID
-  account                Account  @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  date                   String   @map("date")
-  address                String?  @map("address")
-  name                   String?  @map("name")
-  amount                 Float    @map("amount")
-  isoCurrencyCode        String?  @map("iso_currency_code")
-  unofficialCurrencyCode String?  @map("unofficial_currency_code")
-  plaidCategoryId        String?  @map("plaid_category_id")
-  categoryId             String?  @map("category_id")
-  pending                Boolean  @map("pending")
-  accountOwner           String?  @map("account_owner")
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  id                     String    @id @default(uuid())
+  plaidTransactionId     String    @map("plaid_transaction_id") // Plaid Transaction ID
+  accountId              String    @map("account_id") // Not Plaid Account ID
+  account                Account   @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  date                   String    @map("date")
+  address                String?   @map("address")
+  name                   String?   @map("name")
+  amount                 Float     @map("amount")
+  isoCurrencyCode        String?   @map("iso_currency_code")
+  unofficialCurrencyCode String?   @map("unofficial_currency_code")
+  plaidCategoryId        String?   @map("plaid_category_id")
+  category               Category? @relation(fields: [plaidCategoryId], references: [plaidCategoryId], onDelete: Cascade, onUpdate: Cascade)
+  pending                Boolean   @map("pending")
+  accountOwner           String?   @map("account_owner")
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
-  @@map("transactions")
   @@unique([plaidTransactionId])
+  @@map("transactions")
+}
+
+model Category {
+  plaidCategoryId String   @id @map("plaid_category_id")
+  name            String   @map("name")
+  group           String   @map("group")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  transaction Transaction[]
+  subcategories CategoriesOnSubcategories[]
+
+  @@map("categories")
+}
+
+model Subcategory {
+  name               String   @map("name")
+  depth              Int      @map("depth")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  categories      CategoriesOnSubcategories[]
+  @@id([name])
+  @@map("subcategories")
+}
+
+model CategoriesOnSubcategories {
+  plaidCategoryId    String   @map("plaid_category_id")
+  category           Category @relation(fields: [plaidCategoryId], references: [plaidCategoryId], onDelete: Cascade, onUpdate: Cascade)
+  subcategoryName    String   @map("subcategory_name")
+  subcategory        Subcategory @relation(fields: [subcategoryName], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@id([plaidCategoryId, subcategoryName])
+  @@map("categories_on_sub_categories")
 }

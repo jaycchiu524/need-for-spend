@@ -101,7 +101,7 @@ const convertTransactions = async (transaction: Transaction) => {
     date: date,
     name: name,
     address: location?.address,
-    categoryId: category_id,
+    plaidCategoryId: category_id,
     accountOwner: account_owner,
     pending: pending,
   }

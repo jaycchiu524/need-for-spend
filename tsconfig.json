@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "types": [
-      "jest"
+      "jest",
+      "node",
     ],
     "incremental": true,
     "outDir": "dist",
