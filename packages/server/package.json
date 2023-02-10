@@ -2,7 +2,7 @@
   "name": "server",
   "packageManager": "yarn@3.3.0",
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
   },
   "scripts": {
     "start": "node dist/src/app.js",
@@ -13,9 +13,10 @@
     "postbuild": "yarn run copy-files",
     "copy-files": "copyfiles -u 1 \"./src/generated/**/*\" dist/src",
     "docker:compose": "docker-compose --env-file=.env up -d",
-    "prisma:generate": "pnpify prisma generate",
-    "prisma:migrate": "pnpify prisma migrate dev",
-    "prisma:push": "pnpify prisma db push",
+    "generate": "pnpify prisma generate",
+    "migrate-dev": "pnpify prisma migrate dev",
+    "db-push": "pnpify prisma db push",
+    "db-reset": "pnpify prisma migrate reset",
     "prepare": "yarn run build",
     "test": "TEST=* jest -i --detectOpenHandles"
   },

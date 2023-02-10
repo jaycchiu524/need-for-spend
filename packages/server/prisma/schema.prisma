@@ -81,7 +81,7 @@ model Transaction {
   isoCurrencyCode        String?   @map("iso_currency_code")
   unofficialCurrencyCode String?   @map("unofficial_currency_code")
   plaidCategoryId        String?   @map("plaid_category_id")
-  category               Category? @relation(fields: [plaidCategoryId], references: [plaidCategoryId], onDelete: Cascade, onUpdate: Cascade)
+  category               Category? @relation(fields: [plaidCategoryId], references: [plaidCategoryId])
   pending                Boolean   @map("pending")
   accountOwner           String?   @map("account_owner")
   createdAt              DateTime  @default(now())
