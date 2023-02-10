@@ -192,6 +192,9 @@ describe('Create items, accounts and transactions', () => {
   })
 
   describe('Transactions', () => {
+    const removeTestId = [nanoid(), nanoid()]
+    const updateTestId = [nanoid(), nanoid()]
+
     it('should create new transactions', async () => {
       const accountId_A = await accountsDao.getAccountByPlaidAccountId(
         testPlaidAccountId_A,
@@ -200,17 +203,16 @@ describe('Create items, accounts and transactions', () => {
         testPlaidAccountId_B,
       )
 
-      expect(accountId_A).toHaveProperty('id')
-      expect(accountId_B).toHaveProperty('id')
-
       if (!accountId_A || !accountId_B) {
         throw new Error('Account A/B not found')
       }
+      expect(accountId_A).toHaveProperty('id')
+      expect(accountId_B).toHaveProperty('id')
 
-      const transactions = await transactionsDao.createTransactions([
+      const add = [
         {
           accountId: accountId_A.id,
-          plaidTransactionId: nanoid(),
+          plaidTransactionId: removeTestId[0],
           amount: 5.4,
           isoCurrencyCode: 'USD',
           unofficialCurrencyCode: null,
@@ -236,7 +238,7 @@ describe('Create items, accounts and transactions', () => {
         },
         {
           accountId: accountId_A.id,
-          plaidTransactionId: nanoid(),
+          plaidTransactionId: removeTestId[1],
           amount: 12,
           isoCurrencyCode: 'USD',
           unofficialCurrencyCode: null,
@@ -249,7 +251,7 @@ describe('Create items, accounts and transactions', () => {
         },
         {
           accountId: accountId_A.id,
-          plaidTransactionId: nanoid(),
+          plaidTransactionId: updateTestId[0],
           amount: 4.33,
           isoCurrencyCode: 'USD',
           unofficialCurrencyCode: null,
@@ -262,7 +264,7 @@ describe('Create items, accounts and transactions', () => {
         },
         {
           accountId: accountId_A.id,
-          plaidTransactionId: nanoid(),
+          plaidTransactionId: updateTestId[1],
           amount: 89.4,
           isoCurrencyCode: 'USD',
           unofficialCurrencyCode: null,
@@ -312,11 +314,83 @@ describe('Create items, accounts and transactions', () => {
           accountOwner: null,
           pending: false,
         },
-      ])
+      ]
+
+      const transactions = await transactionsDao.syncTransactions(add, [], [])
 
       console.log('Create transactions', transactions)
 
-      expect(transactions.count).toBe(8)
+      expect(transactions).toBeDefined()
+    })
+
+    it('should update and delete transactions', async () => {
+      const accountId_A = await accountsDao.getAccountByPlaidAccountId(
+        testPlaidAccountId_A,
+      )
+      const accountId_B = await accountsDao.getAccountByPlaidAccountId(
+        testPlaidAccountId_B,
+      )
+
+      if (!accountId_A || !accountId_B) {
+        throw new Error('Account A/B not found')
+      }
+      const update = [
+        {
+          accountId: accountId_A.id,
+          plaidTransactionId: updateTestId[0],
+          amount: 69,
+          isoCurrencyCode: 'USD',
+          unofficialCurrencyCode: null,
+          date: '2023-01-27',
+          name: 'Starbucks',
+          address: null,
+          plaidCategoryId: '13005043',
+          accountOwner: null,
+          pending: false,
+        },
+        {
+          accountId: accountId_A.id,
+          plaidTransactionId: updateTestId[1],
+          amount: 8964,
+          isoCurrencyCode: 'USD',
+          unofficialCurrencyCode: null,
+          date: '2023-01-26',
+          name: 'SparkFun',
+          address: null,
+          plaidCategoryId: '13005000',
+          accountOwner: null,
+          pending: false,
+        },
+      ]
+
+      const remove = [
+        {
+          transaction_id: removeTestId[1],
+        },
+        {
+          transaction_id: removeTestId[0],
+        },
+      ]
+
+      await transactionsDao.syncTransactions([], update, remove)
+
+      const transactions = await transactionsDao.getTransactionsByItemId(itemId)
+
+      expect(transactions.length).toBe(6)
+      expect(
+        transactions.find((t) => t.plaidTransactionId === removeTestId[0]),
+      ).toBeUndefined()
+      expect(
+        transactions.find((t) => t.plaidTransactionId === removeTestId[1]),
+      ).toBeUndefined()
+      expect(
+        transactions.find((t) => t.plaidTransactionId === updateTestId[0])
+          ?.amount,
+      ).toBe(69)
+      expect(
+        transactions.find((t) => t.plaidTransactionId === updateTestId[1])
+          ?.amount,
+      ).toBe(8964)
     })
   })
 

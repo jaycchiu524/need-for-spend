@@ -8,29 +8,22 @@ export type CreateTransactions = Prisma.TransactionCreateManyInput
 
 const log = debug('app:transactions:dao')
 
-const createTransactions = async (transactions: CreateTransactions[]) => {
-  try {
-    return await prisma.transaction.createMany({
-      data: transactions,
-    })
-  } catch (error) {
-    log('createTransactions: ', error)
-    throw error
-  }
-}
+const _createTransactions = (transactions: CreateTransactions[]) =>
+  prisma.transaction.createMany({
+    data: transactions,
+  })
 
-const updateTransactions = async (transactions: CreateTransactions[]) => {
-  try {
-    return await prisma.transaction.updateMany({
-      data: transactions,
-    })
-  } catch (error) {
-    log('updateTransactions: ', error)
-    throw error
-  }
-}
+const _updateTransactions = (transactions: CreateTransactions[]) =>
+  transactions.map((transaction) =>
+    prisma.transaction.update({
+      data: transaction,
+      where: {
+        plaidTransactionId: transaction.plaidTransactionId,
+      },
+    }),
+  )
 
-const deleteTransactions = async (transactions: RemovedTransaction[]) => {
+const _deleteTransactions = (transactions: RemovedTransaction[]) => {
   const query = transactions.map((transaction) => {
     const { transaction_id } = transaction
 
@@ -39,14 +32,27 @@ const deleteTransactions = async (transactions: RemovedTransaction[]) => {
     }
   })
 
+  return prisma.transaction.deleteMany({
+    where: {
+      OR: query,
+    },
+  })
+}
+
+const syncTransactions = async (
+  create: CreateTransactions[],
+  update: CreateTransactions[],
+  remove: RemovedTransaction[],
+) => {
   try {
-    return await prisma.transaction.deleteMany({
-      where: {
-        OR: query,
-      },
-    })
+    const transactions = []
+    if (!!create.length) transactions.push(_createTransactions(create))
+    if (!!update.length) transactions.push(..._updateTransactions(update))
+    if (!!remove.length) transactions.push(_deleteTransactions(remove))
+
+    return await prisma.$transaction(transactions)
   } catch (error) {
-    log('deleteTransactions: ', error)
+    log('syncTransactions: ', error)
     throw error
   }
 }
@@ -108,9 +114,7 @@ const getTransactionsByItemId = async (itemId: string) => {
 }
 
 export const transactionsDao = {
-  createTransactions,
-  updateTransactions,
-  deleteTransactions,
+  syncTransactions,
   getTransactionsByUserId,
   getTransactionsByAccountId,
   getTransactionsByItemId,

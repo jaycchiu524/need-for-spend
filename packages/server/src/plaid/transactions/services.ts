@@ -131,8 +131,7 @@ const updateTransactions = async (plaidItemId: string) => {
     await accountsServices.createAccounts(plaidItemId)
 
     // Update the transactions.
-    const { createTransactions, updateTransactions, deleteTransactions } =
-      transactionsDao
+    const { syncTransactions } = transactionsDao
 
     // added transactions
     const _add = added.map(convertTransactions)
@@ -141,9 +140,8 @@ const updateTransactions = async (plaidItemId: string) => {
     const create = await Promise.all(_add)
     const update = await Promise.all(_modified)
 
-    if (added.length > 0) await createTransactions(create)
-    if (modified.length > 0) await updateTransactions(update)
-    if (removed.length > 0) await deleteTransactions(removed)
+    // Add new transactions and update modified transactions.
+    await syncTransactions(create, update, removed)
 
     if (cursor) {
       await itemsServices.updateItemTransactionsCursor(plaidItemId, cursor)
