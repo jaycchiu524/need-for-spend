@@ -40,6 +40,9 @@ let accessToken = '' // used to store the token of the first user created for te
 let refreshToken = '' // used to store the refresh token of the first user created for testing purposes
 let itemId = '' // used to store the id of the first item created for testing purposes
 
+let accAId = ''
+let accBId = ''
+
 describe('Create items, accounts and transactions', () => {
   let request: supertest.SuperTest<supertest.Test>
   beforeAll(function () {
@@ -209,6 +212,7 @@ describe('Create items, accounts and transactions', () => {
       expect(accountId_A).toHaveProperty('id')
       expect(accountId_B).toHaveProperty('id')
 
+      // Total added transactions: 8
       const add = [
         {
           accountId: accountId_A.id,
@@ -217,6 +221,7 @@ describe('Create items, accounts and transactions', () => {
           isoCurrencyCode: 'USD',
           unofficialCurrencyCode: null,
           date: '2023-01-30',
+          datetime: '2023-01-30T11:00:00Z',
           name: 'Uber 063015 SF**POOL**',
           address: null,
           plaidCategoryId: '22016000',
@@ -243,6 +248,7 @@ describe('Create items, accounts and transactions', () => {
           isoCurrencyCode: 'USD',
           unofficialCurrencyCode: null,
           date: '2023-01-27',
+          datetime: '2023-01-30T11:00:00Z',
           name: "McDonald's",
           address: null,
           plaidCategoryId: '13005032',
@@ -256,6 +262,7 @@ describe('Create items, accounts and transactions', () => {
           isoCurrencyCode: 'USD',
           unofficialCurrencyCode: null,
           date: '2023-01-27',
+          datetime: '2023-01-30T12:00:00Z',
           name: 'Starbucks',
           address: null,
           plaidCategoryId: '13005043',
@@ -295,6 +302,7 @@ describe('Create items, accounts and transactions', () => {
           isoCurrencyCode: 'USD',
           unofficialCurrencyCode: null,
           date: '2023-01-30',
+          datetime: '2023-01-30T10:00:00Z',
           name: 'CREDIT CARD 3333 PAYMENT *//',
           address: null,
           plaidCategoryId: '16001000',
@@ -334,6 +342,10 @@ describe('Create items, accounts and transactions', () => {
       if (!accountId_A || !accountId_B) {
         throw new Error('Account A/B not found')
       }
+
+      accAId = accountId_A.id
+      accBId = accountId_B.id
+
       const update = [
         {
           accountId: accountId_A.id,
@@ -421,7 +433,7 @@ describe('Create items, accounts and transactions', () => {
 
     it('should return 404 if item not found', async () => {
       const response = await request
-        .get(`/items/${nanoid()}`)
+        .get(`/items/nonexistent-item-id`)
         .set('Authorization', `Bearer ${accessToken}`)
       expect(response.status).toBe(404)
     })
@@ -439,20 +451,52 @@ describe('Create items, accounts and transactions', () => {
     })
 
     it('should get transactions by account id', async () => {
-      const accountRes = await request
-        .get(`/items/${itemId}/accounts`)
+      const response = await request
+        .get(`/accounts/${accAId}/transactions`)
         .set('Authorization', `Bearer ${accessToken}`)
 
-      const acc = accountRes.body[0] as Account
-      const response = await request
-        .get(`/accounts/${acc.id}/transactions`)
-        .set('Authorization', `Bearer ${accessToken}`)
+      expect(response.status).toBe(200)
 
       const transactions = response.body as Transaction[]
 
-      expect(transactions.length).not.toBe(0)
+      expect(transactions.length).toBe(4)
       expect(transactions[0]).toHaveProperty('id')
       expect(transactions[0]).toHaveProperty('plaidTransactionId')
+      expect(transactions[0].date).toBe('2023-01-28')
+      expect(transactions[1].date).toBe('2023-01-27')
+      expect(transactions[2].date).toBe('2023-01-26')
+      expect(transactions[3].date).toBe('2023-01-13')
+    })
+
+    it('should get transactions by account id on page 2', async () => {
+      const response = await request
+        .get(`/accounts/${accAId}/transactions/?take=2&skip=2&sort=asc`)
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      expect(response.status).toBe(200)
+
+      const transactions = response.body as Transaction[]
+
+      expect(transactions.length).toBe(2)
+      expect(transactions[0]).toHaveProperty('id')
+      expect(transactions[0]).toHaveProperty('plaidTransactionId')
+      expect(transactions[0].date).toBe('2023-01-27')
+      expect(transactions[1].date).toBe('2023-01-28')
+    })
+
+    it('should get transactions by account id with start date', async () => {
+      const response = await request
+        .get(`/accounts/${accBId}/transactions?startDate=2023-01-30`)
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      expect(response.status).toBe(200)
+
+      const transactions = response.body as Transaction[]
+
+      expect(transactions.length).toBe(1)
+      expect(transactions[0]).toHaveProperty('id')
+      expect(transactions[0]).toHaveProperty('plaidTransactionId')
+      expect(transactions[0].date).toBe('2023-01-30')
     })
 
     it('should all related records when deleting a item record', async () => {

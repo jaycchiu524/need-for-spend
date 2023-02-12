@@ -8,29 +8,51 @@ const createAccounts = async (accounts: CreateAccount[]) => {
   })
 }
 
-const getAccountsByUserId = async (userId: string) => {
+const getAccountsByUserId = async (
+  userId: string,
+  config?: Prisma.AccountFindManyArgs,
+) => {
   return await prisma.account.findMany({
+    ...config,
     where: {
+      ...config?.where,
       item: {
         userId,
       },
     },
+    orderBy: config?.orderBy || {
+      name: 'asc',
+    },
+    take: config?.take || 50,
+    skip: config?.skip || 0,
   })
 }
 
-const getAccountByPlaidAccountId = async (plaidAccountId: string) => {
+const getAccountByPlaidAccountId = async (
+  plaidAccountId: string,
+  config?: Prisma.AccountFindUniqueArgs,
+) => {
   return await prisma.account.findUnique({
+    ...config,
     where: {
+      ...config?.where,
       plaidAccountId,
     },
   })
 }
 
-const getAccountsByItemId = async (itemId: string) => {
+const getAccountsByItemId = async (
+  itemId: string,
+  config?: Prisma.AccountFindManyArgs,
+) => {
   return await prisma.account.findMany({
+    ...config,
     where: {
+      ...config?.where,
       itemId,
     },
+    take: config?.take || 50,
+    skip: config?.skip || 0,
   })
 }
 

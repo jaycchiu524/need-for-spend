@@ -8,7 +8,10 @@ import { itemsServices } from '@/plaid/items/services'
 
 import { accountsServices } from '@/plaid/accounts/services'
 
-import { transactionsServices } from '@/plaid/transactions/services'
+import {
+  GetTransactionsQuery,
+  transactionsServices,
+} from '@/plaid/transactions/services'
 
 import { User, UserInfo } from './dao'
 import { usersServices } from './users.services'
@@ -126,12 +129,26 @@ const getAccountsByUserId = async (
 }
 
 const getTransactionsByUserId = async (
-  req: Request<{ userId: string }>,
+  req: Request<{ userId: string }, any, any, GetTransactionsQuery>,
   res: Response,
 ) => {
   try {
+    const query = req.query
+
     const transactions = await transactionsServices.getTransactionsByUserId(
       req.params.userId,
+      query
+        ? {
+            take: Number(query.take),
+            skip: Number(query.skip),
+            where: {
+              date: {
+                lte: query.endDate,
+                gte: query.startDate,
+              },
+            },
+          }
+        : {},
     )
 
     return res.status(200).send(transactions)

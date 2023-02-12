@@ -2,12 +2,22 @@ import debug from 'debug'
 
 import { RemovedTransaction, Transaction } from 'plaid'
 
+import { Prisma } from '@/configs/prismaClient'
+
 import { accountsServices } from '../accounts/services'
 import { itemsServices } from '../items/services'
 
 import { plaid } from '../plaid'
 
 import { CreateTransactions, transactionsDao } from './dao'
+
+export type GetTransactionsQuery = {
+  take?: string
+  skip?: string
+  startDate?: string
+  endDate?: string
+  sort?: 'asc' | 'desc'
+}
 
 const log = debug('app: transactions-services')
 
@@ -79,6 +89,7 @@ const convertTransactions = async (transaction: Transaction) => {
     iso_currency_code,
     unofficial_currency_code,
     date,
+    datetime,
     name,
     location,
     category_id,
@@ -99,6 +110,7 @@ const convertTransactions = async (transaction: Transaction) => {
     isoCurrencyCode: iso_currency_code,
     unofficialCurrencyCode: unofficial_currency_code,
     date: date,
+    datetime: datetime,
     name: name,
     address: location?.address,
     plaidCategoryId: category_id,
@@ -158,10 +170,16 @@ const updateTransactions = async (plaidItemId: string) => {
   }
 }
 
-const getTransactionsByUserId = async (userId: string) => {
+const getTransactionsByUserId = async (
+  userId: string,
+  configs?: Prisma.TransactionFindManyArgs,
+) => {
   log(`Getting transactions for user ${userId}...`)
   try {
-    const transactions = await transactionsDao.getTransactionsByUserId(userId)
+    const transactions = await transactionsDao.getTransactionsByUserId(
+      userId,
+      configs,
+    )
     return transactions
   } catch (err) {
     log(`Error getting transactions: ${err}`)
@@ -169,11 +187,15 @@ const getTransactionsByUserId = async (userId: string) => {
   }
 }
 
-const getTransactionsByAccountId = async (accountId: string) => {
+const getTransactionsByAccountId = async (
+  accountId: string,
+  configs?: Prisma.TransactionFindManyArgs,
+) => {
   log(`Getting transactions for account ${accountId}...`)
   try {
     const transactions = await transactionsDao.getTransactionsByAccountId(
       accountId,
+      configs,
     )
     return transactions
   } catch (err) {

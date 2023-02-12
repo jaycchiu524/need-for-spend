@@ -4,19 +4,39 @@ import debug from 'debug'
 
 import { JWT } from '@/auth/dto.types'
 
-import { transactionsServices } from '@/plaid/transactions/services'
+import {
+  type GetTransactionsQuery,
+  transactionsServices,
+} from '@/plaid/transactions/services'
 
 const log = debug('app: account-controllers')
 
 const getTransactionsByAccountId = async (
-  req: Request<{ accountId: string }>,
+  req: Request<{ accountId: string }, any, any, GetTransactionsQuery>,
   res: Response<any, { jwt: JWT }>,
 ) => {
   try {
     const accountId = req.params.accountId
-
+    const query = req.query
     const transactions = await transactionsServices.getTransactionsByAccountId(
       accountId,
+      query
+        ? {
+            take: Number(query.take),
+            skip: Number(query.skip),
+            where: {
+              date: {
+                lte: query.endDate,
+                gte: query.startDate,
+              },
+            },
+            orderBy: [
+              { date: query.sort || 'desc' },
+              { datetime: query.sort || 'desc' },
+              { name: 'asc' },
+            ],
+          }
+        : {},
     )
     if (!transactions) {
       return res.status(404).send({

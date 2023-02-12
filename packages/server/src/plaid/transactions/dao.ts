@@ -8,6 +8,16 @@ export type CreateTransactions = Prisma.TransactionCreateManyInput
 
 const log = debug('app:transactions:dao')
 
+const defaultConfig = (config?: Prisma.TransactionFindManyArgs) => ({
+  orderBy: config?.orderBy || [
+    { date: 'desc' },
+    { datetime: 'desc' },
+    { name: 'asc' },
+  ],
+  take: config?.take || 50,
+  skip: config?.skip || 0,
+})
+
 const _createTransactions = (transactions: CreateTransactions[]) =>
   prisma.transaction.createMany({
     data: transactions,
@@ -57,16 +67,22 @@ const syncTransactions = async (
   }
 }
 
-const getTransactionsByUserId = async (userId: string) => {
+const getTransactionsByUserId = async (
+  userId: string,
+  config?: Prisma.TransactionFindManyArgs,
+) => {
   try {
     return await prisma.transaction.findMany({
+      ...config,
       where: {
+        ...config?.where,
         account: {
           item: {
             userId,
           },
         },
       },
+      ...defaultConfig(config),
     })
   } catch (error) {
     log('getTransactionsByUserId: ', error)
@@ -74,13 +90,19 @@ const getTransactionsByUserId = async (userId: string) => {
   }
 }
 
-const getTransactionsByAccountId = async (accountId: string) => {
+const getTransactionsByAccountId = async (
+  accountId: string,
+  config?: Prisma.TransactionFindManyArgs,
+) => {
   try {
     return await prisma.transaction.findMany({
+      ...config,
       where: {
+        ...config?.where,
         accountId,
       },
       include: {
+        ...config?.include,
         account: {
           select: {
             item: {
@@ -91,6 +113,7 @@ const getTransactionsByAccountId = async (accountId: string) => {
           },
         },
       },
+      ...defaultConfig(config),
     })
   } catch (error) {
     log('getTransactionsByAccountId: ', error)
@@ -98,14 +121,20 @@ const getTransactionsByAccountId = async (accountId: string) => {
   }
 }
 
-const getTransactionsByItemId = async (itemId: string) => {
+const getTransactionsByItemId = async (
+  itemId: string,
+  config?: Prisma.TransactionFindManyArgs,
+) => {
   try {
     return await prisma.transaction.findMany({
+      ...config,
       where: {
+        ...config?.where,
         account: {
           itemId,
         },
       },
+      ...defaultConfig(config),
     })
   } catch (error) {
     log('getTransactionsByItemId: ', error)

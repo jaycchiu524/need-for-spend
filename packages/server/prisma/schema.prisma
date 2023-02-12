@@ -75,6 +75,7 @@ model Transaction {
   accountId              String    @map("account_id") // Not Plaid Account ID
   account                Account   @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   date                   String    @map("date")
+  datetime               String?   @map("datetime")
   address                String?   @map("address")
   name                   String?   @map("name")
   amount                 Float     @map("amount")
