@@ -7,6 +7,10 @@ const createUser = async (userfields: CreateUserDto) => {
   return userDao.createUser(userfields)
 }
 
+const createAdmin = async (userfields: CreateUserDto) => {
+  return userDao.createAdmin(userfields)
+}
+
 const getUserByEmail = async (email: string) => {
   return userDao.getUserByEmail(email)
 }
@@ -41,6 +45,7 @@ const verifyPassword = async (password: string, hash: string) => {
 
 export const usersServices = {
   createUser,
+  createAdmin,
   getUserByEmail,
   getUserByEmailWithPassword,
   getUserById,

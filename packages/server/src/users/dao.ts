@@ -1,5 +1,3 @@
-import { nanoid } from 'nanoid'
-
 import { prisma, type Prisma } from '@/configs/prismaClient'
 
 import { Role } from '@/common/types/permission.enum'
@@ -17,6 +15,38 @@ const userSelect: Prisma.UserSelect = {
   role: true,
   createdAt: true,
   updatedAt: true,
+}
+
+const createUser = async (req: CreateUserDto) => {
+  const { email, password, firstName, lastName } = req
+
+  const user = {
+    data: {
+      email,
+      password,
+      firstName,
+      lastName,
+      role: Role.USER,
+    },
+  }
+
+  return prisma.user.create(user)
+}
+
+const createAdmin = async (req: CreateUserDto) => {
+  const { email, password, firstName, lastName } = req
+
+  const admin = {
+    data: {
+      email,
+      password,
+      firstName,
+      lastName,
+      role: Role.ADMIN,
+    },
+  }
+
+  return prisma.user.create(admin)
 }
 
 const getUsers = async (args: {
@@ -64,27 +94,6 @@ const getUserByEmailWithPassword = async (email: string) => {
   })
 }
 
-const createUser = async (req: CreateUserDto) => {
-  const { email, password, firstName, lastName } = req
-
-  const user = {
-    data: {
-      id: nanoid(),
-      email,
-      password,
-      firstName,
-      lastName,
-      role: Role.USER,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  }
-
-  await prisma.user.create(user)
-
-  return user.data
-}
-
 const updateUser = async (id: string, data: Partial<User>) => {
   return await prisma.user.update({
     where: {
@@ -98,10 +107,11 @@ const updateUser = async (id: string, data: Partial<User>) => {
 }
 
 export const userDao = {
+  createUser,
+  createAdmin,
   getUsers,
   getUserById,
   getUserByEmail,
-  createUser,
   updateUser,
   getUserByEmailWithPassword,
 }
