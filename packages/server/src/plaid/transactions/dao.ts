@@ -120,6 +120,16 @@ const getTransactionsByAccountId = async (
             },
           },
         },
+        category: {
+          select: {
+            name: true,
+            subcategories: {
+              select: {
+                subcategoryName: true,
+              },
+            },
+          },
+        },
       },
     })
   } catch (error) {
