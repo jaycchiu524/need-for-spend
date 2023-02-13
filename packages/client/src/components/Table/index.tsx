@@ -22,11 +22,27 @@ import {
   compareItems,
 } from '@tanstack/match-sorter-utils'
 
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
+import {
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@mui/material'
+
+import InputAdornment from '@mui/material/InputAdornment'
+
+import SearchIcon from '@mui/icons-material/Search'
+
+import styled from '@emotion/styled'
+
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
 
 import { Transaction } from '@/api/types'
 
-import FilterCell from './FilterCell'
+import DebouncedInput from './DebouncedInput'
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -36,6 +52,12 @@ declare module '@tanstack/table-core' {
     itemRank: RankingInfo
   }
 }
+
+const HeaderCell = styled.div<{ canSort: boolean }>`
+  display: flex;
+  align-items: center;
+  cursor: ${({ canSort }) => (canSort ? 'pointer' : 'default')};
+`
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
@@ -69,7 +91,9 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   )
-  const [globalFilter, setGlobalFilter] = React.useState('')
+  const [globalFilter, setGlobalFilter] = React.useState<string | number>('')
+
+  console.log(transactions)
 
   // Table by react-table
   // https://react-table.tanstack.com/docs/overview
@@ -86,7 +110,8 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
         header: 'Currency',
         cell: (row) => <div>{row.getValue()}</div>,
         enableColumnFilter: false,
-        enableGlobalFilter: false,
+        enableGlobalFilter: true,
+        enableSorting: false,
       }),
       columnHelper.accessor('amount', {
         header: `Amount`,
@@ -140,6 +165,22 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
 
   return (
     <>
+      <Stack mt={2} minWidth={200} maxWidth={300}>
+        <DebouncedInput
+          placeholder="Search..."
+          variant="outlined"
+          size="small"
+          value={globalFilter ?? ''}
+          onChange={(v) => setGlobalFilter(v)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Stack>
       <Table color="white" sx={{ marginY: 2 }}>
         <TableHead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -148,11 +189,9 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
                 <TableCell key={header.id}>
                   {header.isPlaceholder ? null : (
                     <>
-                      <div
+                      <HeaderCell
+                        canSort={header.column.getCanSort()}
                         {...{
-                          className: header.column.getCanSort()
-                            ? 'cursor-pointer select-none'
-                            : '',
                           onClick: header.column.getToggleSortingHandler(),
                         }}>
                         {flexRender(
@@ -160,15 +199,15 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
                           header.getContext(),
                         )}
                         {{
-                          asc: ' 🔼',
-                          desc: ' 🔽',
+                          asc: <ArrowDropDownIcon />,
+                          desc: <ArrowDropUpIcon />,
                         }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                      {header.column.getCanFilter() ? (
+                      </HeaderCell>
+                      {/* {header.column.getCanFilter() ? (
                         <div>
                           <FilterCell column={header.column} table={table} />
                         </div>
-                      ) : null}
+                      ) : null} */}
                     </>
                   )}
                 </TableCell>

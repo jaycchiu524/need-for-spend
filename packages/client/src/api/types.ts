@@ -66,15 +66,51 @@ export type Transaction = {
   plaidTransactionId: string
   accountId: string
   date: string
+  datetime: string | null
   address: string | null
   name: string | null
   amount: number
   isoCurrencyCode: string | null
   unofficialCurrencyCode: string | null
   plaidCategoryId: string | null
-  categoryId: string | null
   pending: boolean
   accountOwner: string | null
+  createdAt: Date
+  updatedAt: Date
+} & {
+  category: Pick<Category, 'name'>
+}
+
+/**
+ * Model Category
+ *
+ */
+export type Category = {
+  plaidCategoryId: string
+  name: string
+  group: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+/**
+ * Model Subcategory
+ *
+ */
+export type Subcategory = {
+  name: string
+  depth: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+/**
+ * Model CategoriesOnSubcategories
+ *
+ */
+export type CategoriesOnSubcategories = {
+  plaidCategoryId: string
+  subcategoryName: string
   createdAt: Date
   updatedAt: Date
 }

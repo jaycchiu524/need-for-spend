@@ -33,12 +33,13 @@ function calcaulate(transactions: Transaction[]) {
 
 function categorize(transactions: Transaction[]) {
   const categories = transactions.reduce((acc, transaction) => {
-    if (transaction.categoryId) {
-      if (acc[transaction.categoryId]) {
-        acc[transaction.categoryId] += transaction.amount
-      } else {
-        acc[transaction.categoryId] = transaction.amount
-      }
+    if (!transaction.category) return acc
+    if (transaction.amount < 0) return acc
+
+    if (acc[transaction.category.name]) {
+      acc[transaction.category.name] += transaction.amount
+    } else {
+      acc[transaction.category.name] = transaction.amount
     }
 
     return acc

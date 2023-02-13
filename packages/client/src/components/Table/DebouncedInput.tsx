@@ -1,10 +1,11 @@
+import { TextField, TextFieldProps } from '@mui/material'
 import React from 'react'
 
 type Props = {
   value: string | number
   onChange: (value: string | number) => void
   debounce?: number
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'>
+} & Omit<TextFieldProps, 'onChange'>
 
 // A debounced input react component
 const DebouncedInput = ({
@@ -28,7 +29,7 @@ const DebouncedInput = ({
   }, [value])
 
   return (
-    <input
+    <TextField
       {...inputProps}
       value={value}
       onChange={(e) => setValue(e.target.value)}
