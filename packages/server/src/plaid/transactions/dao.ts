@@ -8,15 +8,22 @@ export type CreateTransactions = Prisma.TransactionCreateManyInput
 
 const log = debug('app:transactions:dao')
 
-const defaultConfig = (config?: Prisma.TransactionFindManyArgs) => ({
-  orderBy: config?.orderBy || [
+const defaultConfig = {
+  orderBy: [
     { date: 'desc' },
     { datetime: 'desc' },
     { name: 'asc' },
-  ],
-  take: config?.take || 50,
-  skip: config?.skip || 0,
-})
+  ] as Prisma.Enumerable<Prisma.TransactionOrderByWithRelationInput>,
+  take: 50,
+  skip: 0,
+  include: {
+    category: {
+      select: {
+        name: true,
+      },
+    },
+  },
+}
 
 const _createTransactions = (transactions: CreateTransactions[]) =>
   prisma.transaction.createMany({
@@ -73,6 +80,7 @@ const getTransactionsByUserId = async (
 ) => {
   try {
     return await prisma.transaction.findMany({
+      ...defaultConfig,
       ...config,
       where: {
         ...config?.where,
@@ -82,7 +90,6 @@ const getTransactionsByUserId = async (
           },
         },
       },
-      ...defaultConfig(config),
     })
   } catch (error) {
     log('getTransactionsByUserId: ', error)
@@ -96,6 +103,7 @@ const getTransactionsByAccountId = async (
 ) => {
   try {
     return await prisma.transaction.findMany({
+      ...defaultConfig,
       ...config,
       where: {
         ...config?.where,
@@ -113,7 +121,6 @@ const getTransactionsByAccountId = async (
           },
         },
       },
-      ...defaultConfig(config),
     })
   } catch (error) {
     log('getTransactionsByAccountId: ', error)
@@ -127,6 +134,7 @@ const getTransactionsByItemId = async (
 ) => {
   try {
     return await prisma.transaction.findMany({
+      ...defaultConfig,
       ...config,
       where: {
         ...config?.where,
@@ -134,7 +142,6 @@ const getTransactionsByItemId = async (
           itemId,
         },
       },
-      ...defaultConfig(config),
     })
   } catch (error) {
     log('getTransactionsByItemId: ', error)

@@ -22,8 +22,8 @@ const getTransactionsByAccountId = async (
       accountId,
       query
         ? {
-            take: Number(query.take),
-            skip: Number(query.skip),
+            take: query.take ? Number(query.take) : undefined,
+            skip: query.skip ? Number(query.skip) : undefined,
             where: {
               date: {
                 lte: query.endDate,

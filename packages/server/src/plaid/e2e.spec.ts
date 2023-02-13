@@ -445,6 +445,8 @@ describe('Create items, accounts and transactions', () => {
 
       const accounts = response.body as Account[]
 
+      expect(response.status).toBe(200)
+
       expect(accounts.length).toBe(2)
       expect(accounts[0]).toHaveProperty('id')
       expect(accounts[0]).toHaveProperty('plaidAccountId')
