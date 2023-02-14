@@ -16,6 +16,9 @@ import { useRouter } from 'next/router'
 
 import { ItemType } from '@/api/items'
 import { getAccountByItemId } from '@/api/accounts'
+import { useAccountStore } from '@/store/accounts'
+
+import { useAuthStore } from '@/store/auth'
 
 type Props = {
   item: ItemType
@@ -23,6 +26,9 @@ type Props = {
 
 const ItemCard = ({ item }: Props) => {
   const [open, setOpen] = React.useState(false)
+
+  const { auth } = useAuthStore()
+  const { setUserAccounts, setIdAccounts } = useAccountStore()
 
   const handleClick = React.useCallback(() => {
     setOpen((prev) => !prev)
@@ -32,7 +38,20 @@ const ItemCard = ({ item }: Props) => {
     queryKey: ['itemById', item.id],
     queryFn: () => getAccountByItemId(item.id),
     enabled: open,
-    cacheTime: 60 * 1000,
+    onSuccess(data) {
+      if (!data) return
+
+      const { data: accounts } = data
+      accounts.forEach((account) => {
+        const { id } = account
+        setIdAccounts(id, account)
+      })
+
+      if (!auth) return
+
+      const userId = auth.id
+      setUserAccounts(userId, accounts)
+    },
   })
 
   const accounts = data?.data || []

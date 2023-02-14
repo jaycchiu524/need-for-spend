@@ -23,6 +23,7 @@ import {
 } from '@tanstack/match-sorter-utils'
 
 import {
+  Box,
   Stack,
   Table,
   TableBody,
@@ -92,8 +93,6 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
     [],
   )
   const [globalFilter, setGlobalFilter] = React.useState<string | number>('')
-
-  console.log(transactions)
 
   // Table by react-table
   // https://react-table.tanstack.com/docs/overview
@@ -181,52 +180,54 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
           }}
         />
       </Stack>
-      <Table color="white" sx={{ marginY: 2 }}>
-        <TableHead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableCell key={header.id}>
-                  {header.isPlaceholder ? null : (
-                    <>
-                      <HeaderCell
-                        canSort={header.column.getCanSort()}
-                        {...{
-                          onClick: header.column.getToggleSortingHandler(),
-                        }}>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                        {{
-                          asc: <ArrowDropDownIcon />,
-                          desc: <ArrowDropUpIcon />,
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </HeaderCell>
-                      {/* {header.column.getCanFilter() ? (
+      <Box sx={{ overflow: 'scroll' }}>
+        <Table color="white" sx={{ marginY: 2 }}>
+          <TableHead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableCell key={header.id}>
+                    {header.isPlaceholder ? null : (
+                      <>
+                        <HeaderCell
+                          canSort={header.column.getCanSort()}
+                          {...{
+                            onClick: header.column.getToggleSortingHandler(),
+                          }}>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                          {{
+                            asc: <ArrowDropDownIcon />,
+                            desc: <ArrowDropUpIcon />,
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </HeaderCell>
+                        {/* {header.column.getCanFilter() ? (
                         <div>
                           <FilterCell column={header.column} table={table} />
                         </div>
                       ) : null} */}
-                    </>
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableHead>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                      </>
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
     </>
   )
 }

@@ -1,6 +1,9 @@
 import styled from '@emotion/styled'
 import { Paper, Typography } from '@mui/material'
 import { ReactNode } from 'react'
+import useMediaQuery from '@mui/material/useMediaQuery'
+
+import { useThemeStore } from '@/store/theme'
 
 const Container = styled(Paper)`
   display: flex;
@@ -8,7 +11,7 @@ const Container = styled(Paper)`
   justify-content: center;
   align-items: center;
   padding: 1rem;
-  width: 200px;
+  width: 100%;
   border-radius: 10px;
 `
 
@@ -21,6 +24,9 @@ export const DigitCard = ({
   text: string
   icon: ReactNode
 }) => {
+  const { theme } = useThemeStore()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
   return (
     <Container>
       {icon}
@@ -31,7 +37,7 @@ export const DigitCard = ({
         align="center">
         {title}
       </Typography>
-      <Typography variant={'h4'}>{text}</Typography>
+      <Typography variant={isMobile ? 'h5' : 'h4'}>{text}</Typography>
     </Container>
   )
 }
