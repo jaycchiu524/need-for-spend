@@ -7,12 +7,12 @@ describe('Copyright', () => {
   it('renders', () => {
     render(<Copyright />)
     expect(screen.getByText(/Copyright ©/)).toBeInTheDocument()
-    expect(screen.getByText(/Kreatipedia Inc./)).toBeInTheDocument()
+    expect(screen.getByText(/Jay Chiu Inc./)).toBeInTheDocument()
 
     // expect href to be https://kreatipedia.com/
-    expect(screen.getByText(/Kreatipedia Inc./).closest('a')).toHaveAttribute(
+    expect(screen.getByText(/Jay Chiu Inc./).closest('a')).toHaveAttribute(
       'href',
-      'https://kreatipedia.com/',
+      'https://jaychiu.me/',
     )
   })
 })

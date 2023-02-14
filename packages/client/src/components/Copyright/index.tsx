@@ -9,8 +9,8 @@ function Copyright(props: any) {
       align="center"
       {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://kreatipedia.com/">
-        Kreatipedia Inc.
+      <Link color="inherit" href="https://jaychiu.me/">
+        Jay Chiu
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}

@@ -36,8 +36,6 @@ function PlaidHome() {
 
   const items = userItem[userId!] || []
 
-  console.log(items)
-
   return (
     <div>
       <Button

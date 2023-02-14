@@ -25,7 +25,6 @@ const useItems = ({
     queryKey: ['itemByUserId', userId],
     queryFn: () => getItemsByUserId(userId || ''),
     enabled: false,
-    cacheTime: 60 * 1000,
   })
 
   const fetchItemsByUser = useCallback(
