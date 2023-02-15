@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import * as d3 from 'd3'
 
@@ -15,7 +15,7 @@ interface Props {
   data: Datum[]
 }
 
-const LineChart = ({ data: _data, ...props }: Props) => {
+const LineChart = ({ data: _data }: Props) => {
   const { ref, width: _w, height: _h } = useSize()
 
   const [data, setData] = useState<Datum[]>([])
@@ -32,7 +32,10 @@ const LineChart = ({ data: _data, ...props }: Props) => {
   const xType = d3.scaleTime
   const yType = d3.scaleLinear
   const xRange = [margin.left, width - margin.right]
-  const yRange = [height - margin.bottom, margin.top]
+  const yRange = useMemo(
+    () => [height - margin.bottom, margin.top],
+    [height, margin.bottom, margin.top],
+  )
   const yLabel = '↑ Daily spending (CAD)'
   // const xLabel = '→ Date'
   const curve = d3.curveLinear
@@ -77,14 +80,13 @@ const LineChart = ({ data: _data, ...props }: Props) => {
   // .attr('style', `max-width: 100%; height: auto; height: intrinsic;`)
 
   useEffect(() => {
-    setData(_data)
-
     if (!svgRef.current) return
-    if (!data) return
+    setData(_data)
+    if (!data.length) return
 
     // Add the x-axis.
     svg
-      .append('g')
+      .select<SVGGElement>('g.x-axis')
       .attr('transform', `translate(0,${height - margin.bottom})`)
       .call(xAxis)
       .call(
@@ -101,15 +103,14 @@ const LineChart = ({ data: _data, ...props }: Props) => {
       .duration(500)
 
     // Add the y-axis.
-    d3.select(svgRef.current)
-      .append('g')
+    svg
+      .select<SVGGElement>('g.y-axis')
       .attr('transform', `translate(${margin.left},0)`)
       .call(yAxis)
       .call((g) => g.select('.domain').remove())
       .call((g) =>
         g
           .selectAll('.tick line')
-          .clone()
           .attr('x2', width - margin.left - margin.right)
           .attr('stroke-opacity', 0.1),
       )
@@ -125,8 +126,9 @@ const LineChart = ({ data: _data, ...props }: Props) => {
       .transition()
       .duration(500)
 
-    svg
-      .append('path')
+    const path = svg
+      .select('g.line')
+      .select<SVGPathElement>('path')
       .attr('fill', 'none')
       .attr('stroke', color)
       .attr('stroke-width', strokeWidth)
@@ -135,13 +137,51 @@ const LineChart = ({ data: _data, ...props }: Props) => {
       .attr('stroke-opacity', strokeOpacity)
       .attr('d', line(I))
       .transition()
-      .duration(500)
+      .duration(1000)
+      .attrTween('d', () => {
+        return (t: number) => {
+          const yInterpolate = (v: number) => d3.interpolate(yRange[0], v)
+          line.y((d, i) => yInterpolate(yScale(Y[i]))(t))
+          return line(I) || ''
+        }
+      })
 
-    return () => {
-      svg.selectAll('*').remove()
-    }
+    // Draw the line.
+    // const pathLength = path.node()?.getTotalLength() || 0
+    // console.log(pathLength)
+
+    // if (pathLength) {
+    //   path
+    //     .attr('stroke-dashoffset', pathLength)
+    //     .attr('stroke-dasharray', pathLength)
+    //     .transition()
+    //     .ease(d3.easeSin)
+    //     .duration(2500)
+    //     .attr('stroke-dashoffset', 0)
+    // }
+
+    svg
+      .select('g.dots')
+      .selectAll('circle')
+      .data(data)
+      .join('circle')
+      .attr('cx', (d) => xScale(x(d)))
+      .attr('cy', (d) => yScale(y(d)))
+      .attr('r', 3)
+      .attr('fill', 'currentColor')
+      .attr('stroke', 'white')
+      .attr('stroke-width', 1)
+      .transition()
+      .duration(1000)
+      .attrTween('cy', (d) => {
+        return (t: number) => {
+          const yInterpolate = (v: number) => d3.interpolate(yRange[0], v)
+          return String(yInterpolate(yScale(y(d)))(t)) || ''
+        }
+      })
   }, [
     I,
+    Y,
     _data,
     data,
     height,
@@ -152,7 +192,10 @@ const LineChart = ({ data: _data, ...props }: Props) => {
     svg,
     width,
     xAxis,
+    xScale,
     yAxis,
+    yRange,
+    yScale,
   ])
 
   return (
@@ -165,7 +208,14 @@ const LineChart = ({ data: _data, ...props }: Props) => {
         height: '100%',
       }}
       ref={ref}>
-      <svg height="100%" width="100%" ref={svgRef}></svg>
+      <svg height="100%" width="100%" ref={svgRef}>
+        <g className="x-axis"></g>
+        <g className="y-axis"></g>
+        <g className="line">
+          <path />
+        </g>
+        <g className="dots"></g>
+      </svg>
     </Box>
   )
 }
