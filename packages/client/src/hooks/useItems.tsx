@@ -18,10 +18,9 @@ const useItems = ({
     queryKey: ['itemById', itemId],
     queryFn: () => getItemById(itemId || ''),
     enabled: false,
-    cacheTime: 60 * 1000,
   })
 
-  const { data: itemByUser, refetch: userFetch } = useQuery({
+  const { refetch: userFetch } = useQuery({
     queryKey: ['itemByUserId', userId],
     queryFn: () => getItemsByUserId(userId || ''),
     enabled: false,
@@ -29,8 +28,6 @@ const useItems = ({
 
   const fetchItemsByUser = useCallback(
     async (userId: string) => {
-      if (itemByUser) return itemByUser.data
-
       const { data } = await userFetch()
 
       if (data?.data) {
@@ -39,7 +36,7 @@ const useItems = ({
 
       return data?.data
     },
-    [itemByUser, setUserItems, userFetch],
+    [setUserItems, userFetch],
   )
 
   const fetchItemById = useCallback(
