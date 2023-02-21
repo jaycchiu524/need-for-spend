@@ -4,6 +4,12 @@ import * as d3 from 'd3'
 
 import { Box } from '@mui/material'
 
+import Tooltip from '@mui/material/Tooltip'
+
+import { motion } from 'framer-motion'
+
+import { format } from 'date-fns'
+
 import useSize from '@/hooks/useSize'
 
 interface Datum {
@@ -19,6 +25,7 @@ const LineChart = ({ data: _data }: Props) => {
   const { ref, width: _w, height: _h } = useSize()
 
   const [data, setData] = useState<Datum[]>([])
+  const [showCircle, setShowCircle] = useState(false)
 
   const svgRef = React.useRef(null)
 
@@ -89,15 +96,13 @@ const LineChart = ({ data: _data }: Props) => {
       .select<SVGGElement>('g.x-axis')
       .attr('transform', `translate(0,${height - margin.bottom})`)
       .call(xAxis)
-      .call(
-        (g) =>
-          g
-            .append('text')
-            .attr('x', width - margin.right - 10)
-            .attr('y', margin.bottom)
-            .attr('fill', 'currentColor')
-            .attr('text-anchor', 'start'),
-        // .text(xLabel),
+      .call((g) =>
+        g
+          .append('text')
+          .attr('x', width - margin.right - 10)
+          .attr('y', margin.bottom)
+          .attr('fill', 'currentColor')
+          .attr('text-anchor', 'start'),
       )
       .transition()
       .duration(500)
@@ -146,6 +151,8 @@ const LineChart = ({ data: _data }: Props) => {
         }
       })
 
+    setShowCircle(true)
+
     // Draw the line.
     // const pathLength = path.node()?.getTotalLength() || 0
     // console.log(pathLength)
@@ -160,25 +167,29 @@ const LineChart = ({ data: _data }: Props) => {
     //     .attr('stroke-dashoffset', 0)
     // }
 
-    svg
-      .select('g.dots')
-      .selectAll('circle')
-      .data(data)
-      .join('circle')
-      .attr('cx', (d) => xScale(x(d)))
-      .attr('cy', (d) => yScale(y(d)))
-      .attr('r', 3)
-      .attr('fill', 'currentColor')
-      .attr('stroke', 'white')
-      .attr('stroke-width', 1)
-      .transition()
-      .duration(1000)
-      .attrTween('cy', (d) => {
-        return (t: number) => {
-          const yInterpolate = (v: number) => d3.interpolate(yRange[0], v)
-          return String(yInterpolate(yScale(y(d)))(t)) || ''
-        }
-      })
+    // svg
+    //   .select('g.dots')
+    //   .selectAll('circle')
+    //   .data(data)
+    //   .join('circle')
+    //   .attr('cx', (d) => xScale(x(d)))
+    //   .attr('cy', (d) => yScale(y(d)))
+    //   .attr('r', 3)
+    //   .attr('fill', 'currentColor')
+    //   .attr('stroke', 'white')
+    //   .attr('stroke-width', 1)
+    //   .transition()
+    //   .duration(1000)
+    // .attrTween('cy', (d) => {
+    //   return (t: number) => {
+    //     const yInterpolate = (v: number) => d3.interpolate(yRange[0], v)
+    //     return String(yInterpolate(yScale(y(d)))(t)) || ''
+    //   }
+    // })
+
+    return () => {
+      setShowCircle(false)
+    }
   }, [
     I,
     Y,
@@ -214,7 +225,36 @@ const LineChart = ({ data: _data }: Props) => {
         <g className="line">
           <path />
         </g>
-        <g className="dots"></g>
+        <g className="dots" height="100%" width="100%">
+          {showCircle &&
+            data.map((d, i) => (
+              <Tooltip
+                key={d.value}
+                title={`${format(d.date, 'MMM dd')}: $${d.value}`}
+                placement="right">
+                <motion.circle
+                  initial={{
+                    r: 3,
+                    cx: xScale(x(d)),
+                    fill: 'currentColor',
+                    cy: yRange[0],
+                    stroke: 'black',
+                    strokeWidth: 1,
+                  }}
+                  animate={{
+                    r: 3,
+                    cx: xScale(x(d)),
+                    cy: yScale(y(d)),
+                    fill: 'currentColor',
+                    stroke: 'white',
+                    strokeWidth: 1,
+                  }}
+                  transition={{
+                    duration: 1,
+                  }}></motion.circle>
+              </Tooltip>
+            ))}
+        </g>
       </svg>
     </Box>
   )
