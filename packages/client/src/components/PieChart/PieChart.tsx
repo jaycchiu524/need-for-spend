@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import * as d3 from 'd3'
 
-import { Box } from '@mui/material'
+import { Box, Tooltip } from '@mui/material'
 
 import useSize from '@/hooks/useSize'
 
@@ -15,10 +15,20 @@ interface Props {
   data: Datum[]
 }
 
+// const Tooltip = styled.div<{ bgColor: string }>`
+//   position: absolute;
+//   padding: 0 0.5rem;
+//   background: ${({ bgColor }) => bgColor || '#fff'};
+//   border: 1px solid #000;
+//   border-radius: 0.25rem;
+//   opacity: 0;
+// `
+
 const PieChart = (props: Props) => {
-  const { ref, width, height } = useSize()
+  const { ref, width } = useSize()
   const svgRef = useRef(null)
   const pieRef = useRef(null)
+  // const tooltipRef = useRef(null)
   const [data, setData] = useState<Datum[]>([])
 
   // setting up svg container
@@ -57,11 +67,17 @@ const PieChart = (props: Props) => {
   const innerRadiusInterpolation = d3.interpolate(0, sizes.innerRadius)
   const outerRadiusInterpolation = d3.interpolate(0, sizes.outerRadius)
 
-  useEffect(() => {
-    setData(props.data)
+  // Tooltip
+  // const tooltip = d3.select(tooltipRef.current)
+  // tooltipStyle.background = theme.palette.background.paper
+  // Object.entries(tooltipStyle).forEach(([prop, val]) =>
+  //   tooltip.style(prop, val),
+  // )
 
+  useEffect(() => {
     if (!svgRef.current) return
     if (!pieRef.current) return
+    setData(props.data)
     if (!data) return
 
     d3.select(svgRef.current)
@@ -73,9 +89,7 @@ const PieChart = (props: Props) => {
 
     // setting up svg data
     d3.select(pieRef.current)
-      // .attr('stroke', 'red')
-      // .attr('stroke-width', 2)
-      .selectAll('path')
+      .selectAll<SVGPathElement, d3.PieArcDatum<Datum>>('path')
       .data(arcs)
       .join('path')
       .attr('d', arcGenerator)
@@ -105,7 +119,7 @@ const PieChart = (props: Props) => {
       .selectAll('text')
       .data(arcs)
       .join('text')
-      .text((d) => `${d.data.name} (${d.data.value})`)
+      .text((d) => `${d.data.name}`)
       .attr('transform', (d) => `translate(${arcGenerator.centroid(d)})`)
       .transition()
       .duration(durations.entryAnimation)
@@ -113,12 +127,6 @@ const PieChart = (props: Props) => {
         const fontSize = d3.interpolateNumber(0, 1)
         return (t) => `${fontSize(t)}vw`
       })
-    // .tween('text', (d) => {
-    //   const i = d3.interpolateNumber(0, d.endAngle - d.startAngle)
-    //   return (t) => {
-    //     d.endAngle = d.startAngle + i(t)
-    //   }
-    // })
 
     // expanding chart
     d3.select(svgRef.current)
@@ -130,6 +138,33 @@ const PieChart = (props: Props) => {
             .innerRadius(innerRadiusInterpolation(t))
             .outerRadius(outerRadiusInterpolation(t))
       })
+
+    // Custom tooltip
+    // d3.select(pieRef.current)
+    //   .selectAll<SVGPathElement, d3.PieArcDatum<Datum>>('path')
+    //   .on('mouseover', function (event: MouseEvent, d) {
+    //     d3.select<SVGPathElement, d3.PieArcDatum<Datum>>(
+    //       event.target as SVGPathElement,
+    //     ).style('opacity', 1)
+
+    //     tooltip.transition().duration(200).style('opacity', 0.9)
+    //     tooltip
+    //       .html(`${d.data.name} (${d.data.value})`)
+    //       .style('left', `${event.pageX}px`)
+    //       .style('top', `${event.pageY - 28}px`)
+    //   })
+    //   .on('mouseout', (event: MouseEvent) => {
+    //     d3.select<SVGPathElement, d3.PieArcDatum<Datum>>(
+    //       event.target as SVGPathElement,
+    //     ).style('opacity', 0.7)
+    //     tooltip.transition().duration(500).style('opacity', 0)
+    //   })
+    //   .on('mousemove', (event: MouseEvent) => {
+    //     tooltip
+    //       .style('left', `${event.pageX}px`)
+    //       .style('top', `${event.pageY - 28}px`)
+    //   })
+
     // setting up legend
     // const legend = svg
     //   .select('g.legend')
@@ -170,9 +205,19 @@ const PieChart = (props: Props) => {
   return (
     <Box ref={ref}>
       <svg ref={svgRef} id="demo-pie-chart">
-        <g ref={pieRef}></g>
+        <g ref={pieRef}>
+          {arcs.map((d, i) => (
+            <Tooltip
+              key={i}
+              title={`${d.data.name} -  ${d.data.value}`}
+              placement="right">
+              <path />
+            </Tooltip>
+          ))}
+        </g>
         {/* <g className="legend" /> */}
       </svg>
+      {/* <Tooltip ref={tooltipRef} bgColor={theme.palette.background.paper} /> */}
     </Box>
   )
 }
