@@ -6,6 +6,14 @@ import { prisma, type Prisma } from '@/configs/prismaClient'
 
 export type CreateTransactions = Prisma.TransactionCreateManyInput
 
+export type SpendingSumOverTime = {
+  year: number
+  month: number
+  day: number
+  sum: number
+  count: number
+}
+
 const log = debug('app:transactions:dao')
 
 const defaultConfig = {
@@ -159,9 +167,73 @@ const getTransactionsByItemId = async (
   }
 }
 
+const getSpendingSumByDay = async (
+  accountId: string,
+  config?: {
+    startDate?: string
+    endDate?: string
+    take?: number
+    skip?: number
+  },
+) => {
+  const { startDate, endDate, take, skip } = config || {}
+
+  try {
+    // prisma will sanitize the variables when using $queryRaw, i.e. ${accountId}
+    return await prisma.$queryRaw<SpendingSumOverTime[]>`
+      SELECT YEAR(date) as year, MONTH(date) as month, DAY(date) as day, SUM(amount) as sum, COUNT(amount) as count
+      FROM transactions
+      WHERE account_id = ${accountId} 
+      AND date >= ${startDate || '0000-01-01'} 
+      AND date <= ${endDate || '9999-12-31'}
+      AND amount >= 0
+      GROUP BY year, month, day
+      ORDER BY year DESC, month DESC, day DESC
+      LIMIT ${take || 50}
+      OFFSET ${skip || 0}
+    `
+  } catch (error) {
+    log('getSpendingSumByDay: ', error)
+    throw error
+  }
+}
+
+const getSpendingSumByMonth = async (
+  accountId: string,
+  config?: {
+    startDate?: string
+    endDate?: string
+    take?: number
+    skip?: number
+  },
+) => {
+  const { startDate, endDate, take, skip } = config || {}
+
+  try {
+    // prisma will sanitize the variables when using $queryRaw, i.e. ${accountId}
+    return await prisma.$queryRaw<Omit<SpendingSumOverTime, 'day'>[]>`
+      SELECT YEAR(date) as year, MONTH(date) as month, SUM(amount) as sum, COUNT(amount) as count
+      FROM transactions
+      WHERE account_id = ${accountId} 
+      AND date >= ${startDate || '0000-01-01'} 
+      AND date <= ${endDate || '9999-12-31'}
+      AND amount >= 0
+      GROUP BY year, month
+      ORDER BY year DESC, month DESC
+      LIMIT ${take || 50}
+      OFFSET ${skip || 0}
+    `
+  } catch (error) {
+    log('getSpendingSumByMonth: ', error)
+    throw error
+  }
+}
+
 export const transactionsDao = {
   syncTransactions,
   getTransactionsByUserId,
   getTransactionsByAccountId,
   getTransactionsByItemId,
+  getSpendingSumByDay,
+  getSpendingSumByMonth,
 }
