@@ -34,3 +34,15 @@ export const getAccountsByUserId = async (userId: string) => {
     throw error
   }
 }
+
+export const getAccountById = async (id: string) => {
+  try {
+    const api = await fetcher()
+    if (!api) return
+    const response = await api.get<AccountType>(`/accounts/${id}`)
+    return response
+  } catch (err) {
+    const error = err as AxiosError<ErrorResponse>
+    throw error
+  }
+}

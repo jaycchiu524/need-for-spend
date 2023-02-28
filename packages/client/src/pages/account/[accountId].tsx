@@ -1,22 +1,17 @@
 import { useRouter } from 'next/router'
 import React, { ReactNode, useMemo, useState } from 'react'
 
-import { useQuery } from '@tanstack/react-query'
-
 import { Box, Grid, Stack, Tab, Tabs, Typography } from '@mui/material'
 
 import styled from '@emotion/styled'
 
 import PaidIcon from '@mui/icons-material/Paid'
-import CreditCardIcon from '@mui/icons-material/CreditCard'
 import SavingsIcon from '@mui/icons-material/Savings'
-import ReceiptIcon from '@mui/icons-material/Receipt'
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 
-import {
-  getTransactionsByAccountId,
-  getMonthlyByAccoundId,
-  getDailyByAccoundId,
-} from '@/api/transactions'
+import { useQuery } from '@tanstack/react-query'
+
 import LineChart from '@/components/LineChart/LineChart'
 import useTransactions from '@/hooks/useTransactions'
 
@@ -26,6 +21,7 @@ import TransactionsTable from '@/components/Table'
 import PieChart from '@/components/PieChart/PieChart'
 import { useAccountStore } from '@/store/accounts'
 import { Timespan } from '@/components/LineChart/types'
+import { getAccountById } from '@/api/accounts'
 
 const Page = styled.div`
   display: block;
@@ -58,39 +54,27 @@ const AccountDetail = () => {
 
   const accountId = useMemo(() => _accId, [_accId]) as string
 
-  const { byId } = useAccountStore()
+  const { byId, setIdAccounts } = useAccountStore()
 
-  const curAccount = byId[accountId]
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['transactionsByAccountId', accountId],
-    queryFn: () => getTransactionsByAccountId(accountId),
-    cacheTime: 1000 * 60 * 60,
-    enabled: !!accountId,
+  const { data } = useQuery({
+    queryKey: ['account', accountId],
+    queryFn: () => getAccountById(accountId),
+    enabled: !byId[accountId] && !!accountId,
+    onSuccess(data) {
+      if (!data?.data) return
+      setIdAccounts(accountId, data?.data)
+    },
   })
 
-  const { data: _monthlyExpense } = useQuery({
-    queryKey: ['monthlyExpense', accountId],
-    queryFn: () => getMonthlyByAccoundId(accountId),
-    enabled: !!accountId,
-  })
-  const { data: _dailyExpense } = useQuery({
-    queryKey: ['dailyExpense', accountId],
-    queryFn: () => getDailyByAccoundId(accountId),
-    enabled: !!accountId,
-  })
+  const curAccount = byId[accountId] || data?.data
 
-  const transactions = data?.data || []
-  const monthlyExpense = _monthlyExpense?.data || []
-  const dailyExpense = _dailyExpense?.data || []
-
-  const { income, spending, saving, dataByCategories, monthlyData, dailyData } =
-    useTransactions({ transactions, monthlyExpense, dailyExpense })
+  const { transactions, dataByCategories, monthlyData, dailyData } =
+    useTransactions({ accountId })
 
   return (
     <Page>
       <Typography variant={'h4'} fontWeight={800}>
-        {curAccount?.name || ''}
+        {curAccount.name}
       </Typography>
 
       <Grid
@@ -99,7 +83,7 @@ const AccountDetail = () => {
         spacing={{ xs: 1, sm: 2, md: 2 }}
         mb={2}
         justifyContent="center">
-        <GridItem>
+        {/* <GridItem>
           <DigitCard icon={<PaidIcon />} title={'Income'} text={income} />
         </GridItem>
         <GridItem>
@@ -114,7 +98,44 @@ const AccountDetail = () => {
         </GridItem>
         <GridItem>
           <DigitCard icon={<ReceiptIcon />} title={'Bills'} text={'1200.00'} />
-        </GridItem>
+        </GridItem> */}
+        {curAccount.type && (
+          <GridItem>
+            <DigitCard
+              icon={<AccountBalanceIcon />}
+              title={'type'}
+              text={curAccount.type}
+            />
+          </GridItem>
+        )}
+        {curAccount.balanceIsoCurrencyCode && (
+          <GridItem>
+            <DigitCard
+              icon={<PaidIcon />}
+              title={'Currency'}
+              text={curAccount.balanceIsoCurrencyCode}
+            />
+          </GridItem>
+        )}
+        {curAccount.balanceAvailable && (
+          <GridItem>
+            <DigitCard
+              icon={<AccountBalanceWalletIcon />}
+              title={'Balance'}
+              text={curAccount.balanceAvailable.toFixed(2)}
+            />
+          </GridItem>
+        )}
+
+        {curAccount.mask && (
+          <GridItem>
+            <DigitCard
+              icon={<SavingsIcon />}
+              title={'Last 4 digits'}
+              text={curAccount.mask}
+            />
+          </GridItem>
+        )}
       </Grid>
 
       <Tabs
@@ -167,13 +188,9 @@ const AccountDetail = () => {
       </Stack>
 
       <div>
-        {isLoading ? (
-          'Loading...'
-        ) : (
-          <Box borderRadius={2} sx={{ backgroundColor: 'transparent' }}>
-            <TransactionsTable transactions={transactions} />
-          </Box>
-        )}
+        <Box borderRadius={2} sx={{ backgroundColor: 'transparent' }}>
+          <TransactionsTable transactions={transactions} />
+        </Box>
       </div>
     </Page>
   )

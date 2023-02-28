@@ -1,16 +1,17 @@
 import { useMemo } from 'react'
 
+import { useQuery } from '@tanstack/react-query'
+
 import { Transaction } from '@/api/types'
 import {
-  GetdailyExpenseResponse,
-  GetMonthlyExpenseResponse,
   MonthlySumOverTime,
+  getTransactionsByAccountId,
+  getMonthlyByAccoundId,
+  getDailyByAccoundId,
 } from '@/api/transactions'
 
 type Props = {
-  transactions: Transaction[]
-  monthlyExpense: GetMonthlyExpenseResponse
-  dailyExpense: GetdailyExpenseResponse
+  accountId: string
 }
 
 interface ChartData {
@@ -80,32 +81,37 @@ function convertChartData(data: (MonthlySumOverTime & { day?: number })[]) {
   }, [] as ChartData[])
 }
 
-const useTransactions = ({
-  transactions,
-  monthlyExpense,
-  dailyExpense,
-}: Props) => {
-  const [spending, income, saving] = useMemo(
-    () => calcaulate(transactions),
-    [transactions],
+const useTransactions = ({ accountId }: Props) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['transactionsByAccountId', accountId],
+    queryFn: () => getTransactionsByAccountId(accountId),
+    cacheTime: 1000 * 60 * 60,
+    enabled: !!accountId,
+  })
+
+  const { data: _monthlyExpense } = useQuery({
+    queryKey: ['monthlyExpense', accountId],
+    queryFn: () => getMonthlyByAccoundId(accountId),
+    enabled: !!accountId,
+  })
+  const { data: _dailyExpense } = useQuery({
+    queryKey: ['dailyExpense', accountId],
+    queryFn: () => getDailyByAccoundId(accountId),
+    enabled: !!accountId,
+  })
+
+  const transactions = useMemo(() => data?.data || [], [data])
+  const monthlyExpense = useMemo(
+    () => _monthlyExpense?.data || [],
+    [_monthlyExpense],
   )
+  const dailyExpense = useMemo(() => _dailyExpense?.data || [], [_dailyExpense])
 
   const dataByCategories = useMemo(
     () => categorize(transactions),
     [transactions],
   )
 
-  // const dataBydate = useMemo(
-  //   () =>
-  //     transactions
-  //       .reduce((acc, t) => {
-  //         if (t.amount < 0) return acc
-  //         acc.push({ date: new Date(t.date), value: t.amount })
-  //         return acc
-  //       }, [] as { date: Date; value: number }[])
-  //       .sort((a, b) => a.date.getTime() - b.date.getTime()),
-  //   [transactions],
-  // )
   const monthlyData = useMemo(
     () => convertChartData(monthlyExpense),
     [monthlyExpense],
@@ -117,12 +123,10 @@ const useTransactions = ({
   )
 
   return {
-    spending,
-    income,
-    saving,
     dataByCategories,
     monthlyData,
     dailyData,
+    transactions,
   }
 }
 
