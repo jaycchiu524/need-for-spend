@@ -43,6 +43,14 @@ const createAccounts = async (plaidItemId: string) => {
   }
 }
 
+const getAccountById = async (id: string) => {
+  try {
+    return await accountsDao.getAccountById(id)
+  } catch (err) {
+    throw err
+  }
+}
+
 const getAccountsByUserId = async (userId: string) => {
   try {
     return await accountsDao.getAccountsByUserId(userId)
@@ -72,4 +80,5 @@ export const accountsServices = {
   getAccountsByUserId,
   getAccountByPlaidAccountId,
   getAccountsByItemId,
+  getAccountById,
 }

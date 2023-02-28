@@ -11,7 +11,42 @@ import {
 
 import { SumConfigs } from '../transactions/dao'
 
+import { accountsServices } from './services'
+
 const log = debug('app: account-controllers')
+
+const getAccountById = async (
+  req: Request<{ accountId: string }, any, any, any>,
+  res: Response<any, { jwt: JWT }>,
+) => {
+  try {
+    const accountId = req.params.accountId
+    const account = await accountsServices.getAccountById(accountId)
+    if (!account) {
+      return res.status(404).send({
+        code: 404,
+        message: 'Account not found',
+      })
+    }
+
+    const userId = res.locals.jwt.id
+
+    if (account.item.userId !== userId) {
+      return res.status(403).send({
+        code: 403,
+        message: 'Forbidden',
+      })
+    }
+
+    return res.status(200).send(account)
+  } catch (err) {
+    log(err)
+    return res.status(500).send({
+      code: 500,
+      message: 'Internal server error',
+    })
+  }
+}
 
 const getTransactionsByAccountId = async (
   req: Request<{ accountId: string }, any, any, GetTransactionsQuery>,
@@ -116,6 +151,7 @@ const getDailyExpenseByAccoundId = async (
 }
 
 export const accountsControllers = {
+  getAccountById,
   getTransactionsByAccountId,
   getMonthlyExpenseByAccoundId,
   getDailyExpenseByAccoundId,

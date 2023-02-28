@@ -8,6 +8,26 @@ const createAccounts = async (accounts: CreateAccount[]) => {
   })
 }
 
+const getAccountById = async (
+  id: string,
+  config?: Prisma.AccountFindUniqueArgs,
+) => {
+  return await prisma.account.findUnique({
+    ...config,
+    where: {
+      ...config?.where,
+      id,
+    },
+    include: {
+      item: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+  })
+}
+
 const getAccountsByUserId = async (
   userId: string,
   config?: Prisma.AccountFindManyArgs,
@@ -61,4 +81,5 @@ export const accountsDao = {
   getAccountsByUserId,
   getAccountByPlaidAccountId,
   getAccountsByItemId,
+  getAccountById,
 }
