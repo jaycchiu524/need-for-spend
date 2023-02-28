@@ -43,5 +43,15 @@ export const plaidRoutes = (app: express.Application) => {
     .all(validJWTNeeded)
     .get(accountsControllers.getTransactionsByAccountId)
 
+  app
+    .route(`/accounts/:accountId/expense/monthly`)
+    .all(validJWTNeeded)
+    .get(accountsControllers.getMonthlyExpenseByAccoundId)
+
+  app
+    .route(`/accounts/:accountId/expense/daily`)
+    .all(validJWTNeeded)
+    .get(accountsControllers.getDailyExpenseByAccoundId)
+
   return app
 }

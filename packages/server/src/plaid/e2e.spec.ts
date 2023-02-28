@@ -480,11 +480,11 @@ describe('Create items, accounts and transactions', () => {
         startDate: '2023-01-01',
         endDate: '2023-03-31',
       }
-      const dayWithStartEnd = await transactionsDao.getSpendingSumByDay(
+      const dayWithStartEnd = await transactionsDao.getDailyExpense(
         accAId,
         config,
       )
-      const dayNoConfigs = await transactionsDao.getSpendingSumByDay(accAId, {})
+      const dayNoConfigs = await transactionsDao.getDailyExpense(accAId, {})
 
       expect(dayWithStartEnd).toBeDefined()
       expect(dayNoConfigs).toBeDefined()
@@ -503,16 +503,15 @@ describe('Create items, accounts and transactions', () => {
       const lastDate = new Date(
         `${last.year}-${last.month}-${last.day}`,
       ).getTime()
-      const filterNegative = dayWithStartEnd.filter((d) => d.sum < 0)
 
       expect(first).toHaveProperty('day')
-      expect(first).toHaveProperty('sum')
+      expect(first).toHaveProperty('expense')
+      expect(first).toHaveProperty('income')
       expect(firstDate).toBeGreaterThanOrEqual(secondDate)
       expect(firstDate).toBeLessThanOrEqual(new Date(config.endDate).getTime())
       expect(lastDate).toBeGreaterThanOrEqual(
         new Date(config.startDate).getTime(),
       )
-      expect(filterNegative.length).toBe(0)
     })
   })
 

@@ -6,12 +6,19 @@ import { prisma, type Prisma } from '@/configs/prismaClient'
 
 export type CreateTransactions = Prisma.TransactionCreateManyInput
 
-export type SpendingSumOverTime = {
+export type SumOverTime = {
   year: number
   month: number
   day: number
-  sum: number
-  count: number
+  expense: number
+  income: number
+  count: string
+}
+export type SumConfigs = {
+  startDate?: string
+  endDate?: string
+  take?: number
+  skip?: number
 }
 
 const log = debug('app:transactions:dao')
@@ -167,7 +174,7 @@ const getTransactionsByItemId = async (
   }
 }
 
-const getSpendingSumByDay = async (
+const getDailyExpense = async (
   accountId: string,
   config?: {
     startDate?: string
@@ -180,51 +187,51 @@ const getSpendingSumByDay = async (
 
   try {
     // prisma will sanitize the variables when using $queryRaw, i.e. ${accountId}
-    return await prisma.$queryRaw<SpendingSumOverTime[]>`
-      SELECT YEAR(date) as year, MONTH(date) as month, DAY(date) as day, SUM(amount) as sum, COUNT(amount) as count
+    // cast count to char to avoid prisma error
+    return await prisma.$queryRaw<SumOverTime[]>`
+      SELECT YEAR(date) as year, MONTH(date) as month, DAY(date) as day, SUM(
+        case when amount >= 0 then amount else 0 end
+      ) as expense, SUM(
+        case when amount < 0 then amount * -1 else 0 end
+      ) as income, CAST(COUNT(*) AS CHAR) as count
       FROM transactions
       WHERE account_id = ${accountId} 
       AND date >= ${startDate || '0000-01-01'} 
       AND date <= ${endDate || '9999-12-31'}
-      AND amount >= 0
       GROUP BY year, month, day
       ORDER BY year DESC, month DESC, day DESC
       LIMIT ${take || 50}
       OFFSET ${skip || 0}
     `
   } catch (error) {
-    log('getSpendingSumByDay: ', error)
+    log('getDailyExpense: ', error)
     throw error
   }
 }
 
-const getSpendingSumByMonth = async (
-  accountId: string,
-  config?: {
-    startDate?: string
-    endDate?: string
-    take?: number
-    skip?: number
-  },
-) => {
+const getMonthlyExpense = async (accountId: string, config?: SumConfigs) => {
   const { startDate, endDate, take, skip } = config || {}
 
   try {
     // prisma will sanitize the variables when using $queryRaw, i.e. ${accountId}
-    return await prisma.$queryRaw<Omit<SpendingSumOverTime, 'day'>[]>`
-      SELECT YEAR(date) as year, MONTH(date) as month, SUM(amount) as sum, COUNT(amount) as count
+    // cast count to char to avoid prisma error
+    return await prisma.$queryRaw<Omit<SumOverTime, 'day'>[]>`
+      SELECT YEAR(date) as year, MONTH(date) as month, SUM(
+        case when amount >= 0 then amount else 0 end
+      ) as expense, SUM(
+        case when amount < 0 then amount * -1 else 0 end
+      ) as income, CAST(COUNT(*) AS CHAR) as count
       FROM transactions
       WHERE account_id = ${accountId} 
       AND date >= ${startDate || '0000-01-01'} 
       AND date <= ${endDate || '9999-12-31'}
-      AND amount >= 0
       GROUP BY year, month
       ORDER BY year DESC, month DESC
       LIMIT ${take || 50}
       OFFSET ${skip || 0}
     `
   } catch (error) {
-    log('getSpendingSumByMonth: ', error)
+    log('getMonthlyExpense: ', error)
     throw error
   }
 }
@@ -234,6 +241,6 @@ export const transactionsDao = {
   getTransactionsByUserId,
   getTransactionsByAccountId,
   getTransactionsByItemId,
-  getSpendingSumByDay,
-  getSpendingSumByMonth,
+  getDailyExpense,
+  getMonthlyExpense,
 }

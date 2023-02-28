@@ -9,7 +9,7 @@ import { itemsServices } from '../items/services'
 
 import { plaid } from '../plaid'
 
-import { CreateTransactions, transactionsDao } from './dao'
+import { CreateTransactions, SumConfigs, transactionsDao } from './dao'
 
 export type GetTransactionsQuery = {
   take?: string
@@ -204,8 +204,38 @@ const getTransactionsByAccountId = async (
   }
 }
 
+const getDailyExpense = async (accountId: string, configs?: SumConfigs) => {
+  log(`Getting spending sum by day for account ${accountId}...`)
+  try {
+    const transactions = await transactionsDao.getDailyExpense(
+      accountId,
+      configs,
+    )
+    return transactions
+  } catch (err) {
+    log(`Error getting transactions: ${err}`)
+    throw err
+  }
+}
+
+const getMonthlyExpense = async (accountId: string, configs?: SumConfigs) => {
+  log(`Getting spending sum by month for account ${accountId}...`)
+  try {
+    const transactions = await transactionsDao.getMonthlyExpense(
+      accountId,
+      configs,
+    )
+    return transactions
+  } catch (err) {
+    log(`Error getting transactions: ${err}`)
+    throw err
+  }
+}
+
 export const transactionsServices = {
   updateTransactions,
   getTransactionsByUserId,
   getTransactionsByAccountId,
+  getDailyExpense,
+  getMonthlyExpense,
 }

@@ -9,6 +9,8 @@ import {
   transactionsServices,
 } from '@/plaid/transactions/services'
 
+import { SumConfigs } from '../transactions/dao'
+
 const log = debug('app: account-controllers')
 
 const getTransactionsByAccountId = async (
@@ -65,6 +67,56 @@ const getTransactionsByAccountId = async (
   }
 }
 
+const getMonthlyExpenseByAccoundId = async (
+  req: Request<{ accountId: string }, any, any, SumConfigs>,
+  res: Response<any, { jwt: JWT }>,
+) => {
+  try {
+    const accountId = req.params.accountId
+    const query = req.query
+    const monthlyExpense = await transactionsServices.getMonthlyExpense(
+      accountId,
+      query,
+    )
+
+    log('monthlyExpense: %o', monthlyExpense)
+
+    return res.status(200).send(monthlyExpense)
+  } catch (err) {
+    log('Error: Internal get monthly spending sum by account id: %o', err)
+
+    return res.status(500).send({
+      code: 500,
+      message: 'Internal Server Error',
+    })
+  }
+}
+
+const getDailyExpenseByAccoundId = async (
+  req: Request<{ accountId: string }, any, any, SumConfigs>,
+  res: Response<any, { jwt: JWT }>,
+) => {
+  try {
+    const accountId = req.params.accountId
+    const query = req.query
+    const dailyExpense = await transactionsServices.getDailyExpense(
+      accountId,
+      query,
+    )
+
+    return res.status(200).send(dailyExpense)
+  } catch (err) {
+    log('Error: Internal get daily spending sum by account id: %o', err)
+
+    return res.status(500).send({
+      code: 500,
+      message: 'Internal Server Error',
+    })
+  }
+}
+
 export const accountsControllers = {
   getTransactionsByAccountId,
+  getMonthlyExpenseByAccoundId,
+  getDailyExpenseByAccoundId,
 }
