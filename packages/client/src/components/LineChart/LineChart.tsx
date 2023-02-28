@@ -74,15 +74,11 @@ const LineChart = ({ data: _data, timespan }: Props) => {
   const ticks = timespan === Timespan.Daily ? d3.timeDay.every(7) : d3.timeMonth
   const timeFormat = timespan === Timespan.Daily ? '%-d/%-m' : '%b'
 
-  console.log('ticks: ', ticks)
-
   // Construct scales and axes.
   const xScale = xType(xDomain, xRange)
   const yScale = yType(yDomain, yRange)
   const xAxis = d3
     .axisBottom<Date>(xScale)
-    // .ticks(d3.utcMonth.every(1))
-    // .tickFormat(d3.timeFormat('%b'))
     .tickSizeOuter(0)
     .ticks(ticks)
     .tickFormat(d3.timeFormat(timeFormat))
@@ -103,10 +99,6 @@ const LineChart = ({ data: _data, timespan }: Props) => {
     .y((d, i) => yScale(YIncome[i]))
 
   const svg = d3.select(svgRef.current)
-  // .attr('style', `max-width: 100%; height: auto; height: intrinsic;`)
-  // useEffect(() => {
-  //   if (tab === Categories.Monthly) setData(f1)
-  // }, [tab])
 
   useEffect(() => {
     if (!svgRef.current) return
