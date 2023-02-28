@@ -12,16 +12,16 @@ import { format } from 'date-fns'
 
 import useSize from '@/hooks/useSize'
 
-interface Datum {
-  date: Date
-  value: number
-}
+import { Datum, Timespan } from './types'
+
+// import { fakeData, fakeGenerator } from './faker'
 
 interface Props {
   data: Datum[]
+  timespan: Timespan
 }
 
-const LineChart = ({ data: _data }: Props) => {
+const LineChart = ({ data: _data, timespan }: Props) => {
   const { ref, width: _w, height: _h } = useSize()
 
   const [data, setData] = useState<Datum[]>([])
@@ -30,13 +30,14 @@ const LineChart = ({ data: _data }: Props) => {
   const svgRef = React.useRef(null)
 
   const x = (d: Datum) => d.date // given d in data, returns the (temporal) x-value
-  const y = (d: Datum) => d.value
+  const yExpense = (d: Datum) => d.expense
+  const yIncome = (d: Datum) => d.income
   const w = _w
   const h = _h
   const margin = { top: 15, right: 0, bottom: 5, left: 30 }
   const width = w - margin.left - margin.right
   const height = h - margin.top - margin.bottom
-  const xType = d3.scaleTime
+  const xType = d3.scaleUtc
   const yType = d3.scaleLinear
   const xRange = [margin.left, width - margin.right]
   const yRange = useMemo(
@@ -52,17 +53,28 @@ const LineChart = ({ data: _data }: Props) => {
   const strokeOpacity = 1
 
   const color = 'steelblue'
+  const color2 = 'red'
 
   // Compute values.
   const X = d3.map(data, x)
-  const Y = d3.map(data, y)
+  const YExpense = d3.map(data, yExpense)
+  const YIncome = d3.map(data, yIncome)
   const I = d3.range(X.length)
-  const defined = (d: Datum, i: number) => X[i] instanceof Date && !isNaN(Y[i])
+  const defined = (d: Datum, i: number) =>
+    X[i] instanceof Date && !isNaN(YExpense[i]) && !isNaN(YIncome[i])
   const D = d3.map(data, defined)
 
   // Compute default domains.
   const xDomain = d3.extent(X) as [Date, Date]
-  const yDomain = [0, d3.max(Y)] as [number, number]
+
+  const yDomain = [
+    0,
+    Math.max(d3.max(YExpense) || 0, d3.max(YIncome) || 0),
+  ] as [number, number]
+  const ticks = timespan === Timespan.Daily ? d3.timeDay.every(7) : d3.timeMonth
+  const timeFormat = timespan === Timespan.Daily ? '%-d/%-m' : '%b'
+
+  console.log('ticks: ', ticks)
 
   // Construct scales and axes.
   const xScale = xType(xDomain, xRange)
@@ -71,20 +83,30 @@ const LineChart = ({ data: _data }: Props) => {
     .axisBottom<Date>(xScale)
     // .ticks(d3.utcMonth.every(1))
     // .tickFormat(d3.timeFormat('%b'))
-    // .tickSizeOuter(0)
-    .ticks(d3.utcDay.every(width > 300 ? 1 : 2))
-    .tickFormat(d3.timeFormat('%d'))
-  const yAxis = d3.axisLeft(yScale).ticks(height / 40, '~f')
+    .tickSizeOuter(0)
+    .ticks(ticks)
+    .tickFormat(d3.timeFormat(timeFormat))
+  const yAxis = d3.axisLeft(yScale).ticks(height / 20, '~f')
 
-  const line = d3
+  const Expenseline = d3
     .line<number>()
     .defined((d, i) => D[i])
     .curve(curve)
     .x((d, i) => xScale(X[i]))
-    .y((d, i) => yScale(Y[i]))
+    .y((d, i) => yScale(YExpense[i]))
+
+  const Incomeline = d3
+    .line<number>()
+    .defined((d, i) => D[i])
+    .curve(curve)
+    .x((d, i) => xScale(X[i]))
+    .y((d, i) => yScale(YIncome[i]))
 
   const svg = d3.select(svgRef.current)
   // .attr('style', `max-width: 100%; height: auto; height: intrinsic;`)
+  // useEffect(() => {
+  //   if (tab === Categories.Monthly) setData(f1)
+  // }, [tab])
 
   useEffect(() => {
     if (!svgRef.current) return
@@ -131,8 +153,30 @@ const LineChart = ({ data: _data }: Props) => {
       .transition()
       .duration(500)
 
-    const path = svg
-      .select('g.line')
+    // Add the expense line path.
+    svg
+      .select('g.line-expense')
+      .select<SVGPathElement>('path')
+      .attr('fill', 'none')
+      .attr('stroke', color2)
+      .attr('stroke-width', strokeWidth)
+      .attr('stroke-linecap', strokeLinecap)
+      .attr('stroke-linejoin', strokeLinejoin)
+      .attr('stroke-opacity', strokeOpacity)
+      .attr('d', Expenseline(I))
+      .transition()
+      .duration(1000)
+      .attrTween('d', () => {
+        return (t: number) => {
+          const yInterpolate = (v: number) => d3.interpolate(yRange[0], v)
+          Expenseline.y((d, i) => yInterpolate(yScale(YExpense[i]))(t))
+          return Expenseline(I) || ''
+        }
+      })
+
+    // Add the income line path.
+    svg
+      .select('g.line-income')
       .select<SVGPathElement>('path')
       .attr('fill', 'none')
       .attr('stroke', color)
@@ -140,14 +184,14 @@ const LineChart = ({ data: _data }: Props) => {
       .attr('stroke-linecap', strokeLinecap)
       .attr('stroke-linejoin', strokeLinejoin)
       .attr('stroke-opacity', strokeOpacity)
-      .attr('d', line(I))
+      .attr('d', Incomeline(I))
       .transition()
       .duration(1000)
       .attrTween('d', () => {
         return (t: number) => {
           const yInterpolate = (v: number) => d3.interpolate(yRange[0], v)
-          line.y((d, i) => yInterpolate(yScale(Y[i]))(t))
-          return line(I) || ''
+          Incomeline.y((d, i) => yInterpolate(yScale(YIncome[i]))(t))
+          return Incomeline(I) || ''
         }
       })
 
@@ -191,71 +235,100 @@ const LineChart = ({ data: _data }: Props) => {
       setShowCircle(false)
     }
   }, [
+    Expenseline,
     I,
-    Y,
+    Incomeline,
+    YExpense,
+    YIncome,
     _data,
-    data,
+    data.length,
     height,
-    line,
     margin.bottom,
     margin.left,
     margin.right,
     svg,
     width,
     xAxis,
-    xScale,
     yAxis,
     yRange,
     yScale,
   ])
+
+  const DotToolTip = ({
+    type,
+    d,
+  }: {
+    d: Datum
+    type: 'income' | 'expense'
+  }) => (
+    <Tooltip
+      title={`${format(d.date, 'yyyy/MM')} - ${type}: ${d[type]}`}
+      placement="right">
+      <motion.circle
+        initial={{
+          r: 3,
+          cx: xScale(x(d)),
+          fill: 'currentColor',
+          cy: yRange[0],
+          stroke: 'black',
+          strokeWidth: 1,
+        }}
+        animate={{
+          r: 3,
+          cx: xScale(x(d)),
+          cy: yScale(type === 'expense' ? yExpense(d) : yIncome(d)),
+          fill: 'currentColor',
+          stroke: 'white',
+          strokeWidth: 1,
+        }}
+        transition={{
+          duration: 1,
+        }}></motion.circle>
+    </Tooltip>
+  )
 
   return (
     <Box
       sx={{
         display: 'flex',
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        flexDirection: 'column',
         height: '100%',
-      }}
-      ref={ref}>
-      <svg height="100%" width="100%" ref={svgRef}>
-        <g className="x-axis"></g>
-        <g className="y-axis"></g>
-        <g className="line">
-          <path />
-        </g>
-        <g className="dots" height="100%" width="100%">
-          {showCircle &&
-            data.map((d, i) => (
-              <Tooltip
-                key={d.value}
-                title={`${format(d.date, 'MMM dd')}: $${d.value}`}
-                placement="right">
-                <motion.circle
-                  initial={{
-                    r: 3,
-                    cx: xScale(x(d)),
-                    fill: 'currentColor',
-                    cy: yRange[0],
-                    stroke: 'black',
-                    strokeWidth: 1,
-                  }}
-                  animate={{
-                    r: 3,
-                    cx: xScale(x(d)),
-                    cy: yScale(y(d)),
-                    fill: 'currentColor',
-                    stroke: 'white',
-                    strokeWidth: 1,
-                  }}
-                  transition={{
-                    duration: 1,
-                  }}></motion.circle>
-              </Tooltip>
-            ))}
-        </g>
-      </svg>
+      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flex: 5,
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+        }}
+        ref={ref}>
+        <svg height="100%" width="100%" ref={svgRef}>
+          <g className="x-axis"></g>
+          <g className="y-axis"></g>
+          <g className="line-expense">
+            <path />
+          </g>
+          <g className="line-income">
+            <path />
+          </g>
+          <g className="dots" height="100%" width="100%">
+            {showCircle &&
+              data.map((d, i) => {
+                return (
+                  <DotToolTip key={`${d.date}-expense`} d={d} type="expense" />
+                )
+              })}
+            {showCircle &&
+              data.map((d, i) => {
+                return (
+                  <DotToolTip key={`${d.date}-income`} d={d} type="income" />
+                )
+              })}
+          </g>
+        </svg>
+      </Box>
     </Box>
   )
 }

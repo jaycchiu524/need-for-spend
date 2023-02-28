@@ -1,9 +1,23 @@
 import { useMemo } from 'react'
 
 import { Transaction } from '@/api/types'
+import {
+  GetdailyExpenseResponse,
+  GetMonthlyExpenseResponse,
+  MonthlySumOverTime,
+} from '@/api/transactions'
 
 type Props = {
   transactions: Transaction[]
+  monthlyExpense: GetMonthlyExpenseResponse
+  dailyExpense: GetdailyExpenseResponse
+}
+
+interface ChartData {
+  date: Date
+  expense: number
+  income: number
+  count: string
 }
 
 function calcaulate(transactions: Transaction[]) {
@@ -52,7 +66,25 @@ function categorize(transactions: Transaction[]) {
   }, [] as { name: string; value: number }[])
 }
 
-const useTransactions = ({ transactions }: Props) => {
+function convertChartData(data: (MonthlySumOverTime & { day?: number })[]) {
+  return data.reduce((acc, exp) => {
+    const { year, month, income, expense, count } = exp
+    const day = exp.day
+    acc.push({
+      date: new Date(`${year}-${month}${day ? `-${day}` : ''}`),
+      expense,
+      income,
+      count,
+    })
+    return acc
+  }, [] as ChartData[])
+}
+
+const useTransactions = ({
+  transactions,
+  monthlyExpense,
+  dailyExpense,
+}: Props) => {
   const [spending, income, saving] = useMemo(
     () => calcaulate(transactions),
     [transactions],
@@ -63,16 +95,25 @@ const useTransactions = ({ transactions }: Props) => {
     [transactions],
   )
 
-  const dataBydate = useMemo(
-    () =>
-      transactions
-        .reduce((acc, t) => {
-          if (t.amount < 0) return acc
-          acc.push({ date: new Date(t.date), value: t.amount })
-          return acc
-        }, [] as { date: Date; value: number }[])
-        .sort((a, b) => a.date.getTime() - b.date.getTime()),
-    [transactions],
+  // const dataBydate = useMemo(
+  //   () =>
+  //     transactions
+  //       .reduce((acc, t) => {
+  //         if (t.amount < 0) return acc
+  //         acc.push({ date: new Date(t.date), value: t.amount })
+  //         return acc
+  //       }, [] as { date: Date; value: number }[])
+  //       .sort((a, b) => a.date.getTime() - b.date.getTime()),
+  //   [transactions],
+  // )
+  const monthlyData = useMemo(
+    () => convertChartData(monthlyExpense),
+    [monthlyExpense],
+  )
+
+  const dailyData = useMemo(
+    () => convertChartData(dailyExpense),
+    [dailyExpense],
   )
 
   return {
@@ -80,7 +121,8 @@ const useTransactions = ({ transactions }: Props) => {
     income,
     saving,
     dataByCategories,
-    dataBydate,
+    monthlyData,
+    dailyData,
   }
 }
 

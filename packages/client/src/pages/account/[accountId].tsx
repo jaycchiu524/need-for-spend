@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router'
-import React, { ReactNode, useMemo } from 'react'
+import React, { ReactNode, useMemo, useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 
-import { Box, Grid, Stack, Typography } from '@mui/material'
+import { Box, Grid, Stack, Tab, Tabs, Typography } from '@mui/material'
 
 import styled from '@emotion/styled'
 
@@ -12,7 +12,11 @@ import CreditCardIcon from '@mui/icons-material/CreditCard'
 import SavingsIcon from '@mui/icons-material/Savings'
 import ReceiptIcon from '@mui/icons-material/Receipt'
 
-import { getTransactionsByAccountId } from '@/api/transactions'
+import {
+  getTransactionsByAccountId,
+  getMonthlyByAccoundId,
+  getDailyByAccoundId,
+} from '@/api/transactions'
 import LineChart from '@/components/LineChart/LineChart'
 import useTransactions from '@/hooks/useTransactions'
 
@@ -21,6 +25,7 @@ import { DigitCard } from '@/components/Transactions/DigitCard'
 import TransactionsTable from '@/components/Table'
 import PieChart from '@/components/PieChart/PieChart'
 import { useAccountStore } from '@/store/accounts'
+import { Timespan } from '@/components/LineChart/types'
 
 const Page = styled.div`
   display: block;
@@ -46,6 +51,8 @@ const GridItem = ({ children }: { children: ReactNode }) => {
 }
 
 const AccountDetail = () => {
+  const [timespan, setTimespan] = useState<Timespan>(Timespan.Daily)
+
   const router = useRouter()
   const { accountId: _accId } = router.query
 
@@ -62,10 +69,23 @@ const AccountDetail = () => {
     enabled: !!accountId,
   })
 
-  const transactions = data?.data || []
+  const { data: _monthlyExpense } = useQuery({
+    queryKey: ['monthlyExpense', accountId],
+    queryFn: () => getMonthlyByAccoundId(accountId),
+    enabled: !!accountId,
+  })
+  const { data: _dailyExpense } = useQuery({
+    queryKey: ['dailyExpense', accountId],
+    queryFn: () => getDailyByAccoundId(accountId),
+    enabled: !!accountId,
+  })
 
-  const { income, spending, saving, dataByCategories, dataBydate } =
-    useTransactions({ transactions })
+  const transactions = data?.data || []
+  const monthlyExpense = _monthlyExpense?.data || []
+  const dailyExpense = _dailyExpense?.data || []
+
+  const { income, spending, saving, dataByCategories, monthlyData, dailyData } =
+    useTransactions({ transactions, monthlyExpense, dailyExpense })
 
   return (
     <Page>
@@ -97,6 +117,15 @@ const AccountDetail = () => {
         </GridItem>
       </Grid>
 
+      <Tabs
+        sx={{ display: 'flex', flex: 1, width: '100%', height: '24px' }}
+        value={timespan}
+        onChange={(e, v) => setTimespan(v)}
+        aria-label="basic tabs example">
+        <Tab label="Weekly" value={Timespan.Daily} />
+        <Tab label="Monthly" value={Timespan.Monthly} />
+      </Tabs>
+
       <Stack
         sx={{
           display: 'flex',
@@ -126,10 +155,10 @@ const AccountDetail = () => {
             alignItems: 'center',
             aspectRatio: '16/9',
           }}>
-          {!!dataBydate ? (
+          {!!monthlyData && !!dailyData ? (
             <LineChart
-              //  width={chartW} height={chartH}
-              data={dataBydate}
+              data={timespan === Timespan.Daily ? dailyData : monthlyData}
+              timespan={timespan}
             />
           ) : (
             <p>Loading...</p>
