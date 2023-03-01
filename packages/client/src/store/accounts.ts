@@ -3,8 +3,8 @@ import { create } from 'zustand'
 import { AccountType } from '@/api/accounts'
 
 interface AccountState {
-  byUser: { [key: string]: AccountType[] }
-  byId: { [key: string]: AccountType }
+  byUser: { [key: string]: AccountType[] | undefined }
+  byId: { [key: string]: AccountType | undefined }
   setUserAccounts: (userId: string, accounts: AccountType[]) => void
   setIdAccounts: (id: string, account: AccountType) => void
 }

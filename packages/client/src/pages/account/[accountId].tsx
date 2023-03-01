@@ -73,8 +73,8 @@ const AccountDetail = () => {
 
   return (
     <Page>
-      <Typography variant={'h4'} fontWeight={800}>
-        {curAccount.name}
+      <Typography sx={{ marginBottom: 4 }} variant={'h4'} fontWeight={800}>
+        {curAccount?.name || 'Account'}
       </Typography>
 
       <Grid
@@ -83,23 +83,7 @@ const AccountDetail = () => {
         spacing={{ xs: 1, sm: 2, md: 2 }}
         mb={2}
         justifyContent="center">
-        {/* <GridItem>
-          <DigitCard icon={<PaidIcon />} title={'Income'} text={income} />
-        </GridItem>
-        <GridItem>
-          <DigitCard
-            icon={<CreditCardIcon />}
-            title={'Spending'}
-            text={spending}
-          />
-        </GridItem>
-        <GridItem>
-          <DigitCard icon={<SavingsIcon />} title={'Saving'} text={saving} />
-        </GridItem>
-        <GridItem>
-          <DigitCard icon={<ReceiptIcon />} title={'Bills'} text={'1200.00'} />
-        </GridItem> */}
-        {curAccount.type && (
+        {curAccount?.type && (
           <GridItem>
             <DigitCard
               icon={<AccountBalanceIcon />}
@@ -108,7 +92,7 @@ const AccountDetail = () => {
             />
           </GridItem>
         )}
-        {curAccount.balanceIsoCurrencyCode && (
+        {curAccount?.balanceIsoCurrencyCode && (
           <GridItem>
             <DigitCard
               icon={<PaidIcon />}
@@ -117,7 +101,7 @@ const AccountDetail = () => {
             />
           </GridItem>
         )}
-        {curAccount.balanceAvailable && (
+        {curAccount?.balanceAvailable && (
           <GridItem>
             <DigitCard
               icon={<AccountBalanceWalletIcon />}
@@ -126,8 +110,7 @@ const AccountDetail = () => {
             />
           </GridItem>
         )}
-
-        {curAccount.mask && (
+        {curAccount?.mask && (
           <GridItem>
             <DigitCard
               icon={<SavingsIcon />}
@@ -143,7 +126,7 @@ const AccountDetail = () => {
         value={timespan}
         onChange={(e, v) => setTimespan(v)}
         aria-label="basic tabs example">
-        <Tab label="Weekly" value={Timespan.Daily} />
+        <Tab label="Daily" value={Timespan.Daily} />
         <Tab label="Monthly" value={Timespan.Monthly} />
       </Tabs>
 

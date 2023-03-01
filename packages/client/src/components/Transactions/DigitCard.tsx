@@ -21,7 +21,7 @@ export const DigitCard = ({
   icon,
 }: {
   title: string
-  text: string
+  text: string | number
   icon: ReactNode
 }) => {
   const { theme } = useThemeStore()
