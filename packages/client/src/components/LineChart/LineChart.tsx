@@ -107,8 +107,9 @@ const LineChart = ({ data: _data, timespan }: Props) => {
   const timeFormat = timespan === Timespan.Daily ? '%-d/%-m' : '%b'
 
   // Construct scales and axes.
-  const xScale = xType(xDomain, xRange)
-  const yScale = yType(yDomain, yRange)
+  // nice() rounds the domain to the nearest round number.
+  const xScale = xType(xDomain, xRange).nice()
+  const yScale = yType(yDomain, yRange).nice()
   const xAxis = d3
     .axisBottom<Date>(xScale)
     .tickSizeOuter(0)
@@ -320,14 +321,14 @@ const LineChart = ({ data: _data, timespan }: Props) => {
           <g className="dots" height="100%" width="100%">
             {showCircle &&
               showExpense &&
-              data.map((d, i) => {
+              data.map((d) => {
                 return (
                   <DotToolTip key={`${d.date}-expense`} d={d} type="expense" />
                 )
               })}
             {showCircle &&
               showIncome &&
-              data.map((d, i) => {
+              data.map((d) => {
                 return (
                   <DotToolTip key={`${d.date}-income`} d={d} type="income" />
                 )
