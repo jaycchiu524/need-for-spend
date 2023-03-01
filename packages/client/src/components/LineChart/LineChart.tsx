@@ -205,7 +205,8 @@ const LineChart = ({ data: _data, timespan }: Props) => {
         .attr('stroke-opacity', strokeOpacity)
         .attr('d', Expenseline(I))
         .transition()
-        .duration(1000)
+        .ease(d3.easeLinear)
+        .duration(500)
         .attrTween('d', () => {
           return (t: number) => {
             const yInterpolate = (v: number) => d3.interpolate(yRange[0], v)
@@ -228,7 +229,8 @@ const LineChart = ({ data: _data, timespan }: Props) => {
         .attr('stroke-opacity', strokeOpacity)
         .attr('d', Incomeline(I))
         .transition()
-        .duration(1000)
+        .ease(d3.easeLinear)
+        .duration(500)
         .attrTween('d', () => {
           return (t: number) => {
             const yInterpolate = (v: number) => d3.interpolate(yRange[0], v)
@@ -261,8 +263,8 @@ const LineChart = ({ data: _data, timespan }: Props) => {
         title
           ? title
           : timespan === Timespan.Daily
-          ? `${format(d.date, 'dd MMM yy')}-${type}: $${d[type]}`
-          : `${format(d.date, 'MMM yy')}-${type}: $${d[type]}`
+          ? `${format(d.date, 'dd MMM yy')}-${type}: $${d[type].toFixed(2)}`
+          : `${format(d.date, 'MMM yy')}-${type}: $${d[type].toFixed(2)}`
       }
       placement="right">
       <motion.circle
@@ -283,7 +285,8 @@ const LineChart = ({ data: _data, timespan }: Props) => {
           strokeWidth: 1,
         }}
         transition={{
-          duration: 1,
+          duration: 0.5,
+          ease: 'linear',
         }}></motion.circle>
     </Tooltip>
   )

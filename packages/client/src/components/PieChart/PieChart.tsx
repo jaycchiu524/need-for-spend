@@ -15,20 +15,10 @@ interface Props {
   data: Datum[]
 }
 
-// const Tooltip = styled.div<{ bgColor: string }>`
-//   position: absolute;
-//   padding: 0 0.5rem;
-//   background: ${({ bgColor }) => bgColor || '#fff'};
-//   border: 1px solid #000;
-//   border-radius: 0.25rem;
-//   opacity: 0;
-// `
-
 const PieChart = (props: Props) => {
   const { ref, width } = useSize()
   const svgRef = useRef(null)
   const pieRef = useRef(null)
-  // const tooltipRef = useRef(null)
   const [data, setData] = useState<Datum[]>([])
 
   // setting up svg container
@@ -67,13 +57,6 @@ const PieChart = (props: Props) => {
   const innerRadiusInterpolation = d3.interpolate(0, sizes.innerRadius)
   const outerRadiusInterpolation = d3.interpolate(0, sizes.outerRadius)
 
-  // Tooltip
-  // const tooltip = d3.select(tooltipRef.current)
-  // tooltipStyle.background = theme.palette.background.paper
-  // Object.entries(tooltipStyle).forEach(([prop, val]) =>
-  //   tooltip.style(prop, val),
-  // )
-
   useEffect(() => {
     if (!svgRef.current) return
     if (!pieRef.current) return
@@ -81,10 +64,7 @@ const PieChart = (props: Props) => {
     if (!data) return
 
     d3.select(svgRef.current)
-      // .select('#demo-pie-chart')
       .attr('viewBox', [-w / 2, -w / 2, w, w])
-      // .attr('width', w)
-      // .attr('height', w)
       .attr('style', `max-width: 100%; height: auto; height: intrinsic;`)
 
     // setting up svg data
@@ -140,30 +120,18 @@ const PieChart = (props: Props) => {
       })
 
     // Custom tooltip
-    // d3.select(pieRef.current)
-    //   .selectAll<SVGPathElement, d3.PieArcDatum<Datum>>('path')
-    //   .on('mouseover', function (event: MouseEvent, d) {
-    //     d3.select<SVGPathElement, d3.PieArcDatum<Datum>>(
-    //       event.target as SVGPathElement,
-    //     ).style('opacity', 1)
-
-    //     tooltip.transition().duration(200).style('opacity', 0.9)
-    //     tooltip
-    //       .html(`${d.data.name} (${d.data.value})`)
-    //       .style('left', `${event.pageX}px`)
-    //       .style('top', `${event.pageY - 28}px`)
-    //   })
-    //   .on('mouseout', (event: MouseEvent) => {
-    //     d3.select<SVGPathElement, d3.PieArcDatum<Datum>>(
-    //       event.target as SVGPathElement,
-    //     ).style('opacity', 0.7)
-    //     tooltip.transition().duration(500).style('opacity', 0)
-    //   })
-    //   .on('mousemove', (event: MouseEvent) => {
-    //     tooltip
-    //       .style('left', `${event.pageX}px`)
-    //       .style('top', `${event.pageY - 28}px`)
-    //   })
+    d3.select(pieRef.current)
+      .selectAll<SVGPathElement, d3.PieArcDatum<Datum>>('path')
+      .on('mouseover', function (event: MouseEvent, d) {
+        d3.select<SVGPathElement, d3.PieArcDatum<Datum>>(
+          event.target as SVGPathElement,
+        ).style('opacity', 1)
+      })
+      .on('mouseout', (event: MouseEvent) => {
+        d3.select<SVGPathElement, d3.PieArcDatum<Datum>>(
+          event.target as SVGPathElement,
+        ).style('opacity', 0.7)
+      })
 
     // setting up legend
     // const legend = svg
@@ -209,7 +177,7 @@ const PieChart = (props: Props) => {
           {arcs.map((d, i) => (
             <Tooltip
               key={i}
-              title={`${d.data.name} -  ${d.data.value}`}
+              title={`${d.data.name} -  $${d.data.value}`}
               placement="right">
               <path />
             </Tooltip>
@@ -217,7 +185,6 @@ const PieChart = (props: Props) => {
         </g>
         {/* <g className="legend" /> */}
       </svg>
-      {/* <Tooltip ref={tooltipRef} bgColor={theme.palette.background.paper} /> */}
     </Box>
   )
 }
