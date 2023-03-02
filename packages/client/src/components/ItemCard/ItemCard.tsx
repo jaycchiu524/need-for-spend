@@ -14,14 +14,21 @@ import { useQuery } from '@tanstack/react-query'
 
 import { useRouter } from 'next/router'
 
+import Image from 'next/image'
+
 import { ItemType } from '@/api/items'
 import { getAccountByItemId } from '@/api/accounts'
+import { getInstitutionById } from '@/api/institutions'
 import { useAccountStore } from '@/store/accounts'
 
 import { useAuthStore } from '@/store/auth'
 
 type Props = {
   item: ItemType
+}
+
+function formatLogoSrc(src: string) {
+  return src && `data:image/jpeg;base64,${src}`
 }
 
 const ItemCard = ({ item }: Props) => {
@@ -54,33 +61,50 @@ const ItemCard = ({ item }: Props) => {
     },
   })
 
+  const { data: _institution, isLoading: insLoading } = useQuery({
+    queryKey: ['institutionId', item.plaidInstitutionId],
+    queryFn: () => getInstitutionById(item.plaidInstitutionId),
+    enabled: !!item.plaidInstitutionId,
+  })
+
   const accounts = data?.data || []
+  const institution = _institution?.data
 
   const router = useRouter()
 
   return (
     <List
-      sx={{ width: '100%' }}
+      sx={{
+        width: '100%',
+        // bgcolor: institution?.primary_color + 'cc' || 'inherit',
+        borderLeft: '2px solid',
+        borderColor: institution?.primary_color + 'cc' || 'inherit',
+
+        // borderRadius: '5px',
+        marginY: '10px',
+      }}
       component="nav"
-      aria-labelledby="nested-list-subheader"
-      // subheader={
-      //   <ListSubheader component="div" id="nested-list-subheader">
-      //     {item.plaidInstitutionName}
-      //   </ListSubheader>
-      // }
-    >
+      aria-labelledby={`${institution?.name}-account-list`}>
       <ListItemButton onClick={handleClick}>
         <ListItemIcon>
-          <AccountBalanceIcon />
+          {!insLoading && institution?.logo ? (
+            <Image
+              src={formatLogoSrc(institution?.logo || 'Logo not found')}
+              alt={(institution && institution.name) || 'Institution Logo'}
+              width={25}
+              height={25}
+            />
+          ) : (
+            <AccountBalanceIcon />
+          )}
         </ListItemIcon>
         <ListItemText primary={item.plaidInstitutionName} />
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
+
       <Collapse in={open} timeout="auto" unmountOnExit>
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : (
-          accounts.sort().map((account) => {
+        {accounts.length > 0 &&
+          accounts.map((account) => {
             /**
              * export declare enum AccountType {
               Investment = "investment",
@@ -103,14 +127,31 @@ const ItemCard = ({ item }: Props) => {
                 onClick={handleAccountClick}>
                 <ListItemButton sx={{ pl: 4 }}>
                   <ListItemIcon>
-                    {isDepository ? <SavingsIcon /> : <CreditCardIcon />}
+                    {isDepository ? (
+                      <SavingsIcon
+                        fontSize="small"
+                        sx={{
+                          color: institution?.primary_color || 'inherit',
+                        }}
+                      />
+                    ) : (
+                      <CreditCardIcon
+                        fontSize="small"
+                        sx={{
+                          color: institution?.primary_color || 'inherit',
+                        }}
+                      />
+                    )}
                   </ListItemIcon>
                   <ListItemText primary={account.name} />
                 </ListItemButton>
+                {/* <Divider
+                  variant="middle"
+                  sx={{ background: institution?.primary_color || 'inherit' }}
+                /> */}
               </List>
             )
-          })
-        )}
+          })}
       </Collapse>
     </List>
   )
