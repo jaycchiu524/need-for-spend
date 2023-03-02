@@ -7,6 +7,7 @@ import { linkTokenControllers } from './link-token/link-token.controllers'
 import { itemsControllers } from './items/items.controllers'
 import { accountsControllers } from './accounts/accounts.controller'
 import { itemMiddlewares } from './items/middlewares'
+import { institutionsControllers } from './institutions/institutions.controllers'
 
 const debugLog = debug('app: info-routes')
 
@@ -36,6 +37,12 @@ export const plaidRoutes = (app: express.Application) => {
     .route(`/items/:itemId/accounts`)
     .all(validJWTNeeded, validateItemExists, validateItemBelongsToUser)
     .get(itemsControllers.getAccountsByItemId)
+
+  // Institutions
+  app
+    .route(`/institutions/:institutionId`)
+    .all(validJWTNeeded)
+    .get(institutionsControllers.getInstiutionById)
 
   // Accounts
   app

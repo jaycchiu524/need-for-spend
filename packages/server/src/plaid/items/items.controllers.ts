@@ -40,9 +40,10 @@ const getItemById = async (
     }
 
     // eslint-disable-next-line unused-imports/no-unused-vars
-    const { plaidAccessToken, ...rest } = item
+    const { plaidAccessToken, ...response } = item
+
     // @type: GetItemResponse
-    return res.status(200).send(rest)
+    return res.status(200).send(response)
   } catch (err) {
     log('Error: Internal get item by plaid item id: %o', err)
 
