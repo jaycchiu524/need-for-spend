@@ -179,6 +179,10 @@ const AccountDetail = () => {
   )
 }
 
-AccountDetail.getLayout = (page: ReactNode) => <MainLayout>{page}</MainLayout>
+AccountDetail.getLayout = (page: ReactNode) => (
+  <MainLayout title="Account Detail" back={true}>
+    {page}
+  </MainLayout>
+)
 
 export default AccountDetail

@@ -9,6 +9,7 @@ import Brightness7Icon from '@mui/icons-material/Brightness7'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew'
+import Arrow from '@mui/icons-material/ArrowBackIosNew'
 import { useRouter } from 'next/router'
 
 import { Breadcrumbs, IconButton, Tooltip } from '@mui/material'
@@ -19,7 +20,7 @@ import { useThemeStore } from '@/store/theme'
 
 import { refreshToken } from '@/auth/refreshToken'
 
-const drawerWidth: number = 240
+// const drawerWidth: number = 240
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean
@@ -71,9 +72,11 @@ const AppBar = styled(MuiAppBar, {
 
 function MainLayout({
   title,
+  back = false,
   children,
 }: {
   title?: string
+  back?: boolean
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -106,6 +109,18 @@ function MainLayout({
           sx={{
             pr: '24px', // keep right padding when drawer closed
           }}>
+          {back && (
+            <Tooltip title="Logout">
+              <IconButton
+                aria-label="dark-mode-switch"
+                component="label"
+                onClick={() => {
+                  router.back()
+                }}>
+                <Arrow />
+              </IconButton>
+            </Tooltip>
+          )}
           <Breadcrumbs sx={{ flexGrow: 1 }} aria-label="breadcrumb">
             <Typography component="h1" variant="h6" color="inherit">
               {title || ' Need For Spend'}
