@@ -2,6 +2,7 @@
   "private": true,
   "name": "fin-me",
   "packageManager": "yarn@3.3.0",
+  "version": "1.0.0",
   "scripts": {
     "lint": "eslint .",
     "dev": "concurrently \"yarn workspace server dev\" \"yarn workspace client dev\"",
@@ -16,6 +17,7 @@
   ],
   "devDependencies": {
     "@jest/globals": "^29.3.1",
+    "@swc/core": "^1.3.37",
     "@types/jest": "^29.2.4",
     "@types/node": "^18.11.19",
     "@typescript-eslint/eslint-plugin": "^5.45.1",
