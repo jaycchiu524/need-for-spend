@@ -1,4 +1,5 @@
 # Reference: https://github.com/vercel/turbo/blob/main/examples/with-docker/apps/api/Dockerfile
+# TODO: Reduce image size - remove .yarn
 
 ## Build stage
 FROM node:16.13.1-alpine3.15 AS builder
@@ -16,26 +17,25 @@ FROM node:16.13.1-alpine3.15 AS installer
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 RUN apk update
+ENV NODE_ENV=production
 
 # First install dependencies (as they change less often)
 # Copy .yarn folder for yarn version consistency
 COPY .yarn ./.yarn
 COPY .yarnrc.yml ./
-COPY tsconfig.json tsconfig.eslint.json ./
-COPY jest.config.js jest.config.base.js ./
-COPY .eslintrc.js .eslintignore ./
+COPY tsconfig.json ./
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/yarn.lock ./yarn.lock
-RUN yarn install --immutable
+RUN yarn workspaces focus server --production
 
 # Build the project and its dependencies
 COPY --from=builder /app/out/full/ .
 
 # Generate Prisma Client after copying the schema
-RUN yarn ws prisma generate
+RUN yarn workspace server build
 
 # COPY turbo.json turbo.json
-COPY turbo.json turbo.json
+COPY turbo.json ./
 
 ## Run stage
 FROM node:16.13.1-alpine3.15 AS runner

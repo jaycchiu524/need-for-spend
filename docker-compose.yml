@@ -10,7 +10,7 @@ volumes:
 
 services:
   db:
-    container_name: finme-db
+    container_name: db
     image: mysql:8.0
     # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
     # (this is just an example, not intended to be a production configuration)
@@ -23,40 +23,44 @@ services:
     ports:
       - $DATABASE_PORT:3306
     healthcheck:
-      test:
-        [
-          'CMD',
-          'mysqladmin',
-          'ping',
-          '-h',
-          'localhost',
-          '-u$$DATABASE_USER',
-          '-p$$DATABASE_PASSWORD',
-        ]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u$$DATABASE_USER', '-p$$DATABASE_PASSWORD']
       interval: 10s
       timeout: 10s
       retries: 5
     volumes:
-      - "mysql_${PLAID_ENV}_data:/var/lib/mysql"
+      - 'mysql_${PLAID_ENV}_data:/var/lib/mysql'
 
   api:
     container_name: api
     build:
       context: .
       dockerfile: ./packages/server/Dockerfile
-    restart: "no"
-    depends_on:
-      - db
+    restart: always
     ports:
       - $SERVER_PORT:8080
     environment:
-      - DATABASE_URL="mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:${DATABASE_PORT}/finme"
+      PLAID_SECRET:
+      PLAID_ENV:
+      PLAID_PRODUCTS:
+      PLAID_COUNTRY_CODES:
+      PLAID_REDIRECT_URI:
+      # APP Configuration
+      SERVER_PORT:
+      ADMIN_PASSWORD:
+      # DATABASE
+      DATABASE_USER:
+      DATABASE_PASSWORD:
+      DATABASE_PORT:
+      # JWT
+      JWT_SECRET:
+      DATABASE_URL: 'mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:${DATABASE_PORT}/finme'
+    depends_on:
+      - db
 
-  
     # networks:
     #   - app_network
-# Define a network, which allows containers to communicate
-# with each other, by using their container name as a hostname
-# networks:
-#   app_network:
-#     external: true
+    # Define a network, which allows containers to communicate
+    # with each other, by using their container name as a hostname
+    # networks:
+    #   app_network:
+    #     external: true
