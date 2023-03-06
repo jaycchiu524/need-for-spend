@@ -7,7 +7,7 @@
     "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
   },
   "scripts": {
-    "start": "yarn prisma generate && ts-node --swc -r tsconfig-paths/register src/app.ts",
+    "start": "ts-node --swc -r tsconfig-paths/register src/app.ts",
     "dev": "nodemon --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'DEBUG=* ts-node -r tsconfig-paths/register src/app.ts'",
     "test": "TEST=* jest -i --detectOpenHandles"
   },

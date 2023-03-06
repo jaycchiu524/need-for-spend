@@ -1,0 +1,33 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "tsconfig.eslint.json",
+    "tsconfig.json",
+    "jest.config.base.js",
+    "jest.config.js",
+    ".eslintignore",
+    ".eslintrc.js",
+    ".prettierrc",
+    ".prettierignore"
+  ],
+  "pipeline": {
+    "test": {
+      "outputs": [
+        "coverage/**"
+      ],
+      "dependsOn": []
+    },
+    "lint": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

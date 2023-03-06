@@ -1,0 +1,22 @@
+# node
+node_modules
+npm-debug.log
+
+# vscode
+.vscode
+
+# yarn
+.yarn/cache
+.yarn/install-state.gz
+
+# env
+.env
+.env*
+.DS_Store
+.eslintrc*
+.gitignore
+.prettier*
+README.md
+
+# docker
+Dockerfile
