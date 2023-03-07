@@ -27,6 +27,7 @@ COPY tsconfig.json ./
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/yarn.lock ./yarn.lock
 RUN yarn workspaces focus server --production
+RUN yarn cache clean
 
 # Build the project and its dependencies
 COPY --from=builder /app/out/full/ .
