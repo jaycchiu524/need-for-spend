@@ -56,6 +56,21 @@ services:
       DATABASE_URL: 'mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:${DATABASE_PORT}/finme'
     depends_on:
       - db
+  
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./packages/client/Dockerfile
+
+      # Next.js requires the following environment variables to be set at build time
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8080
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - api
 
     # networks:
     #   - app_network

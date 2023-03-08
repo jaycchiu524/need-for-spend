@@ -1,0 +1,16 @@
+**/public/__env.js
+
+# vscode
+.vscode
+
+# env
+.env
+.env*
+.DS_Store
+.eslintrc*
+.gitignore
+.prettier*
+README.md
+
+# docker
+Dockerfile
