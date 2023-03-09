@@ -12,6 +12,12 @@ jobs:
       DATABASE_USER: root
       DATABASE_PASSWORD: root
       DATABASE_PORT: 3306
+      # APP Configuration
+      SERVER_PORT: 8080
+      ADMIN_PASSWORD: admin-test
+      # JWT
+      JWT_SECRET: jwt-test
+      DATABASE_URL: 'mysql://root:root@localhost:8080/finme'
 
     steps:
       - name: Checkout repository
