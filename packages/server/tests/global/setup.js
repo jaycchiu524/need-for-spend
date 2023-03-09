@@ -37,7 +37,7 @@ module.exports = async () => {
 
 
     // ️️️✅ Best Practice: Use npm script for data seeding and migrations
-    execSync('yarn workspace server prisma generate && yarn workspace server prisma prisma db push && yarn workspace server prisma prisma migrate dev --name init', {
+    execSync('yarn workspace server prisma generate && yarn workspace server prisma db push && yarn workspace server prisma migrate dev --name init', {
       stdio: 'inherit',
     })
   }
