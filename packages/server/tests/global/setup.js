@@ -13,9 +13,8 @@ module.exports = async () => {
   const isDBReachable = await isPortReachable(3306)
 
   console.log('isDBReachable', isDBReachable)
-  console.log('isCI', isCI)
 
-  if (!isCI && !isDBReachable) {
+  if (!isDBReachable) {
     console.log('\n🐳 Starting docker-compose for testing...')
 
     try {
