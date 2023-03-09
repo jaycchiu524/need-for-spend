@@ -203,8 +203,6 @@ describe('Users', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ refreshToken: refreshToken })
 
-      console.log(response.body)
-
       expect(response.status).toBe(201)
       expect(response.body).toHaveProperty('id')
       expect(response.body).toHaveProperty('accessToken')

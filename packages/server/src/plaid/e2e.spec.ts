@@ -188,8 +188,6 @@ describe('Create items, accounts and transactions', () => {
         },
       ])
 
-      console.log('Create accounts', accounts)
-
       expect(accounts.count).toBe(2)
     })
   })
@@ -325,8 +323,6 @@ describe('Create items, accounts and transactions', () => {
       ]
 
       const transactions = await transactionsDao.syncTransactions(add, [], [])
-
-      console.log('Create transactions', transactions)
 
       expect(transactions).toBeDefined()
     })

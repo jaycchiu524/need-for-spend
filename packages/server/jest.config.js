@@ -2,11 +2,12 @@
  * For a detailed explanation regarding each configuration property and type check, visit:
  * https://jestjs.io/docs/configuration
  */
-
 const baseConfig = require('../../jest.config.base')
 // const { pathsToModuleNameMapper } = require('ts-jest/utils');
 // const { compilerOptions } = require('./tsconfig');
 
+// Refer the type definition file for the config options'
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   ...baseConfig,
 

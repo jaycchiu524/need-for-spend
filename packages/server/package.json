@@ -10,7 +10,7 @@
     "start": "yarn ts-node --swc -r tsconfig-paths/register src/app.ts",
     "build": "yarn prisma generate",
     "dev": "yarn prisma migrate reset && nodemon --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'DEBUG=* ts-node -r tsconfig-paths/register src/app.ts'",
-    "test": "TEST=* jest -i --detectOpenHandles"
+    "test": "TEST=* jest"
   },
   "dependencies": {
     "@prisma/client": "^4.7.1",

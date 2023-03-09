@@ -117,9 +117,6 @@ describe('Categories', () => {
       ),
     )
 
-    console.log('res: ', res)
     expect(res).toBeDefined()
-
-    // expect(res.status).toBe(200)
   })
 })
