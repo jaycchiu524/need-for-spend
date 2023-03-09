@@ -6,6 +6,8 @@ const { execSync } = require('child_process');
 const isCI = require('is-ci');
 
 module.exports = async () => {
+  console.log('🚀 global-setup.js (jest global setup)')
+
   console.time('global-setup')
 
   const isDBReachable = await isPortReachable(3306)
