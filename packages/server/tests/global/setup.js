@@ -3,13 +3,14 @@ const isPortReachable = require('is-port-reachable');
 const path = require('path');
 const dockerCompose = require('docker-compose');
 const { execSync } = require('child_process');
+const isCI = require('is-ci');
 
 module.exports = async () => {
   console.time('global-setup')
 
   const isDBReachable = await isPortReachable(3306)
 
-  if (!isDBReachable) {
+  if (!isCI && !isDBReachable) {
     console.log('\n🐳 Starting docker-compose for testing...')
 
     try {
