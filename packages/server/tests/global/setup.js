@@ -34,13 +34,12 @@ module.exports = async () => {
     } catch (error) {
       console.error(error)
       throw error
+    } finally {
+      // ️️️✅ Best Practice: Use npm script for data seeding and migrations
+      execSync('yarn workspace server prisma generate && yarn workspace server prisma db push && yarn workspace server prisma migrate dev --name init', {
+        stdio: 'inherit',
+      })
     }
-
-
-    // ️️️✅ Best Practice: Use npm script for data seeding and migrations
-    execSync('yarn workspace server prisma generate && yarn workspace server prisma db push && yarn workspace server prisma migrate dev --name init', {
-      stdio: 'inherit',
-    })
   }
   console.timeEnd('global-setup')
 }
