@@ -14,6 +14,10 @@ module.exports = async () => {
 
   console.log('isDBReachable', isDBReachable)
 
+  execSync('yarn workspace server prisma generate', {
+    stdio: 'inherit',
+  })
+
   if (!isDBReachable) {
     console.log('\n🐳 Starting docker-compose for testing...')
 
@@ -39,7 +43,7 @@ module.exports = async () => {
       console.error(error)
     } finally {
       // ️️️✅ Best Practice: Use npm script for data seeding and migrations
-      execSync('yarn workspace server prisma generate && yarn workspace server prisma db push && yarn workspace server prisma migrate dev --name init', {
+      execSync('yarn workspace server prisma db push && yarn workspace server prisma migrate dev --name init', {
         stdio: 'inherit',
       })
     }

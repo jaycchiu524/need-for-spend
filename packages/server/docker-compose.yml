@@ -5,6 +5,8 @@ services:
   db:
     container_name: finme-db
     image: mysql:8.0
+    stdin_open: true # docker run -i
+    tty: true # docker run -t
     # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
     # (this is just an example, not intended to be a production configuration)
     command: --default-authentication-plugin=mysql_native_password
