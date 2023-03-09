@@ -1,0 +1,25 @@
+name: Test
+
+on:
+  push:
+    branches: [feature/ci] # TODO: Replace after debugging
+
+jobs:
+  test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 18.9.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.9.0
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Tests
+        run: yarn test
