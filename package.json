@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "fin-me",
+  "name": "need-for-spend",
   "packageManager": "yarn@3.3.0",
   "version": "1.0.0",
   "scripts": {
