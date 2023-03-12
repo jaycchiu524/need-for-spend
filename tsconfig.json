@@ -23,11 +23,6 @@
     "noImplicitThis": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@finme/*": [
-        "packages/*/src/index.ts"
-      ]
-    }
   },
   "references": [
     {

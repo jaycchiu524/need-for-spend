@@ -3,7 +3,7 @@ version: '3.1'
 
 services:
   db:
-    container_name: finme-db
+    container_name: nfs-db
     image: mysql:8.0
     stdin_open: true # docker run -i
     tty: true # docker run -t
@@ -14,7 +14,7 @@ services:
     environment:
       MYSQL_ROOT_USER: $DATABASE_USER
       MYSQL_ROOT_PASSWORD: $DATABASE_PASSWORD
-      MYSQL_DATABASE: finme
+      MYSQL_DATABASE: nfs
     ports:
       - $DATABASE_PORT:3306
     healthcheck:

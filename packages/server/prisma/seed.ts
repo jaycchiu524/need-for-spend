@@ -22,7 +22,7 @@ const createAdmin = async () => {
 
   const encryptedPassword = await argon2.hash(process.env.ADMIN_PASSWORD)
   await usersServices.createAdmin({
-    email: 'admin@finme.com',
+    email: 'admin@nfs.com',
     password: encryptedPassword,
     firstName: 'Admin',
     lastName: 'Admin',
