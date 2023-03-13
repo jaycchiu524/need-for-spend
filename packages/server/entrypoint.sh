@@ -8,11 +8,7 @@ do
 done
 echo ""
 
-if [ "$1" = "dev" ]; then
-  yarn workspace server prisma migrate dev
-else
-  yarn workspace server prisma migrate deploy
-fi
+npx prisma migrate deploy
 
 # Hand off to the CMD
 # cf https://stackoverflow.com/questions/42857897/execute-a-script-before-cmd

@@ -24,14 +24,6 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
   },
-  "references": [
-    {
-      "path": "packages/client"
-    },
-    {
-      "path": "packages/server"
-    }
-  ],
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist", "*.d.ts"]
 }
