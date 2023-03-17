@@ -17,7 +17,7 @@ RUN turbo prune --scope=client --docker
 ## Install dependencies stage
 FROM base AS installer
 WORKDIR /app
-RUN apk add --no-cache libc6-compat
+RUN apk add libc6-compat
 RUN apk update
 ENV NODE_ENV=$NODE_ENV
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL

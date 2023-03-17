@@ -6,8 +6,8 @@ FROM node:18.9.0-alpine AS base
 ## Build stage
 FROM base AS builder
 WORKDIR /app
-RUN apk add --no-cache libc6-compat
 RUN apk update
+RUN apk add libc6-compat
 ENV NODE_ENV=production
 
 # First install dependencies (as they change less often)
@@ -26,9 +26,6 @@ COPY  ./packages/server/tsconfig.build.json ./packages/server/
 COPY  ./packages/server/prisma ./packages/server/prisma
 # Generate Prisma Client after copying the schema
 RUN yarn workspace server build
-
-# COPY turbo.json turbo.json
-COPY turbo.json ./
 
 ## Run stage
 FROM base AS runner

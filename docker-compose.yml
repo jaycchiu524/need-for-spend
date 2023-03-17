@@ -41,6 +41,7 @@ services:
 
   api:
     container_name: api
+    image: need-for-spend:server-${APP_VERSION}
     build:
       context: .
       dockerfile: ./packages/server/Dockerfile
@@ -48,6 +49,7 @@ services:
     ports:
       - $SERVER_PORT:8080
     environment:
+      APP_VERSION:
       PLAID_CLIENT_ID:
       PLAID_SECRET:
       PLAID_ENV:
@@ -61,14 +63,17 @@ services:
       DATABASE_USER:
       DATABASE_PASSWORD:
       DATABASE_PORT:
+      DATABASE_HOST:
+      DATABASE_NAME:
       # JWT
       JWT_SECRET:
-      DATABASE_URL: 'mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:${DATABASE_PORT}/nfs'
+      DATABASE_URL: 'mysql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:${DATABASE_PORT}/${DATABASE_NAME}'
     depends_on:
       - db
 
   web:
     container_name: web
+    image: need-for-speed:web-${APP_VERSION}
     build:
       context: .
       dockerfile: ./packages/client/Dockerfile
@@ -76,6 +81,8 @@ services:
       # Next.js requires the following environment variables to be set at build time
       args:
         - NEXT_PUBLIC_API_URL=http://localhost:8080
+    environment: 
+      APP_VERSION:
     restart: always
     ports:
       - 3000:3000

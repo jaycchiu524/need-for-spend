@@ -57,6 +57,7 @@ CREATE TABLE `transactions` (
     `plaid_transaction_id` VARCHAR(191) NOT NULL,
     `account_id` VARCHAR(191) NOT NULL,
     `date` VARCHAR(191) NOT NULL,
+    `datetime` VARCHAR(191) NULL,
     `address` VARCHAR(191) NULL,
     `name` VARCHAR(191) NULL,
     `amount` DOUBLE NOT NULL,
