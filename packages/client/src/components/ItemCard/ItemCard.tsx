@@ -23,6 +23,8 @@ import { useAccountStore } from '@/store/accounts'
 
 import { useAuthStore } from '@/store/auth'
 
+import WebhookButton from '../WebhookButton/WebhookButton'
+
 type Props = {
   item: ItemType
 }
@@ -153,6 +155,11 @@ const ItemCard = ({ item }: Props) => {
             )
           })}
       </Collapse>
+      <>
+        {process.env.NEXT_PUBLIC_ENV === 'sandbox' && (
+          <WebhookButton itemId={item.plaidItemId} />
+        )}
+      </>
     </List>
   )
 }

@@ -12,6 +12,7 @@ import {
   PLAID_PRODUCTS,
   PLAID_REDIRECT_URI,
   plaid,
+  PLAID_WEBHOOK,
 } from '../plaid'
 
 import { LinkTokenRequest } from './types'
@@ -37,6 +38,7 @@ const createLinkToken = async (
   res: Response<any, { jwt: JWT }>,
 ) => {
   let accessToken: string | undefined = undefined
+  const webhookUrl: string | undefined = PLAID_WEBHOOK
 
   log(req.body)
 
@@ -54,11 +56,12 @@ const createLinkToken = async (
         // This should correspond to a unique id for the current user.
         client_user_id: req.body.userId,
       },
-      client_name: 'Fin-me',
+      client_name: 'Need For Spend',
       products: PLAID_PRODUCTS,
       country_codes: PLAID_COUNTRY_CODES,
       language: 'en',
       access_token: accessToken,
+      webhook: webhookUrl,
     }
 
     if (PLAID_REDIRECT_URI !== '') {
