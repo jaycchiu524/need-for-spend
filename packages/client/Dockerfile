@@ -3,22 +3,11 @@ FROM node:18.9.0-alpine AS base
 
 ARG NEXT_PUBLIC_API_URL
 
-# ## Build stage
-FROM base AS builder
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
-RUN apk update
-WORKDIR /app
-# Prune root & client workspace dependencies through turbo prune
-RUN yarn global add turbo
-COPY . .
-RUN turbo prune --scope=client --docker
-
 ## Install dependencies stage
-FROM base AS installer
+FROM base AS builder
 WORKDIR /app
-RUN apk add libc6-compat
 RUN apk update
+RUN apk add libc6-compat
 ENV NODE_ENV=$NODE_ENV
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -27,18 +16,19 @@ ENV NO_UPDATE_NOTIFIER=true
 # First install dependencies (as they change less often)
 # Copy .yarn folder for yarn version consistency
 COPY .yarn ./.yarn
-COPY .yarnrc.yml ./
-COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/yarn.lock ./yarn.lock
-RUN yarn workspace client install
-RUN yarn cache clean
+COPY .yarnrc.yml tsconfig.json package.json yarn.lock ./
+COPY  ./packages/client/package.json ./packages/client/
 
-# Build the project and its dependencies
-COPY tsconfig.json ./
-COPY --from=builder /app/out/full/ .
-COPY turbo.json ./
+RUN yarn workspaces focus client --production
+# RUN yarn cache clean
 
-# Generate Prisma Client after copying the schema
+COPY ./packages/client/next.config.js ./packages/client/
+COPY ./packages/client/tsconfig.json ./packages/client/
+COPY ./packages/client/tsconfig.build.json ./packages/client/
+COPY ./packages/client/tsconfig.build.json ./packages/client/
+COPY ./packages/client/public ./packages/client/public
+COPY ./packages/client/src ./packages/client/src
+
 RUN yarn workspace client build
 
 ## Run dev stage
@@ -60,14 +50,20 @@ ENV NODE_ENV=production
 RUN addgroup -g 1001 -S client
 RUN adduser -u 1001 -S client -G client
 
-# required for sed from env.sh to work in the docker container
-RUN chown -R client:client /app
+COPY --from=builder /app/packages/client/.next/standalone ./
 
-COPY --from=installer --chown=client:client /app/packages/client/.next/standalone ./
-
+# .next/standalone
+# ├── node_modules
+# ├── package.json
+# └── packages
+#   └── client
+#       ├── .env
+#       ├── .next
+#       ├── package.json
+#       └── server.js
 WORKDIR /app/packages/client
-COPY --from=installer --chown=client:client /app/packages/client/public ./public
-COPY --from=installer --chown=client:client /app/packages/client/.next/static ./.next/static
+COPY --from=builder /app/packages/client/public ./public
+COPY --from=builder /app/packages/client/.next/static ./.next/static
 
 # RUN touch .env
 # RUN chmod u+rwx .env
