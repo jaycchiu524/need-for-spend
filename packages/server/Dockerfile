@@ -14,16 +14,16 @@ ENV NODE_ENV=production
 # Copy .yarn folder for yarn version consistency
 COPY .yarn ./.yarn
 COPY .yarnrc.yml tsconfig.json package.json yarn.lock ./
-COPY  ./packages/server/package.json ./packages/server/
+COPY ./packages/server/package.json ./packages/server/
 
 RUN yarn workspaces focus server --production
 RUN yarn cache clean
 
 COPY ./packages/server/src ./packages/server/src
-COPY  ./packages/server/entrypoint.sh ./packages/server/
-COPY  ./packages/server/tsconfig.json ./packages/server/
-COPY  ./packages/server/tsconfig.build.json ./packages/server/
-COPY  ./packages/server/prisma ./packages/server/prisma
+COPY ./packages/server/entrypoint.sh ./packages/server/
+COPY ./packages/server/tsconfig.json ./packages/server/
+COPY ./packages/server/tsconfig.build.json ./packages/server/
+COPY ./packages/server/prisma ./packages/server/prisma
 # Generate Prisma Client after copying the schema
 RUN yarn workspace server build
 
@@ -42,7 +42,6 @@ RUN mkdir logs && chown server:server logs
 
 COPY --from=builder /app/packages/server/dist ./
 COPY --from=builder /app/packages/server/prisma/ ./prisma/
-COPY --from=builder /app/packages/server/package.json ./
 COPY --from=builder /app/packages/server/entrypoint.sh ./
 COPY --from=builder /app/node_modules ./node_modules
 RUN chmod +x ./entrypoint.sh
