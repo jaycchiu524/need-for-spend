@@ -13,6 +13,7 @@ import {
   PLAID_REDIRECT_URI,
   plaid,
   PLAID_WEBHOOK,
+  PLAID_ENV,
 } from '../plaid'
 
 import { LinkTokenRequest } from './types'
@@ -38,19 +39,33 @@ const createLinkToken = async (
   res: Response<any, { jwt: JWT }>,
 ) => {
   let accessToken: string | undefined = undefined
-  const webhookUrl: string | undefined = PLAID_WEBHOOK
+  let webhookUrl: string | undefined = PLAID_WEBHOOK
 
-  log(req.body)
-
-  if (req.body.itemId) {
-    const getItemResponse = await itemsServices.getItemById(req.body.itemId)
-    log(getItemResponse)
-    if (getItemResponse) {
-      accessToken = getItemResponse.plaidAccessToken || undefined
+  if (PLAID_ENV === 'sandbox') {
+    const response = await fetch('http://ngrok:4040/api/tunnels')
+    if (!response.ok) {
+      throw new Error('Failed to get ngrok tunnels')
     }
+    // name: 'command_line (http)',
+    // uri: '/api/tunnels/command_line%20%28http%29',
+    // public_url: 'http://1c84-99-246-69-188.ngrok.io', <-- this is the one we want
+    // proto: 'http',
+    // config: { addr: 'http://api:8080', inspect: true },
+    // metrics: { conns: [Object], http: [Object] }
+    const { tunnels } = await response.json()
+    const httpTunnel = tunnels.find((t: any) => t.proto === 'http')
+    webhookUrl = httpTunnel.public_url + '/webhook'
   }
 
   try {
+    if (req.body.itemId) {
+      const getItemResponse = await itemsServices.getItemById(req.body.itemId)
+      log(getItemResponse)
+      if (getItemResponse) {
+        accessToken = getItemResponse.plaidAccessToken || undefined
+      }
+    }
+
     const configs: LinkTokenCreateRequest = {
       user: {
         // This should correspond to a unique id for the current user.
