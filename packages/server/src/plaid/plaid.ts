@@ -8,7 +8,7 @@ import {
 
 const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID
 const PLAID_SECRET = process.env.PLAID_SECRET
-const PLAID_ENV = process.env.PLAID_ENV || 'sandbox'
+export const PLAID_ENV = process.env.PLAID_ENV || 'sandbox'
 export const PLAID_WEBHOOK = process.env.PLAID_WEBHOOK || undefined
 
 // PLAID_PRODUCTS is a comma-separated list of products to use when initializing

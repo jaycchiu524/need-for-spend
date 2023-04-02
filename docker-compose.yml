@@ -71,6 +71,15 @@ services:
     depends_on:
       - db
 
+  ngrok:
+    build: ./ngrok
+    image: need-for-speed:ngrok-${APP_VERSION}
+    command: ["ngrok", "http", "api:8080"]
+    ports:
+      - 4040:4040
+    depends_on:
+      - api
+
   web:
     container_name: web
     image: need-for-speed:web-${APP_VERSION}
