@@ -41,6 +41,7 @@
     "nanoid": "^3.0.0",
     "plaid": "^12.1.0",
     "prisma": "^4.7.1",
+    "socket.io": "^4.6.1",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.3",
     "tsconfig-paths": "^4.1.2",
