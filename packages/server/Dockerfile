@@ -3,6 +3,30 @@
 
 FROM node:18.9.0-alpine AS base
 
+## Debug
+FROM base AS debug
+WORKDIR /app
+RUN apk update
+RUN apk add libc6-compat
+RUN apk add --no-cache dumb-init bash
+
+ENV NODE_ENV=development
+
+COPY .yarn ./.yarn
+COPY .yarnrc.yml tsconfig.json package.json yarn.lock ./
+COPY ./packages/server/package.json ./packages/server/
+RUN yarn workspace server install
+COPY ./packages/server/ ./packages/server/
+
+RUN addgroup -g 1001 -S server
+RUN adduser -u 1001 -S server -G server
+
+WORKDIR /app/packages/server
+RUN if [ ! -d "logs" ]; then \
+      mkdir logs && chown server:server logs;\
+    fi
+CMD ["dumb-init", "yarn", "dev"]
+
 ## Build stage
 FROM base AS builder
 WORKDIR /app
@@ -27,8 +51,8 @@ COPY ./packages/server/prisma ./packages/server/prisma
 # Generate Prisma Client after copying the schema
 RUN yarn workspace server build
 
-## Run stage
-FROM base AS runner
+## Prod
+FROM base AS production
 WORKDIR /app
 
 RUN apk add --no-cache dumb-init bash

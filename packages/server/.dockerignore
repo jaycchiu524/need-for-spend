@@ -23,8 +23,9 @@ Dockerfile
 docker*
 
 # chore
+dist
 README.md
-
+logs
 db-data
 
 # test
