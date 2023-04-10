@@ -7,6 +7,7 @@ version: '3'
 volumes:
   mysql_sandbox_data:
   mysql_development_data:
+  server_node_modules:
 
 services:
   db:
@@ -41,11 +42,11 @@ services:
 
   api:
     container_name: api
-    image: need-for-spend:server-${APP_VERSION}
+    image: need-for-spend:server-debug-${APP_VERSION}
     build:
       context: .
       dockerfile: ./packages/server/Dockerfile
-      target: production
+      target: debug
     restart: always
     ports:
       - $SERVER_PORT:8080
@@ -72,33 +73,37 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./packages/server:/app/packages/server
+      - server_node_modules:/app/node_modules
+
 
   ngrok:
     build: ./ngrok
-    image: need-for-speed:ngrok-${APP_VERSION}
+    image: need-for-speed:ngrok-debug-${APP_VERSION}
     command: ["ngrok", "http", "api:8080"]
     ports:
       - 4040:4040
     depends_on:
       - api
 
-  web:
-    container_name: web
-    image: need-for-speed:web-${APP_VERSION}
-    build:
-      context: .
-      dockerfile: ./packages/client/Dockerfile
+  # web:
+  #   container_name: web
+  #   image: need-for-speed:web-${APP_VERSION}
+  #   build:
+  #     context: .
+  #     dockerfile: ./packages/client/Dockerfile
 
-      # Next.js requires the following environment variables to be set at build time
-      args:
-        - NEXT_PUBLIC_API_URL=http://localhost:8080
-    environment: 
-      APP_VERSION:
-    restart: always
-    ports:
-      - 3000:3000
-    depends_on:
-      - api
+  #     # Next.js requires the following environment variables to be set at build time
+  #     args:
+  #       - NEXT_PUBLIC_API_URL=http://localhost:8080
+  #   environment: 
+  #     APP_VERSION:
+  #   restart: always
+  #   ports:
+  #     - 3000:3000
+  #   depends_on:
+  #     - api
 
     # networks:
     #   - app_network
