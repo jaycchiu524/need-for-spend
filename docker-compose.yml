@@ -88,6 +88,7 @@ services:
     build:
       context: .
       dockerfile: ./packages/client/Dockerfile
+      target: production
 
       # Next.js requires the following environment variables to be set at build time
       args:
