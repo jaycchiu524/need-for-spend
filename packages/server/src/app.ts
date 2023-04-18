@@ -1,6 +1,7 @@
 import * as http from 'http'
 
 import express from 'express'
+import { Server } from 'socket.io'
 
 import dotenv from 'dotenv'
 import dotenvExpand from 'dotenv-expand'
@@ -10,11 +11,45 @@ import { infoRoutes } from './plaid/info/info.routes.config'
 import { plaidRoutes } from './plaid/plaid.routes.config'
 import { usersRoutes } from './users/users.routes.config'
 import { authRoutes } from './auth/auth.routes.config'
+import {
+  ClientToServerEvents,
+  InterServerEvents,
+  ServerToClientEvents,
+  SocketData,
+} from './common/types/sockets.type'
 
 dotenvExpand.expand(dotenv.config())
 
 const app = initExpress()
 const server: http.Server = http.createServer(app)
+const io = new Server<
+  ServerToClientEvents,
+  ClientToServerEvents,
+  InterServerEvents,
+  SocketData
+>(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+})
+
+// Socket.io
+const socketIDMap = new Map<string, string>()
+io.on('connection', (socket) => {
+  // Save socket id to map
+  const userId = socket.handshake.query.userId as string
+  socketIDMap.set(userId, socket.id)
+
+  console.log('a user connected: ', userId)
+  // List sockets
+  console.log(socketIDMap)
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected')
+    socketIDMap.delete(userId)
+  })
+})
 
 // Routes
 infoRoutes(app)
