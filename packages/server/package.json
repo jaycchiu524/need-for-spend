@@ -8,10 +8,10 @@
   },
   "scripts": {
     "start": "node ./dist/src/app.js",
-    "build": "yarn prisma generate && yarn tsc -p tsconfig.build.json && tsc-alias && yarn post-build",
+    "build": "prisma generate && tsc -p tsconfig.build.json && tsc-alias && yarn post-build",
     "post-build": "copyfiles -u 1 \"./src/generated/**/*\" dist/src",
-    "dev": "prisma migrate dev | nodemon --inspect=0.0.0.0:9229 --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'DEBUG=* ts-node -r tsconfig-paths/register src/app.ts'",
-    "db-reset": "prisma migrate reset",
+    "dev": "yarn init-db && nodemon --inspect=0.0.0.0:9229 --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'DEBUG=* ts-node -r tsconfig-paths/register src/app.ts'",
+    "init-db": "prisma migrate dev && prisma db seed",
     "test": "TEST=* jest"
   },
   "dependencies": {
