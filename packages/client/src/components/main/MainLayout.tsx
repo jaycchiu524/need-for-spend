@@ -20,6 +20,8 @@ import { useThemeStore } from '@/store/theme'
 
 import { refreshToken } from '@/auth/refreshToken'
 
+import Sockets from '../Socket'
+
 // const drawerWidth: number = 240
 
 interface AppBarProps extends MuiAppBarProps {
@@ -104,6 +106,7 @@ function MainLayout({
 
   return (
     <Box sx={{ display: 'flex' }}>
+      <Sockets />
       <AppBar position="absolute">
         <Toolbar
           sx={{

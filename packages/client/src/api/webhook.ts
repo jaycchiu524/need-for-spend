@@ -4,6 +4,7 @@ import { fetcher } from '@/api/fetcher'
 
 import { ErrorResponse } from '@/api/types'
 
+// ! For testing purposes only
 export const fireSandboxWebhook = async (itemId: string) => {
   try {
     const api = await fetcher()
