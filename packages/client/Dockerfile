@@ -14,6 +14,8 @@ WORKDIR /app
 
 ENV NODE_ENV=development
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_ENV=sandbox
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup -g 1001 -S client
 RUN adduser -u 1001 -S client -G client
