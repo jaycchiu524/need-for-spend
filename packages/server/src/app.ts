@@ -23,8 +23,8 @@ dotenvExpand.expand(dotenv.config())
 const app = initExpress()
 const server: http.Server = http.createServer(app)
 const io = new Server<
-  ServerToClientEvents,
   ClientToServerEvents,
+  ServerToClientEvents,
   InterServerEvents,
   SocketData
 >(server, {
@@ -41,15 +41,17 @@ io.on('connection', (socket) => {
   const userId = socket.handshake.query.userId as string
   socketIDMap.set(userId, socket.id)
 
-  console.log('a user connected: ', userId)
-  // List sockets
-  console.log(socketIDMap)
+  console.log('User connected: ', userId)
 
   socket.on('disconnect', () => {
-    console.log('user disconnected')
+    console.log('user disconnected: ', userId)
     socketIDMap.delete(userId)
   })
 })
+
+// Set io to app
+// Access with app.get('io')
+app.set('io', io)
 
 // Routes
 infoRoutes(app)

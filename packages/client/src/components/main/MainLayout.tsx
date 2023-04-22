@@ -20,7 +20,7 @@ import { useThemeStore } from '@/store/theme'
 
 import { refreshToken } from '@/auth/refreshToken'
 
-import Sockets from '../Socket'
+import useSocket from '../Socket'
 
 // const drawerWidth: number = 240
 
@@ -91,6 +91,8 @@ function MainLayout({
 
   const { setTheme, theme } = useThemeStore()
 
+  useSocket()
+
   React.useEffect(() => {
     ;(async () => {
       if (!auth?.accessToken || auth.exp * 1000 < Date.now()) {
@@ -106,7 +108,6 @@ function MainLayout({
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <Sockets />
       <AppBar position="absolute">
         <Toolbar
           sx={{
