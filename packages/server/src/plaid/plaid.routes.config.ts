@@ -8,7 +8,7 @@ import { itemsControllers } from './items/items.controllers'
 import { accountsControllers } from './accounts/accounts.controller'
 import { itemMiddlewares } from './items/middlewares'
 import { institutionsControllers } from './institutions/institutions.controllers'
-import { sandboxWebhook, webhookHandler } from './webhook/test'
+import { sandboxWebhook, webhookHandler } from './webhook/webhook.controllers'
 
 const debugLog = debug('app: info-routes')
 
@@ -67,7 +67,7 @@ export const plaidRoutes = (app: express.Application) => {
     .get(accountsControllers.getDailyExpenseByAccoundId)
 
   // webhooks
-  app.route(`/webhook`).post(webhookHandler)
+  app.route(`/webhook`).post(webhookHandler(app.get('io')))
   app.route(`/sandbox/webhook`).post(sandboxWebhook)
 
   return app

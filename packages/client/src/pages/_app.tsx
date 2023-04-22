@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { NextPage } from 'next'
 import { ReactElement, ReactNode } from 'react'
 
+import { ToastContainer } from 'react-toastify'
+
 import { useThemeStore } from '@/store/theme'
 
 import type { AppProps } from 'next/app'
@@ -35,6 +37,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {getLayout(<Component {...pageProps} />)}
+        <ToastContainer />
       </ThemeProvider>
     </QueryClientProvider>
   )

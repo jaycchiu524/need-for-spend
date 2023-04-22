@@ -1,35 +1,48 @@
 import React, { useRef } from 'react'
 import { io, type Socket } from 'socket.io-client'
 
+import { toast } from 'react-toastify'
+
+import { useAuthStore } from '@/store/auth'
+
+import 'react-toastify/dist/ReactToastify.css'
+
 interface ServerToClientEvents {
-  noArg: () => void
-  basicEmit: (a: number, b: string, c: Buffer) => void
-  withAck: (d: string, callback: (e: number) => void) => void
+  SYNC_UPDATES_AVAILABLE: (plaidItemId: string) => void
 }
 
 interface ClientToServerEvents {
   hello: () => void
 }
 
-const Sockets = () => {
+const useSocket = () => {
+  // Socket < ListenEvents, EmitEvents >
   const socket = useRef<Socket<ServerToClientEvents, ClientToServerEvents>>()
+  const userId = useAuthStore.getState().auth?.id
 
   React.useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_API_URL)
-    if (!process.env.NEXT_PUBLIC_API_URL) return
+    if (!process.env.NEXT_PUBLIC_API_URL || !userId) return
 
     socket.current = io(process.env.NEXT_PUBLIC_API_URL, {
       transports: ['websocket'],
       query: {
-        userId: '123',
+        userId: userId,
       },
+    })
+
+    socket.current.on('connect', () => {
+      toast('Connected to socket server')
+    })
+
+    socket.current.on('SYNC_UPDATES_AVAILABLE', (plaidItemId) => {
+      toast(`SYNC_UPDATES_AVAILABLE: ${plaidItemId}`)
     })
 
     return () => {
       socket.current?.removeAllListeners()
       socket.current?.close()
     }
-  }, [])
+  }, [userId])
 }
 
-export default Sockets
+export default useSocket

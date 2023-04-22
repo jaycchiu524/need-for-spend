@@ -2,7 +2,7 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 envfile := ./.env
 
-.PHONY: help start debug logs stop clear-db
+.PHONY: help start debug debug-build logs stop clear-db
 
 # help target adapted from https://gist.github.com/prwhite/8168133#gistcomment-2278355
 TARGET_MAX_CHAR_NUM=15
@@ -29,10 +29,15 @@ start: $(envfile)
 	@echo "Starting Docker services (this may take a few minutes)"
 	docker-compose up --build --detach
 
+## Start and build the services in debug mode
+debug-build: $(envfile)
+	@echo "Starting building services (this may take a few minutes if there are any changes)"
+	docker-compose -f docker-compose.debug.yml up --build --detach
+
 ## Start the services in debug mode
 debug: $(envfile)
 	@echo "Starting services (this may take a few minutes if there are any changes)"
-	docker-compose -f docker-compose.debug.yml up --build --detach
+	docker-compose -f docker-compose.debug.yml up --detach
 
 ## Stop the services
 stop:
