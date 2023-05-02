@@ -9,6 +9,8 @@ import {
 
 import { itemsServices } from '../items/services'
 
+import { transactionsServices } from '../transactions/services'
+
 import { fireWebhook } from './services'
 
 const log = debug('app: webhook')
@@ -31,7 +33,12 @@ export const webhookHandler =
     switch (webhookCode) {
       case TransactionWebhookEvents.SYNC_UPDATES_AVAILABLE:
         log('webhookHandler SYNC_UPDATES_AVAILABLE')
-        io.emit('SYNC_UPDATES_AVAILABLE', plaidItemId)
+        const { addedCount, modifiedCount, removedCount } =
+          await transactionsServices.updateTransactions(plaidItemId)
+        io.emit(
+          'SYNC_UPDATES_AVAILABLE',
+          `Transactions: ${addedCount} added, ${modifiedCount} modified, ${removedCount} removed ${plaidItemId}`,
+        )
         break
       default:
         log('webhookHandler unhandled webhookCode', webhookCode)

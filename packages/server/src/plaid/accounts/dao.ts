@@ -1,10 +1,17 @@
 import { prisma, type Prisma } from '@/configs/prismaClient'
 
-export type CreateAccount = Prisma.AccountCreateManyInput
-
-const createAccounts = async (accounts: CreateAccount[]) => {
+const createAccounts = async (accounts: Prisma.AccountCreateManyInput[]) => {
   return await prisma.account.createMany({
     data: accounts,
+  })
+}
+
+const updateAccount = async (account: Prisma.AccountUpdateInput) => {
+  return await prisma.account.update({
+    where: {
+      plaidAccountId: account.plaidAccountId as string,
+    },
+    data: account,
   })
 }
 
@@ -78,6 +85,7 @@ const getAccountsByItemId = async (
 
 export const accountsDao = {
   createAccounts,
+  updateAccount,
   getAccountsByUserId,
   getAccountByPlaidAccountId,
   getAccountsByItemId,

@@ -1,7 +1,9 @@
+import { type Prisma } from '@/configs/prismaClient'
+
 import { itemsServices } from '../items/services'
 import { plaid } from '../plaid'
 
-import { accountsDao, CreateAccount } from './dao'
+import { accountsDao } from './dao'
 
 const createAccounts = async (plaidItemId: string) => {
   try {
@@ -17,7 +19,7 @@ const createAccounts = async (plaidItemId: string) => {
       secret: process.env.PLAID_SECRET,
     })
 
-    const query: CreateAccount[] = data.accounts.map((account) => {
+    const query = data.accounts.map((account) => {
       return {
         itemId: item.id,
         plaidAccountId: account.account_id,
@@ -34,10 +36,22 @@ const createAccounts = async (plaidItemId: string) => {
           account.balances.unofficial_currency_code,
       }
     })
+    const result = {
+      creates: [] as Prisma.AccountCreateManyInput[],
+      updates: [] as Prisma.AccountUpdateInput[],
+    }
+    for (const account of query) {
+      const acc = await getAccountByPlaidAccountId(account.plaidAccountId)
+      if (!acc) {
+        result.creates.push(account)
+      } else {
+        await accountsDao.updateAccount(account)
+      }
+    }
 
-    const accounts = await accountsDao.createAccounts(query)
+    await accountsDao.createAccounts(result.creates)
 
-    return accounts
+    return result
   } catch (err) {
     throw err
   }
