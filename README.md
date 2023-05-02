@@ -58,9 +58,9 @@
     </li>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
+      <!-- <ul>
         <li><a href="#built-with">Built With</a></li>
-      </ul>
+      </ul> -->
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -154,15 +154,6 @@ _Below is an example of how you can instruct your audience on installing and set
     PLAID_SECRET=
     ...
    ```
-5. Set up local MySQL database with docker compose
-   ```sh
-    docker compose -f ./packages/server/docker-compose.yml up -d
-   ```
-6. Set up database schema and seeding
-   ```sh
-    yarn workspace server prisma migrate dev
-   ```
-   <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 
@@ -172,7 +163,7 @@ _Below is an example of how you can instruct your audience on installing and set
 
   ```sh
     # root dir
-    yarn dev
+    make debug
 
     # Web client running at localhost:3000
     # Server running at localhost:8080
@@ -189,8 +180,7 @@ _Below is an example of how you can instruct your audience on installing and set
 - [x] Add Basic UI with MUI
 - [x] Add charts with D3.js
 - [x] Containerization with Docker
-- [ ] Add WebSocket & Webhook for updating data at real time
-- [ ] CI: Github Actions
-- [ ] CD: AWS App runner deployment
+- [x] Add WebSocket & Webhook for updating data at real time
+- [ ] Optimisation of UI and data fetching
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
