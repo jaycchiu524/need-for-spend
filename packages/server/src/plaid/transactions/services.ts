@@ -19,8 +19,7 @@ export type GetTransactionsQuery = {
   sort?: 'asc' | 'desc'
 }
 
-const log = debug('app: transactions-services')
-
+const log = debug('app:transactions-services')
 /**
  * Fetches transactions from the Plaid API for a given item.
  *
