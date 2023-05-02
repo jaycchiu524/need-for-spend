@@ -13,10 +13,7 @@ volumes:
 services:
   db:
     container_name: db
-    image: mysql:8.0
-    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
-    # (this is just an example, not intended to be a production configuration)
-    command: --default-authentication-plugin=mysql_native_password
+    image: mysql:latest
     restart: always
     environment:
       MYSQL_ROOT_USER: $DATABASE_USER
@@ -78,11 +75,10 @@ services:
       - ./packages/server:/app/packages/server
       - server_node_modules:/app/node_modules
 
-
   ngrok:
     build: ./ngrok
     image: need-for-speed:ngrok-debug-${APP_VERSION}
-    command: ["ngrok", "http", "api:8080"]
+    command: ['ngrok', 'http', 'api:8080']
     ports:
       - 4040:4040
     depends_on:
@@ -99,7 +95,7 @@ services:
       # Next.js requires the following environment variables to be set at build time
       args:
         - NEXT_PUBLIC_API_URL=http://localhost:8080
-    environment: 
+    environment:
       APP_VERSION:
     restart: always
     ports:
