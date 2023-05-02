@@ -121,3 +121,6 @@ ALTER TABLE `categories_on_sub_categories` ADD CONSTRAINT `categories_on_sub_cat
 
 -- AddForeignKey
 ALTER TABLE `categories_on_sub_categories` ADD CONSTRAINT `categories_on_sub_categories_subcategory_name_fkey` FOREIGN KEY (`subcategory_name`) REFERENCES `subcategories`(`name`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Transaction col plaid_transaction_id collate with utf8_bin
+ALTER TABLE `transactions` MODIFY COLUMN `plaid_transaction_id` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL;
