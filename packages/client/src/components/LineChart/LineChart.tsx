@@ -145,7 +145,7 @@ const LineChart = ({ data: _data, timespan }: Props) => {
       .call(xAxis)
       .call((g) =>
         g
-          .append('text')
+          .select('.x-axis-label')
           .attr('x', width - margin.right - 10)
           .attr('y', margin.bottom)
           .attr('fill', 'currentColor')
@@ -168,7 +168,7 @@ const LineChart = ({ data: _data, timespan }: Props) => {
       )
       .call((g) =>
         g
-          .append('text')
+          .select('.y-axis-label')
           .attr('x', -margin.left)
           .attr('y', 10)
           .attr('fill', 'currentColor')
@@ -309,8 +309,12 @@ const LineChart = ({ data: _data, timespan }: Props) => {
         }}
         ref={ref}>
         <svg height="100%" width="100%" ref={svgRef}>
-          <g className="x-axis"></g>
-          <g className="y-axis"></g>
+          <g className="x-axis">
+            <text className="x-axis-label"></text>
+          </g>
+          <g className="y-axis">
+            <text className="y-axis-label"></text>
+          </g>
           {showExpense && (
             <g className="line-expense">
               <path />

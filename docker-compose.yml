@@ -70,15 +70,6 @@ services:
       db:
         condition: service_healthy
 
-  ngrok:
-    build: ./ngrok
-    image: need-for-speed:ngrok-${APP_VERSION}
-    command: ["ngrok", "http", "api:8080"]
-    ports:
-      - 4040:4040
-    depends_on:
-      - api
-
   web:
     container_name: web
     image: need-for-speed:web-${APP_VERSION}
@@ -90,7 +81,7 @@ services:
       # Next.js requires the following environment variables to be set at build time
       args:
         - NEXT_PUBLIC_API_URL=http://localhost:8080
-    environment: 
+    environment:
       APP_VERSION:
     restart: always
     ports:

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { LinkTokenCreateRequest, LinkTokenGetRequest } from 'plaid'
 import debug from 'debug'
+import localtunnel from 'localtunnel'
 
 import { JWT } from '@/auth/dto.types'
 
@@ -42,19 +43,13 @@ const createLinkToken = async (
   let webhookUrl: string | undefined = PLAID_WEBHOOK
 
   if (PLAID_ENV === 'sandbox') {
-    const response = await fetch('http://ngrok:4040/api/tunnels')
-    if (!response.ok) {
-      throw new Error('Failed to get ngrok tunnels')
+    try {
+      const tunnel = await localtunnel({ port: 8080 })
+      webhookUrl = tunnel.url + '/webhook'
+    } catch (err) {
+      log(err)
+      throw new Error('Could not create localtunnel')
     }
-    // name: 'command_line (http)',
-    // uri: '/api/tunnels/command_line%20%28http%29',
-    // public_url: 'http://1c84-99-246-69-188.ngrok.io', <-- this is the one we want
-    // proto: 'http',
-    // config: { addr: 'http://api:8080', inspect: true },
-    // metrics: { conns: [Object], http: [Object] }
-    const { tunnels } = await response.json()
-    const httpTunnel = tunnels.find((t: any) => t.proto === 'http')
-    webhookUrl = httpTunnel.public_url + '/webhook'
   }
 
   try {
