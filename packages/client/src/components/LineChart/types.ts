@@ -1,4 +1,4 @@
-export interface Datum {
+export interface LineDatum {
   date: Date
   income: number
   expense: number

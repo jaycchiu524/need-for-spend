@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 
 import * as d3 from 'd3'
 
@@ -6,34 +6,34 @@ import { Box, Tooltip } from '@mui/material'
 
 import useSize from '@/hooks/useSize'
 
-interface Datum {
+export type PieDatum = {
   name: string
   value: number
 }
 
 interface Props {
-  data: Datum[]
+  data: PieDatum[]
 }
 
-const PieChart = (props: Props) => {
+const PieChart = memo((props: Props) => {
   const { ref, width } = useSize()
   const svgRef = useRef(null)
   const pieRef = useRef(null)
-  const [data, setData] = useState<Datum[]>([])
+  const [data, setData] = useState<PieDatum[]>([])
 
   // setting up svg container
   const w = width
   const radius = w / 2
 
   // setting up chart
-  const generator = d3.pie<void, Datum>()
+  const generator = d3.pie<void, PieDatum>()
   const arcs = generator
     .padAngle(1 / radius)
     .sort(null)
     .value((d) => d.value)(data)
 
   const arcGenerator = d3
-    .arc<d3.PieArcDatum<Datum>>()
+    .arc<d3.PieArcDatum<PieDatum>>()
     .innerRadius(radius / 2)
     .outerRadius(radius)
   const color = d3.scaleOrdinal<number, string>().range(d3.schemeSet2)
@@ -69,7 +69,7 @@ const PieChart = (props: Props) => {
 
     // setting up svg data
     d3.select(pieRef.current)
-      .selectAll<SVGPathElement, d3.PieArcDatum<Datum>>('path')
+      .selectAll<SVGPathElement, d3.PieArcDatum<PieDatum>>('path')
       .data(arcs)
       .join('path')
       .attr('d', arcGenerator)
@@ -121,14 +121,14 @@ const PieChart = (props: Props) => {
 
     // Custom tooltip
     d3.select(pieRef.current)
-      .selectAll<SVGPathElement, d3.PieArcDatum<Datum>>('path')
+      .selectAll<SVGPathElement, d3.PieArcDatum<PieDatum>>('path')
       .on('mouseover', function (event: MouseEvent, d) {
-        d3.select<SVGPathElement, d3.PieArcDatum<Datum>>(
+        d3.select<SVGPathElement, d3.PieArcDatum<PieDatum>>(
           event.target as SVGPathElement,
         ).style('opacity', 1)
       })
       .on('mouseout', (event: MouseEvent) => {
-        d3.select<SVGPathElement, d3.PieArcDatum<Datum>>(
+        d3.select<SVGPathElement, d3.PieArcDatum<PieDatum>>(
           event.target as SVGPathElement,
         ).style('opacity', 0.7)
       })
@@ -187,6 +187,6 @@ const PieChart = (props: Props) => {
       </svg>
     </Box>
   )
-}
+})
 
 export default PieChart

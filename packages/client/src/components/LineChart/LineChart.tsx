@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { memo, useEffect, useMemo, useState } from 'react'
 
 import * as d3 from 'd3'
 
@@ -18,15 +18,15 @@ import { format } from 'date-fns'
 
 import useSize from '@/hooks/useSize'
 
-import { Datum, Timespan } from './types'
+import { LineDatum, Timespan } from './types'
 
 interface Props {
-  data: Datum[]
+  data: LineDatum[]
   timespan: Timespan
 }
 
 type DotToopTipProps = {
-  d: Datum
+  d: LineDatum
   type: 'income' | 'expense'
   title?: string
 }
@@ -55,19 +55,21 @@ const CheckBox = ({
   />
 )
 
-const LineChart = ({ data: _data, timespan }: Props) => {
+const LineChart = memo(({ data: _data, timespan }: Props) => {
   const { ref, width: _w, height: _h } = useSize()
 
-  const [data, setData] = useState<Datum[]>([])
+  const [data, setData] = useState<LineDatum[]>([])
   const [showCircle, setShowCircle] = useState(false)
   const [showIncome, setShowIncome] = useState(true)
   const [showExpense, setShowExpense] = useState(true)
 
   const svgRef = React.useRef(null)
 
-  const x = (d: Datum) => d.date // given d in data, returns the (temporal) x-value
-  const yExpense = showExpense ? (d: Datum) => d.expense : (d: Datum) => 0
-  const yIncome = showIncome ? (d: Datum) => d.income : (d: Datum) => 0
+  const x = (d: LineDatum) => d.date // given d in data, returns the (temporal) x-value
+  const yExpense = showExpense
+    ? (d: LineDatum) => d.expense
+    : (d: LineDatum) => 0
+  const yIncome = showIncome ? (d: LineDatum) => d.income : (d: LineDatum) => 0
   const w = _w
   const h = _h
   const margin = { top: 25, right: 0, bottom: 5, left: 30 }
@@ -95,7 +97,7 @@ const LineChart = ({ data: _data, timespan }: Props) => {
   const YExpense = d3.map(data, yExpense)
   const YIncome = d3.map(data, yIncome)
   const I = d3.range(X.length)
-  const defined = (d: Datum, i: number) =>
+  const defined = (d: LineDatum, i: number) =>
     X[i] instanceof Date && !isNaN(YExpense[i]) && !isNaN(YIncome[i])
   const D = d3.map(data, defined)
 
@@ -365,6 +367,6 @@ const LineChart = ({ data: _data, timespan }: Props) => {
       </Box>
     </Box>
   )
-}
+})
 
 export default LineChart
