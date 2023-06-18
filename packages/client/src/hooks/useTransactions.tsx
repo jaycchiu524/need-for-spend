@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
-
 import { useQuery } from '@tanstack/react-query'
+
+import { useMemo } from 'react'
 
 import { Transaction } from '@/api/types'
 import {
@@ -8,42 +8,17 @@ import {
   getTransactionsByAccountId,
   getMonthlyByAccoundId,
   getDailyByAccoundId,
+  DailySumOverTime,
 } from '@/api/transactions'
+import { LineDatum } from '@/components/LineChart/types'
+
+// Fake data
+import { fakeTransactions } from '@/api/fakeData/fake-transactions'
+import { fakeDaily } from '@/api/fakeData/fake-daily'
+import { fakeMonthly } from '@/api/fakeData/fake-monthly'
 
 type Props = {
   accountId: string
-}
-
-interface ChartData {
-  date: Date
-  expense: number
-  income: number
-  count: string
-}
-
-function calcaulate(transactions: Transaction[]) {
-  const _spending = transactions.reduce((acc, transaction) => {
-    if (transaction.amount > 0) {
-      return acc + transaction.amount
-    }
-
-    return acc
-  }, 0)
-
-  const _income = transactions.reduce((acc, transaction) => {
-    if (transaction.amount < 0) {
-      return acc + transaction.amount
-    }
-
-    return acc
-  }, 0)
-
-  const spending = _spending.toFixed(2)
-  const income = Math.abs(_income).toFixed(2)
-
-  const saving = (Number(income) - Number(spending)).toFixed(2)
-
-  return [spending, income, saving]
 }
 
 function categorize(transactions: Transaction[]) {
@@ -67,10 +42,14 @@ function categorize(transactions: Transaction[]) {
   }, [] as { name: string; value: number }[])
 }
 
-function convertChartData(data: (MonthlySumOverTime & { day?: number })[]) {
+function convertChartData(data: (MonthlySumOverTime | DailySumOverTime)[]) {
   return data.reduce((acc, exp) => {
     const { year, month, income, expense, count } = exp
-    const day = exp.day
+    // declare day to avoid type error
+    let day: number | undefined
+    if ('day' in exp) {
+      day = exp.day
+    }
     acc.push({
       date: new Date(`${year}-${month}${day ? `-${day}` : ''}`),
       expense,
@@ -78,45 +57,50 @@ function convertChartData(data: (MonthlySumOverTime & { day?: number })[]) {
       count,
     })
     return acc
-  }, [] as ChartData[])
+  }, [] as LineDatum[])
 }
 
 const useTransactions = ({ accountId }: Props) => {
+  const DEBUG = !!process.env.NEXT_PUBLIC_DEBUG
   const { data, isLoading } = useQuery({
     queryKey: ['transactionsByAccountId', accountId],
     queryFn: () => getTransactionsByAccountId(accountId),
     cacheTime: 1000 * 60 * 60,
-    enabled: !!accountId,
+    enabled: !!accountId && !DEBUG,
   })
 
   const { data: _monthlyExpense } = useQuery({
     queryKey: ['monthlyExpense', accountId],
     queryFn: () => getMonthlyByAccoundId(accountId),
-    enabled: !!accountId,
+    enabled: !!accountId && !DEBUG,
   })
   const { data: _dailyExpense } = useQuery({
     queryKey: ['dailyExpense', accountId],
     queryFn: () => getDailyByAccoundId(accountId),
-    enabled: !!accountId,
+    enabled: !!accountId && !DEBUG,
   })
 
-  const transactions = useMemo(() => data?.data || [], [data])
-  const monthlyExpense = useMemo(
-    () => _monthlyExpense?.data || [],
-    [_monthlyExpense],
+  const transactions = useMemo(
+    () => (DEBUG ? fakeTransactions : data?.data || []),
+    [DEBUG, data?.data],
   )
-  const dailyExpense = useMemo(() => _dailyExpense?.data || [], [_dailyExpense])
+  const monthlyExpense = useMemo(
+    () => (DEBUG ? fakeMonthly : _monthlyExpense?.data || []),
+    [DEBUG, _monthlyExpense?.data],
+  )
+  const dailyExpense = useMemo(
+    () => (DEBUG ? fakeDaily : _dailyExpense?.data || []),
+    [DEBUG, _dailyExpense?.data],
+  )
 
   const dataByCategories = useMemo(
     () => categorize(transactions),
     [transactions],
   )
-
   const monthlyData = useMemo(
     () => convertChartData(monthlyExpense),
     [monthlyExpense],
   )
-
   const dailyData = useMemo(
     () => convertChartData(dailyExpense),
     [dailyExpense],

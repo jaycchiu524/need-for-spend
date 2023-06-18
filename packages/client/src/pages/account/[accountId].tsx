@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import React, { ReactNode, useMemo, useState } from 'react'
+import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 
 import { Box, Grid, Stack, Tab, Tabs, Typography } from '@mui/material'
 
@@ -46,8 +46,19 @@ const GridItem = ({ children }: { children: ReactNode }) => {
   )
 }
 
+// const Line = memo(
+//   ({ timespan, data }: { timespan: Timespan; data: LineDatum[] }) => {
+//     return <LineChart data={data} timespan={timespan} />
+//   },
+// )
+
+// const Pie = memo(({ data }: { data: PieDatum[] }) => {
+//   return <PieChart data={data} />
+// })
+
 const AccountDetail = () => {
   const [timespan, setTimespan] = useState<Timespan>(Timespan.Daily)
+  const DEBUG = !!process.env.NEXT_PUBLIC_DEBUG
 
   const router = useRouter()
   const { accountId: _accId } = router.query
@@ -56,10 +67,14 @@ const AccountDetail = () => {
 
   const { byId, setIdAccounts } = useAccountStore()
 
+  useEffect(() => {
+    console.log('accountId: ', accountId)
+  }, [accountId])
+
   const { data } = useQuery({
     queryKey: ['account', accountId],
     queryFn: () => getAccountById(accountId),
-    enabled: !byId[accountId] && !!accountId,
+    enabled: !byId[accountId] && !!accountId && !DEBUG,
     onSuccess(data) {
       if (!data?.data) return
       setIdAccounts(accountId, data?.data)
@@ -70,6 +85,10 @@ const AccountDetail = () => {
 
   const { transactions, dataByCategories, monthlyData, dailyData } =
     useTransactions({ accountId })
+
+  useEffect(() => {
+    console.log('dailyData: ', dailyData)
+  }, [dailyData])
 
   return (
     <Page>
@@ -125,7 +144,7 @@ const AccountDetail = () => {
         sx={{ display: 'flex', flex: 1, width: '100%', height: '24px' }}
         value={timespan}
         onChange={(e, v) => setTimespan(v)}
-        aria-label="basic tabs example">
+        aria-label="set timespan daily or yearly tab">
         <Tab label="Daily" value={Timespan.Daily} />
         <Tab label="Monthly" value={Timespan.Monthly} />
       </Tabs>

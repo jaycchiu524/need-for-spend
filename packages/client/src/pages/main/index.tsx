@@ -16,6 +16,7 @@ import LaunchLink from '@/components/LaunchLink'
 import ItemCard from '@/components/ItemCard/ItemCard'
 
 function PlaidHome() {
+  const DEBUG = !!process.env.NEXT_PUBLIC_DEBUG
   const userId = useAuthStore.getState().auth?.id
   const userItem = useItemStore().byUser
   const { users } = useLinkTokenStore.getState()
@@ -23,14 +24,18 @@ function PlaidHome() {
   const { fetchItemsByUser } = useItems({ userId: userId!, itemId: null })
 
   const initialToken = async () => {
+    if (DEBUG) return
+
     if (!userId) return null
     await generateLinkToken(userId, null)
   }
 
   useEffect(() => {
+    if (DEBUG) return
+
     if (!userId) return
     fetchItemsByUser(userId)
-  }, [userId, fetchItemsByUser])
+  }, [DEBUG, userId, fetchItemsByUser])
 
   const [mounted, setMounted] = useState(false)
 

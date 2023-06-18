@@ -39,7 +39,7 @@ function Login() {
 
   const router = useRouter()
   const setToken = useAuthStore((state) => state.setToken)
-
+  const DEBUG = !!process.env.NEXT_PUBLIC_DEV
   const {
     register,
     formState: { errors },
@@ -69,15 +69,20 @@ function Login() {
     },
   })
 
-  const submit = handleSubmit(async (data) => {
-    const { remember, ...req } = data
+  const submit = !DEBUG
+    ? handleSubmit(async (data) => {
+        const { remember, ...req } = data
 
-    try {
-      await mutateAsync(req)
-    } catch (error) {
-      return error
-    }
-  })
+        try {
+          await mutateAsync(req)
+        } catch (error) {
+          return error
+        }
+      })
+    : () => {
+        console.log('DEBUG MODE', DEBUG)
+        router.push('/main')
+      }
 
   const auth = useAuthStore((state) => state.auth)
 
