@@ -75,6 +75,37 @@ export type Account = {
  * Model Transaction
  *
  */
+// {
+//   "id": "967e2b5a-648a-4cfa-ae7d-2a70e306609c",
+//   "plaidTransactionId": "E8MQnPzBGwuKL6PE35koCAdgPaEpXWIg5JL9D",
+//   "accountId": "439d2b78-3495-431c-b5f6-0af71af411d1",
+//   "date": "2023-06-12",
+//   "datetime": null,
+//   "address": null,
+//   "name": "Uber 072515 SF**POOL**",
+//   "amount": 6.33,
+//   "isoCurrencyCode": "USD",
+//   "unofficialCurrencyCode": null,
+//   "plaidCategoryId": "22016000",
+//   "pending": false,
+//   "accountOwner": null,
+//   "createdAt": "2023-06-17T20:32:42.578Z",
+//   "updatedAt": "2023-06-17T20:32:44.790Z",
+//   "account": {
+//     "item": {
+//       "userId": "8bc1a0e4-b1b5-49c1-8c16-6637f85c4a64"
+//     }
+//   },
+//   "category": {
+//     "name": "Travel",
+//     "subcategories": [
+//       {
+//         "subcategoryName": "Taxi"
+//       }
+//     ]
+//   }
+// },
+
 export type Transaction = {
   id: string
   plaidTransactionId: string
@@ -89,10 +120,15 @@ export type Transaction = {
   plaidCategoryId: string | null
   pending: boolean
   accountOwner: string | null
-  createdAt: Date
-  updatedAt: Date
+  account: {
+    item: {
+      userId: string
+    }
+  }
+  createdAt: Date | string
+  updatedAt: Date | string
 } & {
-  category: Pick<Category, 'name'>
+  category: Pick<Category, 'name' | 'subcategories'>
 }
 
 /**
@@ -102,6 +138,7 @@ export type Transaction = {
 export type Category = {
   plaidCategoryId: string
   name: string
+  subcategories: Pick<Subcategory, 'subcategoryName'>[]
   group: string
   createdAt: Date
   updatedAt: Date
@@ -112,7 +149,7 @@ export type Category = {
  *
  */
 export type Subcategory = {
-  name: string
+  subcategoryName: string
   depth: number
   createdAt: Date
   updatedAt: Date

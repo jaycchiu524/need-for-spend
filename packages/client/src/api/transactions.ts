@@ -1,5 +1,7 @@
 import { AxiosError } from 'axios'
 
+import { format, add } from 'date-fns'
+
 import { ErrorResponse, Transaction } from '@/api/types'
 
 import { fetcher } from '@/api/fetcher'
@@ -21,7 +23,7 @@ export const getTransactionsByAccountId = async (accountId: string) => {
   }
 }
 
-export type MonthlySumOverTime = {
+export interface MonthlySumOverTime {
   year: number
   month: number
   expense: number
@@ -29,9 +31,9 @@ export type MonthlySumOverTime = {
   count: string
 }
 
-export type DailySumOverTime = {
+export interface DailySumOverTime extends MonthlySumOverTime {
   day: number
-} & MonthlySumOverTime
+}
 
 type SumConfigs = {
   startDate?: string
@@ -40,9 +42,6 @@ type SumConfigs = {
   skip?: number
 }
 
-export type GetdailyExpenseResponse = DailySumOverTime[]
-export type GetMonthlyExpenseResponse = MonthlySumOverTime[]
-
 export const getMonthlyByAccoundId = async (
   accountId: string,
   configs?: SumConfigs,
@@ -50,10 +49,14 @@ export const getMonthlyByAccoundId = async (
   try {
     const api = await fetcher()
     if (!api) return
-    const response = await api.get<GetMonthlyExpenseResponse>(
+    const response = await api.get<MonthlySumOverTime[]>(
       `/accounts/${accountId}/expense/monthly`,
       {
-        params: configs,
+        params: {
+          startDate: format(add(new Date(), { years: -1 }), 'yyyy-MM-dd'),
+          endDate: format(new Date(), 'yyyy-MM-dd'),
+          ...configs,
+        },
       },
     )
     return response
@@ -70,10 +73,14 @@ export const getDailyByAccoundId = async (
   try {
     const api = await fetcher()
     if (!api) return
-    const response = await api.get<GetdailyExpenseResponse>(
+    const response = await api.get<DailySumOverTime[]>(
       `/accounts/${accountId}/expense/daily`,
       {
-        params: configs,
+        params: {
+          startDate: format(add(new Date(), { months: -1 }), 'yyyy-MM-dd'),
+          endDate: format(new Date(), 'yyyy-MM-dd'),
+          ...configs,
+        },
       },
     )
     return response
