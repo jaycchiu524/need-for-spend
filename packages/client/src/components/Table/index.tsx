@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -24,6 +24,7 @@ import {
 
 import {
   Box,
+  Pagination,
   Stack,
   Table,
   TableBody,
@@ -88,148 +89,165 @@ const fuzzySort: SortingFn<any> = (rowA, rowB, columnId) => {
   return dir === 0 ? sortingFns.alphanumeric(rowA, rowB, columnId) : dir
 }
 
-function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  )
-  const [globalFilter, setGlobalFilter] = React.useState<string | number>('')
+const TransactionsTable = memo(
+  ({ transactions }: { transactions: Transaction[] }) => {
+    const [columnFilters, setColumnFilters] =
+      React.useState<ColumnFiltersState>([])
+    const [globalFilter, setGlobalFilter] = React.useState<string | number>('')
 
-  // Table by react-table
-  // https://react-table.tanstack.com/docs/overview
-  const columnHelper = createColumnHelper<Transaction>()
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor('name', {
-        header: 'Name',
-        cell: (row) => <div>{row.getValue()}</div>,
-        filterFn: 'fuzzy',
-        sortingFn: fuzzySort,
-      }),
-      columnHelper.accessor('isoCurrencyCode', {
-        header: 'Currency',
-        cell: (row) => <div>{row.getValue()}</div>,
-        enableColumnFilter: false,
-        enableGlobalFilter: true,
-        enableSorting: false,
-      }),
-      columnHelper.accessor('amount', {
-        header: `Amount`,
-        cell: (row) => {
-          //
-          const _amount = -row.getValue()
-          // prepend a + if the amount is positive
-          const displayAmount = _amount > 0 ? `+${_amount}` : _amount
-          return (
-            <div
-              style={{
-                color: _amount > 0 ? 'green' : 'red',
-              }}>
-              {displayAmount}
-            </div>
-          )
-        },
-      }),
-      columnHelper.accessor('date', {
-        header: 'Date',
-        cell: (row) => <div>{row.getValue()}</div>,
-      }),
-    ],
-    [columnHelper],
-  )
+    // Table by react-table
+    // https://react-table.tanstack.com/docs/overview
+    const columnHelper = createColumnHelper<Transaction>()
+    const columns = useMemo(
+      () => [
+        columnHelper.accessor('name', {
+          header: 'Name',
+          cell: (row) => <div>{row.getValue()}</div>,
+          filterFn: 'fuzzy',
+          sortingFn: fuzzySort,
+        }),
+        columnHelper.accessor('isoCurrencyCode', {
+          header: 'Currency',
+          cell: (row) => <div>{row.getValue()}</div>,
+          enableColumnFilter: false,
+          enableGlobalFilter: true,
+          enableSorting: false,
+        }),
+        columnHelper.accessor('amount', {
+          header: `Amount`,
+          cell: (row) => {
+            //
+            const _amount = -row.getValue()
+            // prepend a + if the amount is positive
+            const displayAmount = _amount > 0 ? `+${_amount}` : _amount
+            return (
+              <div
+                style={{
+                  color: _amount > 0 ? 'green' : 'red',
+                }}>
+                {displayAmount}
+              </div>
+            )
+          },
+        }),
+        columnHelper.accessor('date', {
+          header: 'Date',
+          cell: (row) => <div>{row.getValue()}</div>,
+        }),
+      ],
+      [columnHelper],
+    )
 
-  const table = useReactTable({
-    data: transactions,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    state: {
-      columnFilters,
-      globalFilter,
-    },
-    onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
-    getFilteredRowModel: getFilteredRowModel(),
-    globalFilterFn: fuzzyFilter,
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    debugTable: true,
-    debugHeaders: true,
-    debugColumns: false,
-  })
+    const table = useReactTable({
+      data: transactions,
+      columns,
+      getCoreRowModel: getCoreRowModel(),
+      filterFns: {
+        fuzzy: fuzzyFilter,
+      },
+      state: {
+        columnFilters,
+        globalFilter,
+      },
+      onColumnFiltersChange: setColumnFilters,
+      onGlobalFilterChange: setGlobalFilter,
+      getFilteredRowModel: getFilteredRowModel(),
+      globalFilterFn: fuzzyFilter,
+      getSortedRowModel: getSortedRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
+      getFacetedRowModel: getFacetedRowModel(),
+      getFacetedUniqueValues: getFacetedUniqueValues(),
+      getFacetedMinMaxValues: getFacetedMinMaxValues(),
+      debugTable: true,
+      debugHeaders: true,
+      debugColumns: false,
+    })
 
-  return (
-    <>
-      <Stack mt={2} minWidth={200} maxWidth={300}>
-        <DebouncedInput
-          placeholder="Search..."
-          variant="outlined"
-          size="small"
-          value={globalFilter ?? ''}
-          onChange={(v) => setGlobalFilter(v)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Stack>
-      <Box sx={{ overflow: 'scroll' }}>
-        <Table color="white" sx={{ marginY: 2 }}>
-          <TableHead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableCell key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <>
-                        <HeaderCell
-                          canSort={header.column.getCanSort()}
-                          {...{
-                            onClick: header.column.getToggleSortingHandler(),
-                          }}>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                          {{
-                            asc: <ArrowDropDownIcon />,
-                            desc: <ArrowDropUpIcon />,
-                          }[header.column.getIsSorted() as string] ?? null}
-                        </HeaderCell>
-                        {/* {header.column.getCanFilter() ? (
+    return (
+      <>
+        <Stack mt={2} minWidth={200} maxWidth={300}>
+          <DebouncedInput
+            placeholder="Search..."
+            variant="outlined"
+            size="small"
+            value={globalFilter ?? ''}
+            onChange={(v) => table.setGlobalFilter(v)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
+        <Box
+          sx={{
+            overflow: 'scroll',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}>
+          <Table color="white" sx={{ marginY: 2, minHeight: 600 }}>
+            <TableHead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableCell key={header.id}>
+                      {header.isPlaceholder ? null : (
+                        <>
+                          <HeaderCell
+                            canSort={header.column.getCanSort()}
+                            {...{
+                              onClick: header.column.getToggleSortingHandler(),
+                            }}>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                            {{
+                              asc: <ArrowDropDownIcon />,
+                              desc: <ArrowDropUpIcon />,
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </HeaderCell>
+                          {/* {header.column.getCanFilter() ? (
                         <div>
                           <FilterCell column={header.column} table={table} />
                         </div>
                       ) : null} */}
-                      </>
-                    )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableHead>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Box>
-    </>
-  )
-}
+                        </>
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHead>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <Pagination
+            count={table.getPageCount()}
+            onChange={(e, v) => {
+              table.setPageIndex(v - 1)
+            }}
+            disabled={table.getPageCount() <= 1}
+          />
+        </Box>
+      </>
+    )
+  },
+)
 
 export default TransactionsTable
